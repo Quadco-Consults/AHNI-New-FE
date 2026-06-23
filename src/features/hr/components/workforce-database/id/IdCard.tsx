@@ -3,8 +3,30 @@ import { Button } from "@/components/ui/button";
 import PrinterIcon from "@/components/icons/PrinterIcon";
 import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";
 
+// Helper function to clean malformed Cloudinary URLs
+const cleanImageUrl = (url: string | undefined | null): string | null => {
+  if (!url) return null;
+
+  // Check if it's a malformed Cloudinary URL wrapping another URL
+  const cloudinaryPattern = /https:\/\/res\.cloudinary\.com\/[^/]+\/raw\/upload\/v\d+\/media\/(https?:\/\/.+)/;
+  const match = url.match(cloudinaryPattern);
+
+  if (match && match[1]) {
+    // Extract and decode the inner URL
+    const innerUrl = decodeURIComponent(match[1]);
+    console.log('Cleaned malformed Cloudinary URL:', { original: url, cleaned: innerUrl });
+    return innerUrl;
+  }
+
+  return url;
+};
+
 const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
   const data = info?.data || info;
+
+  // Clean image URLs
+  const passportUrl = cleanImageUrl(data?.passport_file || data?.passport_url);
+  const signatureUrl = cleanImageUrl(data?.signature_file || data?.signature_url);
 
   console.log("🔍 IdCard Debug:");
   console.log("  Raw info prop:", info);
@@ -25,15 +47,15 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
     <div className='space-y-10'>
       <div className='card-wrapper space-y-6'>
         <div className='flex items-center gap-x-4'>
-          {(data?.passport_file || data?.passport_url) ? (
+          {passportUrl ? (
             <img
-              src={data?.passport_file || data?.passport_url}
+              src={passportUrl}
               alt='avatar'
               width={100}
               height={100}
               className="object-cover rounded-lg"
               onError={(e) => {
-                console.error('Avatar image failed to load:', data?.passport_file || data?.passport_url);
+                console.error('Avatar image failed to load:', passportUrl);
                 e.currentTarget.style.display = 'none';
                 const parent = e.currentTarget.parentElement!;
                 if (!parent.querySelector('.avatar-fallback')) {
@@ -75,15 +97,15 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
             <div className='space-y-2'>
               <p className='font-bold'>Employee Signature</p>
 
-              {(data?.signature_file || data?.signature_url) ? (
+              {signatureUrl ? (
                 <img
-                  src={data?.signature_file || data?.signature_url}
+                  src={signatureUrl}
                   alt='signature'
                   width={100}
                   height={50}
                   className="object-cover border rounded"
                   onError={(e) => {
-                    console.error('Signature image failed to load:', data?.signature_file || data?.signature_url);
+                    console.error('Signature image failed to load:', signatureUrl);
                     e.currentTarget.style.display = 'none';
                     const parent = e.currentTarget.parentElement!;
                     if (!parent.querySelector('.signature-fallback')) {

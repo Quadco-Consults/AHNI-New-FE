@@ -23,12 +23,34 @@ import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertiseme
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
+// Helper function to clean malformed Cloudinary URLs
+const cleanImageUrl = (url: string | undefined | null): string | null => {
+  if (!url) return null;
+
+  // Check if it's a malformed Cloudinary URL wrapping another URL
+  const cloudinaryPattern = /https:\/\/res\.cloudinary\.com\/[^/]+\/raw\/upload\/v\d+\/media\/(https?:\/\/.+)/;
+  const match = url.match(cloudinaryPattern);
+
+  if (match && match[1]) {
+    // Extract and decode the inner URL
+    const innerUrl = decodeURIComponent(match[1]);
+    console.log('Cleaned malformed Cloudinary URL:', { original: url, cleaned: innerUrl });
+    return innerUrl;
+  }
+
+  return url;
+};
+
 const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
   // const [data, setData] = useState<EmployeeOnboarding | {}>({});
   const data = info?.data || info;
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber] = useState<number>(1);
   const { id } = useParams();
+
+  // Clean image URLs
+  const passportUrl = cleanImageUrl(data?.passport_file);
+  const signatureUrl = cleanImageUrl(data?.signature_file);
 
   // Get employee onboarding data to find job application
   const { data: employeeOnboarding, isLoading: onboardingLoading } = useGetEmployeeOnboarding(id as string);
@@ -80,8 +102,10 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
     jobTitle: advertisement?.data?.title
   });
   console.log("🔍 Workforce - Image Files:", {
-    passport_file: data?.passport_file,
-    signature_file: data?.signature_file,
+    passport_file_raw: data?.passport_file,
+    signature_file_raw: data?.signature_file,
+    passport_file_cleaned: passportUrl,
+    signature_file_cleaned: signatureUrl,
     passport_type: typeof data?.passport_file,
     signature_type: typeof data?.signature_file
   });
@@ -156,12 +180,12 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
             </div>
           </div>
 
-          {data?.passport_file?.endsWith("pdf") ? (
+          {passportUrl?.endsWith("pdf") ? (
             <div className='bg-black/10 py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
               <Dialog>
                 <DialogTrigger>
                   <Document
-                    file={data?.passport_file}
+                    file={passportUrl}
                     onLoadSuccess={onDocumentLoadSuccess}
                   >
                     <Page pageNumber={pageNumber} width={200} height={100} />
@@ -172,7 +196,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                     <DialogTitle>Passport</DialogTitle>
                     <div className='flex pt-5 justify-center'>
                       <Document
-                        file={data?.passport_file}
+                        file={passportUrl}
                         onLoadSuccess={onDocumentLoadSuccess}
                       >
                         {Array.from(new Array(numPages), (_, index) => (
@@ -188,14 +212,14 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                 </DialogContent>
               </Dialog>
             </div>
-          ) : data?.passport_file ? (
+          ) : passportUrl ? (
             <div className='h-56'>
               <img
-                src={data?.passport_file}
+                src={passportUrl}
                 alt='passport'
                 className='w-full h-full object-cover'
                 onError={(e) => {
-                  console.error('Passport image failed to load:', data?.passport_file);
+                  console.error('Passport image failed to load:', passportUrl);
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">No passport image available</div>';
                 }}
@@ -216,12 +240,12 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
             </div>
           </div>
 
-          {data?.signature_file?.endsWith("pdf") ? (
+          {signatureUrl?.endsWith("pdf") ? (
             <div className='bg-black/10 py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
               <Dialog>
                 <DialogTrigger>
                   <Document
-                    file={data?.signature_file}
+                    file={signatureUrl}
                     onLoadSuccess={onDocumentLoadSuccess}
                   >
                     <Page pageNumber={pageNumber} width={200} height={100} />
@@ -233,7 +257,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                     <DialogTitle>Signature</DialogTitle>
                     <div className='flex pt-5 justify-center'>
                       <Document
-                        file={data?.signature_file}
+                        file={signatureUrl}
                         onLoadSuccess={onDocumentLoadSuccess}
                       >
                         {Array.from(new Array(numPages), (_, index) => (
@@ -249,14 +273,14 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                 </DialogContent>
               </Dialog>
             </div>
-          ) : data?.signature_file ? (
+          ) : signatureUrl ? (
             <div className='h-56'>
               <img
-                src={data?.signature_file}
+                src={signatureUrl}
                 alt='signature'
                 className='w-full h-full object-cover'
                 onError={(e) => {
-                  console.error('Signature image failed to load:', data?.signature_file);
+                  console.error('Signature image failed to load:', signatureUrl);
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">No signature image available</div>';
                 }}
@@ -309,7 +333,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
         {qualifications?.data && qualifications.data.results.length > 0 && (
           <div className='grid grid-cols-1 items-center gap-5 md:grid-cols-2 lg:grid-cols-2'>
             {qualifications.data.results.map((qualification, index) => (
-              <section>
+              <section key={qualification.id || index}>
                 <DescriptionCard
                   label={qualification.certificate_name}
                   description='2019'
@@ -387,17 +411,6 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
             ))}
           </div>
         )}
-      </div>
-
-      <div className='card-wrapper space-y-6'>
-        <h4 className='text-red-500 text-lg font-medium'>
-          Group Membership & Location
-        </h4>
-        <Separator />
-        <div className='grid grid-cols-1 items-center gap-5 md:grid-cols-2 lg:grid-cols-2'>
-          <DescriptionCard label='Group Membership' description='---' />
-          <DescriptionCard label='Location' description='---' />
-        </div>
       </div>
     </div>
   );
