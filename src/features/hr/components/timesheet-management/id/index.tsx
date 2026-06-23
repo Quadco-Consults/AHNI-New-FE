@@ -420,13 +420,13 @@ const TimesheetManagementFull = () => {
 
   // Activity Type Toggle Component (Hybrid: ActivityPlan OR Custom)
   const ActivityTypeSelect = ({ value, onChange, rowIndex, entry }: any) => {
-    // Determine activity type based on which field has a value
-    // Priority: if activity_plan or workplan_activity has actual value -> planned
-    //           if custom_activity has actual value -> custom
+    // Determine activity type based on which field is defined (not just truthy)
+    // Priority: if activity_plan or workplan_activity is defined (even if empty) -> planned
+    //           if custom_activity is defined (even if empty) -> custom
     //           default to custom for new entries
     const activityType =
-      (entry?.activity_plan || entry?.workplan_activity) ? "planned" :
-      entry?.custom_activity ? "custom" :
+      (entry?.activity_plan !== undefined || entry?.workplan_activity !== undefined) ? "planned" :
+      entry?.custom_activity !== undefined ? "custom" :
       "custom"; // default to custom for new entries
 
     const handleTypeChange = (type: string) => {
@@ -457,10 +457,10 @@ const TimesheetManagementFull = () => {
   // Activity Selection Component (shows ActivityPlan dropdown OR custom input)
   const ActivityInput = ({ value, onChange, rowIndex, entry }: any) => {
     const selectedProjectId = entry?.project; // This is now the project UUID
-    // Match the same logic as ActivityTypeSelect
+    // Match the same logic as ActivityTypeSelect - check if field is defined, not just truthy
     const activityType =
-      (entry?.activity_plan || entry?.workplan_activity) ? "planned" :
-      entry?.custom_activity ? "custom" :
+      (entry?.activity_plan !== undefined || entry?.workplan_activity !== undefined) ? "planned" :
+      entry?.custom_activity !== undefined ? "custom" :
       "custom";
 
     // For planned activities: fetch activities directly by project ID using timesheet-specific endpoint
