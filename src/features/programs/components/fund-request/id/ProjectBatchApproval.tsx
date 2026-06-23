@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { LoadingSpinner } from "@/components/Loading";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { useUserApprovalPermissions } from "@/hooks/useUserApprovalPermissions";

@@ -176,7 +176,7 @@ export default function DataTableWithExpansion<TData>({
                           <Fragment key={row.id}>
                             {/* Main Row */}
                             <TableRow
-                              className={`text-[#756D6D] text-sm dark:text-white ${
+                              className={`text-gray-text text-sm dark:text-white ${
                                 onRowClick ? "cursor-pointer" : ""
                               } ${isExpanded ? "bg-blue-50" : ""}`}
                               onClick={onRowClick ? () => onRowClick(row) : undefined}

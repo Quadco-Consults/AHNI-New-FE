@@ -465,7 +465,7 @@ const ActionListAction = ({ data }: any) => {
         <Link
           href={`/dashboard/procurement/procurement-plan/${data?.id || 1}`}
         >
-          <IconButton className='bg-[#F9F9F9] hover:text-primary border'>
+          <IconButton className='bg-alternate-light hover:text-primary border'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>

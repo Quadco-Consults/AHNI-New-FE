@@ -1,8 +1,8 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import FormTextArea from "@/components/FormTextArea";
+import BackNavigation from "@/components/BackNavigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/Loading";
 import DataTable from "@/components/Table/DataTable";

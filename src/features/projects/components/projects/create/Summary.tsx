@@ -12,11 +12,11 @@ import { openDialog } from "@/store/ui";
 import { DialogType, mediumDailogScreen } from "@/constants/dialogs";
 import { FormField, FormItem, Form, FormControl } from "@/components/ui/form";
 import Card from "@/components/Card";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import MultiSelectFormField from "@/components/ui/multiselect";
 import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { toast } from "sonner";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
@@ -35,7 +35,7 @@ import {
 } from "@/features/projects/controllers/projectController";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { X } from "lucide-react";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import { useGetAllBeneficiaries } from "@/features/modules/controllers/project/beneficiaryController";
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
 import { useGetAllPartners } from "@/features/modules/controllers/project/partnerController";
@@ -52,7 +52,7 @@ import { formatDate } from "@/utils/date";
 // import { nigerianStates } from "@/lib/index";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
-import FormMultiSelect from "@/components/atoms/FormMultiSelect";
+import FormMultiSelect from "@/components/FormMultiSelect";
 // import { useGetAllGrants } from "@/features/c&g/grant/grant";
 
 const breadcrumbs: TBreadcrumbList[] = [
@@ -673,7 +673,7 @@ export default function ProjectSummaryPage() {
                       <Button
                         variant='ghost'
                         type='button'
-                        className='text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'
+                        className='text-yellow-darker font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'
                         onClick={() =>
                           dispatch(
                             openDialog({

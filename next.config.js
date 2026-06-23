@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false, // Disabled to prevent duplicate toasts in development
   // Note: Commenting out static export for Vercel deployment
   // output: 'export', // Used for Azure Static Web Apps
 

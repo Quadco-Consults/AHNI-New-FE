@@ -1,4 +1,4 @@
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { userColumns } from "@/components/Table/columns/users";
 import DataTable from "@/components/Table/DataTable";
@@ -41,7 +41,7 @@ export default function UserTablePage() {
           <Tabs defaultValue=''>
             <TabsList className='border-b !py-0 rounded-none border-[#E4E7EC] w-full justify-start '>
               <TabsTrigger
-                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                 value=''
                 onClick={() => {
                   setPage(1);
@@ -52,7 +52,7 @@ export default function UserTablePage() {
                 All users
               </TabsTrigger>
               <TabsTrigger
-                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                 value='AHNI'
                 onClick={() => {
                   setPage(1);
@@ -64,7 +64,7 @@ export default function UserTablePage() {
               </TabsTrigger>
 
               <TabsTrigger
-                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                 value='Adhoc'
                 onClick={() => {
                   setPage(1);
@@ -76,7 +76,7 @@ export default function UserTablePage() {
               </TabsTrigger>
 
               <TabsTrigger
-                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                 value='Consultants'
                 onClick={() => {
                   setPage(1);
@@ -87,7 +87,7 @@ export default function UserTablePage() {
                 Consultants
               </TabsTrigger>
               <TabsTrigger
-                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                 value='Facilitators'
                 onClick={() => {
                   setPage(1);
@@ -98,7 +98,7 @@ export default function UserTablePage() {
                 Facilitators
               </TabsTrigger>
               <TabsTrigger
-                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                 value='Vendors'
                 onClick={() => {
                   setPage(1);
@@ -109,7 +109,7 @@ export default function UserTablePage() {
                 Vendors
               </TabsTrigger>
               <TabsTrigger
-                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                 value='Admin'
                 onClick={() => {
                   setPage(1);

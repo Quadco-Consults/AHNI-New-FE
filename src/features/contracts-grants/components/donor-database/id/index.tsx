@@ -1,6 +1,6 @@
 "use client";
 
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import Card from "@/components/Card";
 import DescriptionCard from "@/components/DescriptionCard";
 import { LoadingSpinner } from "@/components/Loading";

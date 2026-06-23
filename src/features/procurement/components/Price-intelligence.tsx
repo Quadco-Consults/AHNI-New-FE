@@ -42,9 +42,9 @@ import { Icon } from "@iconify/react";
 
 const RatingCircle = ({ showInner }: { showInner?: boolean }) => {
   return (
-    <p className='w-[24px] p-1 flex justify-center items-center h-[24px] rounded-full border-[#DEA004] border'>
+    <p className='w-[24px] p-1 flex justify-center items-center h-[24px] rounded-full border-yellow-darker border'>
       {showInner && (
-        <p className='w-[12px] h-[12px] rounded-full border-[#DEA004] border-t-2 border-l-2'></p>
+        <p className='w-[12px] h-[12px] rounded-full border-yellow-darker border-t-2 border-l-2'></p>
       )}
     </p>
   );

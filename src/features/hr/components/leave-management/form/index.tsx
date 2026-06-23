@@ -1,10 +1,10 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { Form } from "@/components/ui/form";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { UploadIcon, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";

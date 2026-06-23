@@ -12,7 +12,7 @@ import {
   useApproveAssetRequestMutation 
 } from "@/features/admin/controllers/assetRequestController";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { useGetSingleItem } from "@/features/modules/controllers";
 import { toast } from "sonner";

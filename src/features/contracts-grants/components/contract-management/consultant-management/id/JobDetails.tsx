@@ -131,7 +131,7 @@ export const DetailsTag = ({
   label: string | number;
 }) => {
   return (
-    <div className='flex items-center border border-[#C7CBD5] text-sm p-1 px-[.625rem] gap-x-[.25rem] rounded-full'>
+    <div className='flex items-center border border-gray-border text-sm p-1 px-[.625rem] gap-x-[.25rem] rounded-full'>
       {icon}
       <p>{label}</p>
     </div>

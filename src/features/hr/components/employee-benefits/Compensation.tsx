@@ -135,18 +135,18 @@ const Compensation: React.FC = () => {
         <Link
           href={`/dashboard/hr/employee-benefit/compensation/${data?.original?.id}`}
         >
-          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <IconButton className='bg-alternate-light hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
         <IconButton
-          className='bg-[#F9F9F9] hover:text-primary'
+          className='bg-alternate-light hover:text-primary'
           onClick={() => setEditModalOpen(true)}
         >
           <Icon icon='ph:pencil-duotone' fontSize={15} />
         </IconButton>
         <IconButton
-          className='bg-[#F9F9F9] hover:text-primary'
+          className='bg-alternate-light hover:text-primary'
           onClick={() => setDialogOpen(true)}
         >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />

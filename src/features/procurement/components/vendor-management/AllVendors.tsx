@@ -382,7 +382,7 @@ const ActionListAction = ({ data }: any) => {
         className='w-full'
         href={`/dashboard/procurement/vendor-management/vendor-registration?id=${data?.id}`}
       >
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton className='bg-alternate-light hover:text-primary'>
           <Icon icon='solar:pen-bold-duotone' fontSize={15} />
         </IconButton>
       </Link>
@@ -390,13 +390,13 @@ const ActionListAction = ({ data }: any) => {
       <Link
         href={`/dashboard/procurement/vendor-management/prequalification/${data.id}`}
       >
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton className='bg-alternate-light hover:text-primary'>
           <Icon icon='ph:eye-duotone' fontSize={15} />
         </IconButton>
       </Link>
       <IconButton
         onClick={() => deleteVendorHandler(data.id)}
-        className='bg-[#F9F9F9] hover:text-primary'
+        className='bg-alternate-light hover:text-primary'
       >
         <Icon icon='ant-design:delete-twotone' fontSize={15} />
       </IconButton>

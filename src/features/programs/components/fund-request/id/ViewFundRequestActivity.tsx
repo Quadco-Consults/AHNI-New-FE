@@ -503,11 +503,11 @@ Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString
         </div>
       </div>
 
-      <div className='border-[#DEA004] border-solid border-[2px] rounded-lg p-5 grid grid-cols-3 gap-8 mt-10'>
+      <div className='border-yellow-darker border-solid border-[2px] rounded-lg p-5 grid grid-cols-3 gap-8 mt-10'>
         <div className='space-y-3'>
           <h3 className='font-semibold'>Location:</h3>
 
-          <p className='text-sm font-semibold text-[#DEA004]'>
+          <p className='text-sm font-semibold text-yellow-darker'>
             {typeof fundRequest?.data.location === 'object' ? fundRequest?.data.location?.name : fundRequest?.data.location || 'N/A'}
           </p>
         </div>
@@ -527,7 +527,7 @@ Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString
         <div className='space-y-3'>
           <h3 className='font-semibold'>Award/Project Title:</h3>
 
-          <p className='text-sm font-semibold text-[#DEA004]'>
+          <p className='text-sm font-semibold text-yellow-darker'>
             {fundRequest?.data.project?.title || 'Project Title'}
           </p>
         </div>

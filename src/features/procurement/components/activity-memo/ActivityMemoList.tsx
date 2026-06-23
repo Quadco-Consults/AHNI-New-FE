@@ -279,7 +279,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
               onClick={() =>
                 router.push(`/dashboard/procurement/activity-memo/${memo.id}`)
               }
-              className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary"
+              className="rounded-lg px-2 py-2 bg-alternate-light hover:text-primary dark:text-black dark:hover:text-primary"
               title="View Full Memo"
             >
               <FileText size={16} />
@@ -288,7 +288,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
               onClick={() =>
                 router.push(`/dashboard/procurement/activity-memo/${memo.id}/edit`)
               }
-              className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary"
+              className="rounded-lg px-2 py-2 bg-alternate-light hover:text-primary dark:text-black dark:hover:text-primary"
               title="Edit"
             >
               <Edit size={16} />
@@ -296,7 +296,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
             <button
               onClick={() => handleDelete(memo.id)}
               disabled={isProcessing}
-              className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-red-600 dark:text-black dark:hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg px-2 py-2 bg-alternate-light hover:text-red-600 dark:text-black dark:hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Delete"
             >
               <Trash2 size={16} />

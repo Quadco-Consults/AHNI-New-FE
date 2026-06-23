@@ -174,7 +174,7 @@ export default function FacilitatorStaffView() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Personal Information</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Personal Information</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   title="Full Name"
@@ -192,7 +192,7 @@ export default function FacilitatorStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Status Information</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Status Information</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   title="Current Status"
@@ -226,7 +226,7 @@ export default function FacilitatorStaffView() {
         <TabsContent value="qualifications" className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004] flex items-center gap-2">
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker flex items-center gap-2">
                 <Award className="h-5 w-5" />
                 Qualifications
               </h3>
@@ -238,7 +238,7 @@ export default function FacilitatorStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004] flex items-center gap-2">
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker flex items-center gap-2">
                 <Briefcase className="h-5 w-5" />
                 Experience
               </h3>
@@ -252,7 +252,7 @@ export default function FacilitatorStaffView() {
             {/* Documents */}
             {facilitator.cv_url && (
               <Card>
-                <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Documents</h3>
+                <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Documents</h3>
                 <div className="flex items-center gap-3">
                   <Button asChild variant="outline">
                     <a href={facilitator.cv_url} target="_blank" rel="noopener noreferrer">
@@ -332,7 +332,7 @@ export default function FacilitatorStaffView() {
           {/* Deliverables Table */}
           <Card>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-[#DEA004]">All Deliverables</h3>
+              <h3 className="text-xl font-semibold text-yellow-darker">All Deliverables</h3>
             </div>
             {isLoadingDeliverables ? (
               <div className="text-center py-8">
@@ -427,8 +427,8 @@ export default function FacilitatorStaffView() {
           {/* Payment History Table */}
           <Card>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-[#DEA004]">Payment History</h3>
-              <Button className="flex items-center gap-2 bg-[#DEA004] hover:bg-[#c48f04]">
+              <h3 className="text-xl font-semibold text-yellow-darker">Payment History</h3>
+              <Button className="flex items-center gap-2 bg-yellow-darker hover:bg-[#c48f04]">
                 <Plus className="h-4 w-4" />
                 New Payment
               </Button>
@@ -583,7 +583,7 @@ export default function FacilitatorStaffView() {
           {payments.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
-                <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Payment Statistics</h3>
+                <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Payment Statistics</h3>
                 <div className="space-y-3">
                   <DescriptionCard
                     title="Average Payment Amount"
@@ -601,7 +601,7 @@ export default function FacilitatorStaffView() {
               </Card>
 
               <Card>
-                <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Recent Activity</h3>
+                <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Recent Activity</h3>
                 <div className="space-y-3">
                   {payments.slice(0, 3).map((payment: any, index: number) => (
                     <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
@@ -629,7 +629,7 @@ export default function FacilitatorStaffView() {
         <TabsContent value="documents" className="space-y-6">
           {facilitator.documents && facilitator.documents.length > 0 ? (
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Uploaded Documents</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {facilitator.documents.map((doc: any, index: number) => (
                   <FilePreview
@@ -645,7 +645,7 @@ export default function FacilitatorStaffView() {
             </Card>
           ) : (
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Uploaded Documents</h3>
               <div className="text-center py-8 text-gray-500">
                 No documents uploaded
               </div>

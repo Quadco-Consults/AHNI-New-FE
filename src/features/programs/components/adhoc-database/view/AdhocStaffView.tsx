@@ -150,7 +150,7 @@ export default function AdhocStaffView() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Personal Information */}
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Personal Information</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Personal Information</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   label="Full Name"
@@ -189,7 +189,7 @@ export default function AdhocStaffView() {
 
             {/* Contract Status */}
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Contract Status</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Contract Status</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   label="Current Status"
@@ -234,7 +234,7 @@ export default function AdhocStaffView() {
             {/* Professional Background */}
             {(staffData?.current_employer || staffData?.current_position) && (
               <Card>
-                <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Professional Background</h3>
+                <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Professional Background</h3>
                 <div className="space-y-3">
                   {staffData?.current_employer && (
                     <DescriptionCard
@@ -255,7 +255,7 @@ export default function AdhocStaffView() {
             {/* Application Preferences */}
             {(staffData?.preferred_location || staffData?.preferred_health_facility || staffData?.willing_to_relocate !== undefined) && (
               <Card>
-                <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Application Preferences</h3>
+                <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Application Preferences</h3>
                 <div className="space-y-3">
                   {staffData?.preferred_location && (
                     <DescriptionCard
@@ -285,7 +285,7 @@ export default function AdhocStaffView() {
         <TabsContent value="contract" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Contract Period</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Contract Period</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   label="Position"
@@ -329,7 +329,7 @@ export default function AdhocStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Assignment Details</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Assignment Details</h3>
               <div className="space-y-3">
                 {(staffData?.project || staffData?.designation) && (
                   <DescriptionCard
@@ -375,7 +375,7 @@ export default function AdhocStaffView() {
               {/* Interview Information */}
               {(staffData?.interview_scheduled_at || staffData?.interview_conducted_at) && (
                 <Card>
-                  <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Interview Information</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Interview Information</h3>
                   <div className="space-y-3">
                     {staffData?.interview_type && (
                       <DescriptionCard
@@ -420,7 +420,7 @@ export default function AdhocStaffView() {
               {/* Selection/Rejection Information */}
               {(staffData?.selected_at || staffData?.rejected_at) && (
                 <Card>
-                  <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">
+                  <h3 className="text-lg font-semibold mb-4 text-yellow-darker">
                     {staffData?.selected_at ? 'Selection Information' : 'Rejection Information'}
                   </h3>
                   <div className="space-y-3">
@@ -464,7 +464,7 @@ export default function AdhocStaffView() {
           <div className="grid grid-cols-1 gap-6">
             {/* Professional Information */}
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Professional Information</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Professional Information</h3>
               <div className="space-y-3">
                 {staffData?.qualifications && (
                   <DescriptionCard
@@ -507,7 +507,7 @@ export default function AdhocStaffView() {
             {((applicant as any)?.qmap_backstop || (applicant as any)?.programs_officer ||
               (applicant as any)?.stl || (applicant as any)?.seo) && (
               <Card>
-                <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Supervisory & Team Information</h3>
+                <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Supervisory & Team Information</h3>
                 <div className="space-y-3">
                   {(applicant as any)?.qmap_backstop && (
                     <DescriptionCard
@@ -542,7 +542,7 @@ export default function AdhocStaffView() {
               (applicant as any)?.account_number || (applicant as any)?.sort_code ||
               (applicant as any)?.tax_identification_number) && (
               <Card>
-                <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Banking Information</h3>
+                <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Banking Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {(applicant as any)?.account_name && (
                     <DescriptionCard
@@ -584,7 +584,7 @@ export default function AdhocStaffView() {
         <TabsContent value="documents" className="space-y-6">
           {staffData?.documents && staffData.documents.length > 0 ? (
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Uploaded Documents</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {staffData.documents.map((doc: any, index: number) => (
                   <FilePreview
@@ -600,7 +600,7 @@ export default function AdhocStaffView() {
             </Card>
           ) : (
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Uploaded Documents</h3>
               <div className="text-center py-8 text-gray-500">
                 No documents uploaded
               </div>
@@ -611,7 +611,7 @@ export default function AdhocStaffView() {
         {/* Payment History Tab */}
         <TabsContent value="payment" className="space-y-6">
           <Card>
-            <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Payment History</h3>
+            <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Payment History</h3>
 
             {/* Payment Summary */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

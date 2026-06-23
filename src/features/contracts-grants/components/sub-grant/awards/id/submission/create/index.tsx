@@ -3,9 +3,9 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import ManualSubGrantStepWrapper from "./Layout";
 import { Form } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
+import FormSelect from "@/components/FormSelect";
 import FormButton from "@/components/FormButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";

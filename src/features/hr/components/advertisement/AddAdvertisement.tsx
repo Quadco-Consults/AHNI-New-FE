@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import FileUpload from "@/components/atoms/FileUpload";
+import FileUpload from "@/components/FileUpload";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
 import Card from "@/components/Card";
 import GoBack from "@/components/GoBack";
 import { Form } from "@/components/ui/form";

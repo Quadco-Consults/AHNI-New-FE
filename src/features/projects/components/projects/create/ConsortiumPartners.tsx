@@ -34,7 +34,7 @@ export default function ConsortiumPartners() {
         <Button
           type='button'
           variant='outline'
-          className='text-[#DEA004]'
+          className='text-yellow-darker'
           onClick={() => {
             dispatch(
               openDialog({

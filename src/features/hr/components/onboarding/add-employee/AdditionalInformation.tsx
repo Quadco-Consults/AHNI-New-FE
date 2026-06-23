@@ -2,9 +2,9 @@
 
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
+import FormSelect from "@/components/FormSelect";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Save } from "lucide-react";

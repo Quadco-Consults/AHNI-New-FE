@@ -3,15 +3,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { closeDialog, dialogSelector } from "@/store/ui";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import FormMultiSelect from "@/components/atoms/FormMultiSelect";
+import FormTextArea from "@/components/FormTextArea";
+import FormMultiSelect from "@/components/FormMultiSelect";
 import { useAddModule, useUpdateModule } from "@/features/modules/controllers/project/moduleController";
 import { ModuleData } from "@/features/modules/types/project";
 import { useGetAllBudgetLinesQuery } from "@/features/modules/controllers/finance/budgetLineController";

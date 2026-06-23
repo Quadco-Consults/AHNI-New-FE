@@ -9,7 +9,7 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import Image from "next/image";
 import logoPng from "@/assets/imgs/logo-bg.png";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

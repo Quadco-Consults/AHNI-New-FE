@@ -402,7 +402,7 @@ const Items = () => {
             <Button
               onClick={goBack}
               type="button"
-              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+              className="bg-brand-light text-primary dark:text-gray-500"
             >
               Cancel
             </Button>

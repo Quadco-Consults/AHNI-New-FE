@@ -10,10 +10,10 @@ import LongArrowLeft from "@/components/icons/LongArrowLeft";
 import Card from "@/components/Card";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import DeleteIcon from "@/components/icons/DeleteIcon";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormTextArea from "@/components/FormTextArea";
+import FormSelect from "@/components/FormSelectField";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import {
   EngagementPlanSchema,
@@ -313,7 +313,7 @@ const CreateEngagement = () => {
                         <div>
                           <Button
                             type='button'
-                            className='flex gap-2 mt-3 py-6 bg-[#FFF2F2] text-red-500'
+                            className='flex gap-2 mt-3 py-6 bg-brand-light text-red-500'
                             onClick={() => {
                               dispatch(removeStakeholder(field.stakeholder));
 
@@ -335,7 +335,7 @@ const CreateEngagement = () => {
               <Button
                 type='button'
                 variant='outline'
-                className='text-[#DEA004]'
+                className='text-yellow-darker'
                 onClick={() => {
                   dispatch(
                     openDialog({
@@ -363,7 +363,7 @@ const CreateEngagement = () => {
             <FormButton
               onClick={goBack}
               type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
               size='lg'
             >
               Cancel

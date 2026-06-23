@@ -218,7 +218,7 @@ export default function ConsultantContractDashboard() {
             {isLoading ? (
                 <div className="flex justify-center items-center py-12">
                     <div className="text-center">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#DEA004]"></div>
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-darker"></div>
                         <p className="mt-4 text-gray-600">Loading job adverts...</p>
                     </div>
                 </div>
@@ -240,7 +240,7 @@ export default function ConsultantContractDashboard() {
                 {groupedByContractRequest.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {groupedByContractRequest.map((advertisement) => (
-                        <Card key={advertisement.id} className="hover:shadow-lg transition-shadow duration-200 border-2 hover:border-[#DEA004]">
+                        <Card key={advertisement.id} className="hover:shadow-lg transition-shadow duration-200 border-2 hover:border-yellow-darker">
                             <div className="space-y-4">
                                 {/* Header */}
                                 <div className="flex items-start justify-between">
@@ -325,7 +325,7 @@ export default function ConsultantContractDashboard() {
 
                                 {/* Action Button */}
                                 <Button
-                                    className="w-full flex items-center justify-center gap-2 bg-[#DEA004] hover:bg-[#c48f04]"
+                                    className="w-full flex items-center justify-center gap-2 bg-yellow-darker hover:bg-[#c48f04]"
                                     onClick={() => {
                                         const detailsPath = applicantType === "ADHOC"
                                             ? `/dashboard/programs/adhoc/adhoc-acceptance/details/${advertisement.id}`
@@ -440,7 +440,7 @@ export default function ConsultantContractDashboard() {
                                                         className={`flex items-center gap-1 ${
                                                             applicant.offer_accepted
                                                                 ? 'bg-green-600 hover:bg-green-700'
-                                                                : 'bg-[#DEA004] hover:bg-[#c48f04]'
+                                                                : 'bg-yellow-darker hover:bg-[#c48f04]'
                                                         }`}
                                                         onClick={() => {
                                                             const basePath = pathname?.includes("adhoc")

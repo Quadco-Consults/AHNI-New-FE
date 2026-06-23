@@ -406,7 +406,7 @@ const projectColumns: ColumnDef<ProjectWithFundRequests>[] = [
 
       return (
         <Link href={urlWithParams}>
-          <Button variant="ghost" size="sm" className="text-[#DEA004] hover:text-[#DEA004]">
+          <Button variant="ghost" size="sm" className="text-yellow-darker hover:text-yellow-darker">
             View
           </Button>
         </Link>

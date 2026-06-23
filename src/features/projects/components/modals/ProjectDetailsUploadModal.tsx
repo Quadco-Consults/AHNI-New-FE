@@ -19,7 +19,7 @@ import { z } from "zod";
 import { LoadingSpinner } from "@/components/Loading";
 import { ProjectDocumentTypesResultsData } from "definitions/project-types/project-document-types";
 import { toast } from "sonner";
-import FormButton from "@/components/atoms/FormButton";
+import FormButton from "@/components/FormButton";
 import { useCreateProjectDocument } from "../../controllers";
 // import { useCreateProjectDocumentController } from "@/features/project/documentController";
 
@@ -128,7 +128,7 @@ const ProjectDetailsUploadModal = () => {
           <div className='flex justify-between gap-5 mt-10'>
             <Button
               type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
             >
               Cancel
             </Button>

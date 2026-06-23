@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 
 const scoreOptions = ["1", "2", "3", "4", "5"].map((value) => ({
     label: value,
@@ -13,7 +13,7 @@ const createApplicantInterviewColumns = (): ColumnDef<IConsultancyStaffPaginated
         id: "header",
         header: () => (
             <div className=" bg-gray-50 p-3">
-                <h2 className="text-lg text-[#DEA004] font-bold">
+                <h2 className="text-lg text-yellow-darker font-bold">
                     Relevant Experience Requirements
                 </h2>
             </div>

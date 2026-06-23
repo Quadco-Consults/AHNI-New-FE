@@ -332,10 +332,10 @@ const ActionListAction = ({ data }: any) => {
   console.log(data);
   return (
     <div className='flex items-center gap-2'>
-      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+      <IconButton className='bg-alternate-light hover:text-primary'>
         <Icon icon='pepicons-print:chain' fontSize={15} />
       </IconButton>
-      <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+      <IconButton className='bg-alternate-light hover:text-primary'>
         <Icon icon='ph:dots-three-duotone' fontSize={15} />
       </IconButton>
     </div>

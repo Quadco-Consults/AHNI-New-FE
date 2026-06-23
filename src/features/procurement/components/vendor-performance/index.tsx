@@ -188,13 +188,13 @@ const ActionListAction = ({ data }: any) => {
       <Link
         href={`/dashboard/procurement/vendor-performance/${data.id}`}
       >
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton className='bg-alternate-light hover:text-primary'>
           <Icon icon='ph:eye-duotone' fontSize={15} />
         </IconButton>
       </Link>
       <IconButton
         onClick={() => deleteVendorHandler(data.id)}
-        className='bg-[#F9F9F9] hover:text-primary'
+        className='bg-alternate-light hover:text-primary'
       >
         <Icon icon='ant-design:delete-twotone' fontSize={15} />
       </IconButton>
@@ -202,7 +202,7 @@ const ActionListAction = ({ data }: any) => {
       <Link
         href={`/dashboard/procurement/vendor-performance/${data.id}/form`}
       >
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton className='bg-alternate-light hover:text-primary'>
           Evaluate
         </IconButton>
       </Link>

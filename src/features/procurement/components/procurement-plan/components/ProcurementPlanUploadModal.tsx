@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -248,8 +248,8 @@ Keep this for 2 weeks after successful deployment, then remove
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { ChangeEvent, useState, useEffect } from "react";
@@ -625,7 +625,7 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
             <div className='flex items-center justify-between'>
               <Button
                 type='button'
-                className='bg-[#FFF2F2] text-primary border-none'
+                className='bg-brand-light text-primary border-none'
                 onClick={props.onCancel}
               >
                 Cancel

@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import logoPng from "assets/imgs/logo.png";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import Card from "@/components/Card";
 import DataTable from "@/components/Table/DataTable";
 import { FundRequestPaginatedData } from "@/features/programs/types/fund-request";
@@ -490,10 +490,10 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
           </div>
         </div>
 
-        <div className='border-[#DEA004] border-solid border-[2px] rounded-lg p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 bg-gradient-to-br from-amber-50 to-orange-50'>
+        <div className='border-yellow-darker border-solid border-[2px] rounded-lg p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 bg-gradient-to-br from-amber-50 to-orange-50'>
           <div className='space-y-2'>
             <h3 className='font-semibold text-gray-700 text-sm uppercase tracking-wide'>Award/Project Title:</h3>
-            <p className='font-bold text-[#DEA004] text-xl leading-tight'>
+            <p className='font-bold text-yellow-darker text-xl leading-tight'>
               {project?.title || 'Project Title'}
             </p>
           </div>

@@ -224,13 +224,13 @@ const Compensation: React.FC = () => {
   const ActionListAction = ({ item }: { item: CompensationSpreadItem }) => (
     <div className='flex gap-2'>
       <IconButton
-        className='bg-[#F9F9F9] hover:text-primary'
+        className='bg-alternate-light hover:text-primary'
         onClick={() => handleEdit(item)}
       >
         <Icon icon='ph:pencil-duotone' fontSize={15} />
       </IconButton>
       <IconButton
-        className='bg-[#F9F9F9] hover:text-primary'
+        className='bg-alternate-light hover:text-primary'
         onClick={() => handleDelete(item)}
       >
         <Icon icon='ant-design:delete-twotone' fontSize={15} />

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Separator } from "@/components/ui/separator";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation"; 
@@ -26,7 +26,7 @@ import {
   useGetEmployeeOnboardingPension,
   useUpdateEmployeeOnboardingPension,
 } from "@/features/hr/controllers/hrEmployeeOnboardingPensionController";
-import FormCheckBox from "@/components/atoms/FormCheckBox";
+import FormCheckBox from "@/components/FormCheckBox";
 import GoBack from "@/components/GoBack";
 
 const Pension = () => {

@@ -4,10 +4,10 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import GoBack from "@/components/GoBack";
-// import FormCheckBox from "@/components/atoms/FormCheckBox";
+// import FormCheckBox from "@/components/FormCheckBox";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { ChevronRight, Save } from "lucide-react";
 import Link from "next/link";
 import { openDialog } from "@/store/ui";
@@ -38,7 +38,7 @@ import {
   useGetEmployeeOnboardingAddSignatory,
   useUpdateEmployeeOnboardingAddSignatory,
 } from "@/features/hr/controllers/hrEmployeeOnboardingSignatoryController";
-import FileUpload from "@/components/atoms/FileUpload";
+import FileUpload from "@/components/FileUpload";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 import { createFileObjectFromUrl } from "@/utils/get-file-extension";

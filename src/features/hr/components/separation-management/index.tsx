@@ -161,7 +161,7 @@ const SeparationManagement = () => {
   return (
     <div className='space-y-6'>
       <div className='flex-items'>
-        <Button variant='custom' className='bg-[#FFF2F2] text-[#FF0000]'>
+        <Button variant='custom' className='bg-brand-light text-primary'>
           <p>Bulk Actions</p>
           <DownIcon />
         </Button>

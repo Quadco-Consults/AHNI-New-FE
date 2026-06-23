@@ -89,7 +89,7 @@ const EoIDetails = (data: EOIResultsData) => {
         </div>
 
         <div className='space-y-2'>
-          <h2 className='font-medium text-[#DEA004]  text-base'>Categories</h2>
+          <h2 className='font-medium text-yellow-darker  text-base'>Categories</h2>
 
           <div className='flex flex-wrap gap-x-2 gap-y-4'>
             {data.categories.map((category: CategoryResultsData) => (
@@ -106,7 +106,7 @@ const EoIDetails = (data: EOIResultsData) => {
         <div className='space-y-2'>
           <h2 className='font-medium text-base'>Document</h2>
 
-          <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
+          <div className='bg-black/10 py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
             <Dialog>
               <DialogTrigger>
                 <Document

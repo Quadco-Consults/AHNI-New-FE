@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-// import FormInput from "@/components/atoms/FormInput";
+// import FormInput from "@/components/FormInput";
 import { Form } from "@/components/ui/form";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";

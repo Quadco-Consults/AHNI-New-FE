@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -18,7 +18,7 @@ import {
     useAddSolicitationEvaluationCriteria,
     useUpdateSolicitationEvaluationCriteria,
 } from "@/features/modules/controllers/procurement/solicitation-evaluation-criteriaController";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 
 const AddSolicitationEvaluationCriteria = () => {
     const { dialogProps } = useAppSelector(dialogSelector);

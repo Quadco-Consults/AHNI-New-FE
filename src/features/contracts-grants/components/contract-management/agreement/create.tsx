@@ -3,9 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
-import BackNavigation from "@/components/atoms/BackNavigation";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import BackNavigation from "@/components/BackNavigation";
+import FormSelect from "@/components/FormSelect";
 import { Card, CardContent } from "@/components/ui/card";
 import FormButton from "@/components/FormButton";
 import {

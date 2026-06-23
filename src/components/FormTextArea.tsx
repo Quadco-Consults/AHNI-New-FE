@@ -49,7 +49,7 @@ const FormTextArea: FC<InputProps> = ({
                             )}
                         </FormLabel>
                         <div>
-                            <FormLabel className="text-sm text-[#756D6D]">
+                            <FormLabel className="text-sm text-gray-text">
                                 {label2}
                             </FormLabel>
                         </div>
@@ -57,7 +57,7 @@ const FormTextArea: FC<InputProps> = ({
                             <Textarea
                                 rows={rows}
                                 placeholder={placeholder}
-                                className="resize-none font-medium bg-[#F9F9F9]"
+                                className="resize-none font-medium bg-alternate-light"
                                 {...field}
                             />
                         </FormControl>

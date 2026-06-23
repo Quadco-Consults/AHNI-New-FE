@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import LongArrowRight from "@/components/icons/LongArrowRight";
 
@@ -1011,7 +1011,7 @@ const EditPurchaseRequestForm = ({
                 )
               }
               variant='outline'
-              className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+              className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-yellow-darker border-[1px] border-gray-border'
               size='sm'
             >
               Click to add New

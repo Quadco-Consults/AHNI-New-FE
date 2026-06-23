@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
 import { useAppDispatch } from "@/hooks/useStore";
 import { closeDialog } from "@/store/ui";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -353,7 +353,7 @@ const ActivityUploadModal = ({
                         <Button
                             onClick={() => dispatch(closeDialog())}
                             type="button"
-                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            className="bg-brand-light text-primary dark:text-gray-500"
                         >
                             Cancel
                         </Button>

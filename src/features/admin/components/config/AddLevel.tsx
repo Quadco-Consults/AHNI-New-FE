@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -14,7 +14,7 @@ import {
   TLevelFormValues,
 } from "@/features/admin/types/config/level";
 
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import {
   useAddLevelMutation,
   useUpdateLevelMutation,

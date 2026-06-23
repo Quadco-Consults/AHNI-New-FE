@@ -52,7 +52,7 @@ export default function AllAssetCondition() {
   return (
     <div>
       <div className='flex items-center justify-between py-6 mb-6'>
-        <h1 className='text-[#D92D20] font-semibold text-sm'>
+        <h1 className='text-error font-semibold text-sm'>
           Asset Conditions
         </h1>
 
@@ -60,7 +60,7 @@ export default function AllAssetCondition() {
           <Button
             onClick={() => setBulkUploadOpen(true)}
             variant='outline'
-            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-success border-[1px] border-gray-border'
             size='sm'
           >
             <Upload size={16} />
@@ -78,7 +78,7 @@ export default function AllAssetCondition() {
               )
             }
             variant='outline'
-            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-yellow-darker border-[1px] border-gray-border'
             size='sm'
           >
             Click to add New
@@ -97,7 +97,7 @@ export default function AllAssetCondition() {
         }}
       />
       <div>
-        <div className='flex justify-between text-[#756D6D] font-semibold text-sm mb-10'>
+        <div className='flex justify-between text-gray-text font-semibold text-sm mb-10'>
           <h1 className='flex-1'>Name</h1>
           <h1 className='flex-1'>Description</h1>
           <h1 className='flex-1'></h1>
@@ -111,7 +111,7 @@ export default function AllAssetCondition() {
               return (
                 <div
                   key={item.id}
-                  className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs'
+                  className='flex justify-between mt-6 text-gray-text font-normal text-xs'
                 >
                   <p className='flex-1'>{item.name}</p>
                   <p className='flex-1'>{item.description || "N/A"}</p>

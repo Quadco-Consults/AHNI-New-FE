@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Award, DollarSign, Users, AlertCircle } from "lucide-react";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { useGetAllSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useCreateMultiAward } from "@/features/contracts-grants/controllers/subGrantAwardController";

@@ -5,7 +5,7 @@ import { useFormContext } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircleIcon, UserCheckIcon, ShieldIcon, AlertTriangleIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";

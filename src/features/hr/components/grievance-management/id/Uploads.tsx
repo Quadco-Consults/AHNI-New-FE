@@ -185,7 +185,7 @@ const Uploads = (data: VendorsResultsData) => {
                   </div>
                 </div>
                 {doc?.document?.endsWith("pdf") ? (
-                  <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
+                  <div className='bg-black/10 py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
                     <Dialog>
                       <DialogTrigger>
                         <Document

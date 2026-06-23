@@ -113,7 +113,7 @@ export default function AdhocPaymentTracking() {
               Manage payment requests and track payment status for {applicant?.name}
             </p>
           </div>
-          <Button className="flex items-center gap-2 bg-[#DEA004] hover:bg-[#c48f04]">
+          <Button className="flex items-center gap-2 bg-yellow-darker hover:bg-[#c48f04]">
             <Plus className="h-4 w-4" />
             New Payment Request
           </Button>
@@ -283,7 +283,7 @@ export default function AdhocPaymentTracking() {
                 <p className="text-gray-600 mb-4">
                   No payment requests have been created for this adhoc staff yet.
                 </p>
-                <Button className="bg-[#DEA004] hover:bg-[#c48f04]">
+                <Button className="bg-yellow-darker hover:bg-[#c48f04]">
                   Create First Payment Request
                 </Button>
               </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import Card from "@/components/Card";
 import GoBack from "@/components/GoBack";
 import { Button } from "@/components/ui/button";

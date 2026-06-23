@@ -3,8 +3,8 @@
 import { Form } from "@/components/ui/form";
 // import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { ChevronRight } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import FormButton from "@/components/FormButton";
@@ -219,7 +219,7 @@ const NewCompensation = () => {
                 <Button
                   type='button'
                   onClick={() => router.back()}
-                  className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                  className='bg-brand-light text-primary dark:text-gray-500'
                 >
                   Cancel
                 </Button>

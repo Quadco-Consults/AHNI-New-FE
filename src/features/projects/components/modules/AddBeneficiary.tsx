@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -18,7 +18,7 @@ import {
   useAddBeneficiary,
   useUpdateBeneficiary,
 } from "@/features/modules/controllers/project/beneficiaryController";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 
 const AddBeneficiaries = () => {
   const { dialogProps } = useAppSelector(dialogSelector);

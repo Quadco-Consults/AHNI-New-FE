@@ -14,9 +14,9 @@ import {
   TPaymentRequestFormData,
 } from "@/features/admin/types/payment-request";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { useGetAllPurchaseOrdersQuery, useGetSinglePurchaseOrderQuery } from "@/features/procurement/controllers/purchaseOrderController";
 import { useEffect, useMemo, useCallback, useState } from "react";
@@ -48,7 +48,7 @@ import {
 } from "@/utils/approvalFilters";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import BulkUploadSection from "./BulkUploadSection";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 
 export default function CreatePaymentRequest() {
   // Payment mode state (single or bulk)

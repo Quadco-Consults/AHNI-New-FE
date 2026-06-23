@@ -327,7 +327,7 @@ const CompensationSpreadModal = (props: PropsType) => {
             <div className='flex items-center justify-between mt-4'>
               <Button
                 type='button'
-                className='bg-[#FFF2F2] text-primary border-none'
+                className='bg-brand-light text-primary border-none'
                 onClick={() => {
                   reset();
                   props.onCancel();

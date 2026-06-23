@@ -178,7 +178,7 @@ export default function ConsultantCard({
                     <div className="w-full flex flex-col items-center justify-center absolute bottom-0 left-0 py-[.75rem] bg-gradient-to-b from-white/50 via-white/60 to-white/90">
                         <div className="bg-white w-fit">
                             <Link href={advertDetailsPath.replace(':id', id)}>
-                                <Button className="bg-white text-primary z-[99] border border-[#00000012]">
+                                <Button className="bg-white text-primary z-[99] border border-black/5">
                                     View Details & Applications
                                 </Button>
                             </Link>
@@ -214,7 +214,7 @@ export const DetailsTag = ({
     label: string | number;
 }) => {
     return (
-        <div className="flex items-center border border-[#C7CBD5] text-sm p-1 px-[.625rem] gap-x-[.25rem] rounded-full">
+        <div className="flex items-center border border-gray-border text-sm p-1 px-[.625rem] gap-x-[.25rem] rounded-full">
             {icon}
             <p>{label}</p>
         </div>

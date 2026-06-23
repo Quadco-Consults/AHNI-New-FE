@@ -3,8 +3,8 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Form, FormLabel } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { Save } from "lucide-react";
 import { openDialog } from "@/store/ui";
 import { DialogType } from "@/constants/dialogs";
@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { LoadingSpinner } from "@/components/Loading";
 
-import FileUpload from "@/components/atoms/FileUpload";
+import FileUpload from "@/components/FileUpload";
 import { toast } from "sonner";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
@@ -24,7 +24,7 @@ import FormButton from "@/components/FormButton";
 
 import { HrRoutes } from "@/constants/RouterConstants";
 import { updateStepCompletion } from "@/store/stepTracker";
-import FormCheckBox from "@/components/atoms/FormCheckBox";
+import FormCheckBox from "@/components/FormCheckBox";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { IProjectSingleData } from "definitions/project";
 import {

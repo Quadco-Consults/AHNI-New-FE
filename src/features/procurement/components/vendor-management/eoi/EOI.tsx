@@ -34,8 +34,8 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RouteEnum } from "@/constants/RouterConstants";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/FormTextArea";
+import FormInput from "@/components/FormInput";
 import React, { useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Upload as UploadFile } from 'lucide-react';
@@ -54,7 +54,7 @@ import {
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
 import { EOIResultsData } from "@/features/procurement/types/eoi";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { TFinancialYearData } from "@/features/admin/types/config/financial-year";
 import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/config/financialYearController";
@@ -591,7 +591,7 @@ const EOI = () => {
                           <div>
                             <Dialog>
                               <DialogTrigger>
-                                <div className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
+                                <div className="text-yellow-darker font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
                                   Click to select categories that applies
                                 </div>
                               </DialogTrigger>

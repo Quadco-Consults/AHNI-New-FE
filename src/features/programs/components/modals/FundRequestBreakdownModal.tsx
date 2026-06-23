@@ -1,7 +1,7 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useAppDispatch } from "@/hooks/useStore";
@@ -64,7 +64,7 @@ export default function FundRequestBreakdown() {
 
                 <Button
                     variant="ghost"
-                    className="text-[#DEA004] border shadow-md"
+                    className="text-yellow-darker border shadow-md"
                     type="button"
                 >
                     Click to add another
@@ -74,7 +74,7 @@ export default function FundRequestBreakdown() {
                     <FormButton
                         onClick={() => dispatch(closeDialog())}
                         type="button"
-                        className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                        className="bg-brand-light text-primary dark:text-gray-500"
                     >
                         Cancel
                     </FormButton>

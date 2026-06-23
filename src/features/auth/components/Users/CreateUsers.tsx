@@ -1,10 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
 import Card from "@/components/Card";
 import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -17,7 +17,7 @@ import {
 } from "@/features/auth/types/user";
 import { useCreateUser } from "../../controllers/userController";
 import { useGetAllRoles } from "../../controllers/roleController";
-import FormMultiSelect from "@/components/atoms/FormMultiSelect";
+import FormMultiSelect from "@/components/FormMultiSelect";
 import { useMemo } from "react";
 import {
   useGetAllDepartmentsQuery,

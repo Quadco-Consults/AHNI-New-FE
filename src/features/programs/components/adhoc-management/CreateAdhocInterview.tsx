@@ -1,9 +1,9 @@
 "use client";
 
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import {
@@ -663,7 +663,7 @@ export default function CreateAdhocInterview() {
                 <div>
                   <Dialog>
                     <DialogTrigger>
-                      <div className='text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'>
+                      <div className='text-yellow-darker font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'>
                         Click to select team members to make up the committee
                       </div>
                     </DialogTrigger>

@@ -30,7 +30,7 @@ export default function PreferredConsultantModal({
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-        <Label className="text-[#DEA004] font-semibold">
+        <Label className="text-yellow-darker font-semibold">
           Justification for Selection/Other Comments (narrative)
         </Label>
 

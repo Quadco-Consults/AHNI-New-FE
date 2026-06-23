@@ -3,11 +3,11 @@
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
-import FadedButton from "@/components/atoms/FadedButton";
+import FadedButton from "@/components/FadedButton";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import { Button } from "@/components/ui/button";

@@ -133,7 +133,7 @@ export default function EvaluationCheckList() {
           <Button
             type='button'
             variant='outline'
-            className='text-[#DEA004]'
+            className='text-yellow-darker'
             onClick={() => {
               dispatch(
                 openDialog({
@@ -155,7 +155,7 @@ export default function EvaluationCheckList() {
               onClick={() => router.back()}
               type='button'
               size='lg'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
             >
               Back
             </FormButton>

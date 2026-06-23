@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import {
   Form,
   FormControl,

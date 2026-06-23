@@ -165,7 +165,7 @@ export default function AllStates() {
             <Button
               onClick={() => setBulkUploadOpen(true)}
               variant='outline'
-              className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+              className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-success border-[1px] border-gray-border'
               size='sm'
               disabled={isDeleteLoading || isSeedingStates || isManualSeedingLoading}
             >

@@ -1,16 +1,16 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormCheckBox from "@/components/atoms/FormCheckBox";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormCheckBox from "@/components/FormCheckBox";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
 import Card from "@/components/Card";
 import GoBack from "@/components/GoBack";
 import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import FormRadio from "@/components/atoms/FormRadio";
+import FormRadio from "@/components/FormRadio";
 import {
   ExpenseAuthorizationSchema,
   TExpenseAuthorizationFormData,
@@ -31,7 +31,7 @@ import {
 } from "@/features/admin/controllers/expenseAuthorizationController";
 import { toast } from "sonner";
 import { useGetAllUsersQuery, useGetCurrentUser } from "@/features/auth/controllers/userController";
-import FadedButton from "@/components/atoms/FadedButton";
+import FadedButton from "@/components/FadedButton";
 
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";

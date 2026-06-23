@@ -50,7 +50,7 @@ const ApprovalStatus = (props: Props) => {
             </div>
             {index !== milestones.length - 1 && (
               <div className="flex items-center justify-start w-full text-center absolute top-[37%] left-[15.5%]">
-                <Separator className="w-[2px] text-center h-[80px] rounded-full bg-[#756D6D]" />
+                <Separator className="w-[2px] text-center h-[80px] rounded-full bg-gray-text" />
               </div>
             )}
           </div>

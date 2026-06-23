@@ -29,13 +29,13 @@ import {
 import { format } from "date-fns";
 
 import { useMemo, useState } from "react";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { z } from "zod";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { Label } from "@/components/ui/label";
 import MultiSelectFormField from "@/components/ui/multiselect";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 
 export const LotSchema = z.object({
   interview_type: z.string().min(1, "Field Required"),

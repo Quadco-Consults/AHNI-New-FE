@@ -1,6 +1,6 @@
 "use client";
 
-// import BackNavigation from "@/components/atoms/BackNavigation";
+// import BackNavigation from "@/components/BackNavigation";
 
 // import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { useParams, useRouter } from "next/navigation";

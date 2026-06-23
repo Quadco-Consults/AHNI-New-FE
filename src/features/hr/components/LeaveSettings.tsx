@@ -10,7 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Form } from "@/components/ui/form";
-import FormRadio from "@/components/atoms/FormRadio";
+import FormRadio from "@/components/FormRadio";
 import { useForm } from "react-hook-form";
 import { Switch } from "@/components/ui/switch";
 import EditIcon from "@/components/icons/EditIcon";
@@ -42,7 +42,7 @@ export default function LeaveSettings() {
             )
           }
           variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-primary text-white border-[1px] border-[#C7CBD5]'
+          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-primary text-white border-[1px] border-gray-border'
           size='sm'
         >
           Add New Leave Package

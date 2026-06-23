@@ -8,7 +8,7 @@ const PendingIcon = () => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <circle cx="16" cy="16" r="15.5" stroke="#DEA004" />
-      <circle cx="16" cy="16" r="12" fill="#DEA004" />
+      <circle cx="16" cy="16" r="12" fill="hsl(var(--yellow-darker))" />
     </svg>
   );
 };

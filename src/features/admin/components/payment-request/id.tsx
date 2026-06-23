@@ -1,6 +1,6 @@
 "use client";
 
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -20,7 +20,7 @@ import DocumentCard from "@/features/projects/components/projects/create/Documen
 import { useState } from "react";
 import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import FormButton from "@/components/FormButton";
 import {
   CalendarIcon,

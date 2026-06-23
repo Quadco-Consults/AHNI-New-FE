@@ -45,7 +45,7 @@ const StepHeader = ({ steps, currentStep }: StepHeaderProps) => {
             </div>
             {index !== steps.length - 1 && (
               <div className="flex items-center justify-center w-full text-center absolute top-[12%] left-[8%]">
-                <Separator className="w-[50%] text-center h-[2px] rounded-full bg-[#756D6D]" />
+                <Separator className="w-[50%] text-center h-[2px] rounded-full bg-gray-text" />
               </div>
             )}
           </div>

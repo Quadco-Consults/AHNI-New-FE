@@ -12,7 +12,7 @@ import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/sup
 import BreadcrumbCard from "@/components/Breadcrumb";
 import { ProgramRoutes, RouteEnum } from "@/constants/RouterConstants";
 import { useGetAllSupervisionPlanReviews } from "@/features/programs/controllers/supervisionPlanReviewController";
-import FadedButton from "@/components/atoms/FadedButton";
+import FadedButton from "@/components/FadedButton";
 
 const breadcrumbs = [
   { name: "Programs", icon: true },

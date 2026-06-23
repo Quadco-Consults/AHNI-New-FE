@@ -1,9 +1,9 @@
 "use client";
 
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import DescriptionCard from "@/components/DescriptionCard";
 import { LoadingSpinner } from "@/components/Loading";

@@ -24,7 +24,7 @@ export { default as UploadComponent } from '@/components/UploadComponent';
 export { default as VendorUpload } from '@/components/VendorUpload';
 
 // Button components
-export { default as FadedButton } from '@/components/FadedButton';
+export { default as LoadingButton } from '@/components/LoadingButton';
 export { default as IconButton } from '@/components/IconButton';
 
 // Form utilities and types

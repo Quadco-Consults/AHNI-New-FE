@@ -2,9 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import RfqLayout from "./RfqLayout";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import { SelectContent, SelectItem } from "@/components/ui/select";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import {
   SubmitHandler,
   useFieldArray,
@@ -46,7 +46,7 @@ import {
   SolicitationQuotationSchema,
   TSolicitationQuotationFormData,
 } from "@/features/procurement/types/procurement-validator";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { VendorsResultsData } from "@/features/procurement/types/vendors";
 import { useGetVendors } from "@/features/procurement/controllers/vendorsController";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
@@ -54,7 +54,7 @@ import { Input } from "@/components/ui/input";
 import { Icon } from "@iconify/react";
 import { DialogClose } from "@radix-ui/react-dialog";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
-import FadedButton from "@/components/atoms/FadedButton";
+import FadedButton from "@/components/FadedButton";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import { motion } from "framer-motion";
 import { Upload as UploadFile, Search } from 'lucide-react';
@@ -531,7 +531,7 @@ const Quotation = () => {
                   <div>
                     <Dialog>
                       <DialogTrigger>
-                        <div className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
+                        <div className="text-yellow-darker font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
                           Click to select categories that applies
                         </div>
                       </DialogTrigger>
@@ -688,7 +688,7 @@ const Quotation = () => {
               <Button
                 onClick={() => router.back()}
                 type="button"
-                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                className="bg-brand-light text-primary dark:text-gray-500"
               >
                 Cancel
               </Button>

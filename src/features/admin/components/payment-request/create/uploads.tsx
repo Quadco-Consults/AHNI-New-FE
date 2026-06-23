@@ -217,7 +217,7 @@ export default function FileUploads() {
         ) : (
           <Upload onChange={handleChange}>
             <Button
-              className='flex gap-2 py-6 bg-[#FFF2F2] text-red-500 dark:bg-primary dark:text-white'
+              className='flex gap-2 py-6 bg-brand-light text-red-500 dark:bg-primary dark:text-white'
               type='button'
             >
               <AddSquareIcon />

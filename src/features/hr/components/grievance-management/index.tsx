@@ -121,7 +121,7 @@ const GrievanceManagement: React.FC = () => {
         <Link
           href={`/dashboard/hr/grievance-management/${data?.id}/details`}
         >
-          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <IconButton className='bg-alternate-light hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
@@ -130,7 +130,7 @@ const GrievanceManagement: React.FC = () => {
             setSelectedId(data?.id);
             setDialogOpen(true);
           }}
-          className='bg-[#F9F9F9] hover:text-primary'
+          className='bg-alternate-light hover:text-primary'
         >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>

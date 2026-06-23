@@ -9,7 +9,7 @@ import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import BreadcrumbCard from "@/components/Breadcrumb";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import Upload from "@/components/Upload";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -18,12 +18,12 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { IObjective } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
 import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
-import FormRadio from "@/components/atoms/FormRadio";
-import FormInput from "@/components/atoms/FormInput";
+import FormRadio from "@/components/FormRadio";
+import FormInput from "@/components/FormInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   SupervisionPlanReviewSchema,
@@ -392,7 +392,7 @@ export default function EvaluationCriteriaProcess() {
                       >
                         <Button
                           type='button'
-                          className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                          className='bg-brand-light text-primary dark:text-gray-500'
                         >
                           <AddSquareIcon />
                           Upload New Document

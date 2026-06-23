@@ -51,7 +51,7 @@ export default function ScopeOfWork({
             <Separator />
 
             <div className="space-y-4">
-                <h2 className="font-bold text-[#DEA004]">
+                <h2 className="font-bold text-yellow-darker">
                     Specific Deliverables
                 </h2>
 
@@ -79,7 +79,7 @@ export default function ScopeOfWork({
             <Separator />
 
             <div className="space-y-4">
-                <h2 className="font-bold text-[#DEA004]">Payment Schedule</h2>
+                <h2 className="font-bold text-yellow-darker">Payment Schedule</h2>
 
                 <p className="text-sm text-gray-500">
                     The fee rate for this work will be paid at the end of every
@@ -131,7 +131,7 @@ export default function ScopeOfWork({
             </div>
 
             <div className="space-y-4">
-                <h2 className="font-bold text-[#DEA004]">
+                <h2 className="font-bold text-yellow-darker">
                     Confidential and Proprietary Information
                 </h2>
 

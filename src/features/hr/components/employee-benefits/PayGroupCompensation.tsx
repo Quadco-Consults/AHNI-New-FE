@@ -130,13 +130,13 @@ const PayGroupCompensation: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <IconButton
-          className='bg-[#F9F9F9] hover:text-primary'
+          className='bg-alternate-light hover:text-primary'
           onClick={handleEdit}
         >
           <Icon icon='ph:pencil-duotone' fontSize={15} />
         </IconButton>
         <IconButton
-          className='bg-[#F9F9F9] hover:text-primary'
+          className='bg-alternate-light hover:text-primary'
           onClick={() => setDialogOpen(true)}
         >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />

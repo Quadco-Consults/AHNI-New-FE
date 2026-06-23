@@ -14,7 +14,7 @@ import FormSelect from "@/components/FormSelect";
 import { Badge } from "@/components/ui/badge";
 import { Award, DollarSign, Users } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { useGetSingleSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useMakeAward, useCreateCommittee } from "@/features/contracts-grants/controllers/subGrantWorkflowController";

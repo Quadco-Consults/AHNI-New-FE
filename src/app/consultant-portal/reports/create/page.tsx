@@ -3,13 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { Upload, X, FileText, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +18,7 @@ import {
     TConsultancyReportFormData,
 } from "@/features/contracts-grants/types/contract-management/consultancy-report";
 import FormButton from "@/components/FormButton";
-import FormCombobox from "@/components/atoms/FormCombobox";
+import FormCombobox from "@/components/FormCombobox";
 import { ConsultantAuthUtils } from "@/features/consultant-portal/controllers/consultantAuthController";
 import { ArrowLeft } from "lucide-react";
 import ConsultantAxiosWithToken from "@/constants/api_management/ConsultantHttpHelper";

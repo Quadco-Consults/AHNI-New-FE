@@ -47,7 +47,7 @@ const VendorSubmission = (props?: any) => {
               id: id,
             })}
           >
-            <Button variant='ghost' className='bg-[#FFF2F2] gap-2 text-primary'>
+            <Button variant='ghost' className='bg-brand-light gap-2 text-primary'>
               <svg
                 width='24'
                 height='24'

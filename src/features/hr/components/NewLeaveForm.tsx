@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-// import FormInput from "@/components/atoms/FormInput";
+// import FormInput from "@/components/FormInput";
 import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -14,8 +14,8 @@ import {
   TCostCategoryData,
   TCostCategoryFormValues,
 } from "@/features/admin/types/finance/cost-category";
-import FormRadio from "@/components/atoms/FormRadio";
-import FormInput from "@/components/atoms/FormInput";
+import FormRadio from "@/components/FormRadio";
+import FormInput from "@/components/FormInput";
 // import {
 //   useAddCostCategory,
 //   useUpdateCostCategory,

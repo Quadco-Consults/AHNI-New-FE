@@ -7,10 +7,10 @@ import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Form } from "@/components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import { LoadingSpinner } from "@/components/Loading";
 import { VendorsResultsData } from "definitions/procurement-types/vendors";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import React, { useEffect, useMemo } from "react";
 import { z } from "zod";
 import {
@@ -18,7 +18,7 @@ import {
   VendorBidSubmissionSchema,
   IVendorBidSubmission
 } from "@/features/procurement/types/procurement-validator";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";

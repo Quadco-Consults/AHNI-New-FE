@@ -353,7 +353,7 @@ export default function Account() {
         <div className='w-full grid grid-cols-1 lg:grid-cols-4 py-16 lg:py-36 gap-3'>
           <div className='col-span-1 py-20   px-2 flex flex-col items-center gap-3'>
             {/* <div
-              className='w-[200px] h-[200px] flex-shrink-0 rounded-full bg-[#FF0000]'
+              className='w-[200px] h-[200px] flex-shrink-0 rounded-full bg-primary'
               style={{
                 backgroundImage: file
                   ? `url(${URL.createObjectURL(file)})`
@@ -363,7 +363,7 @@ export default function Account() {
               }}
             /> */}
             <div
-              className='w-[200px] h-[200px] flex-shrink-0 rounded-full bg-[#FF0000]'
+              className='w-[200px] h-[200px] flex-shrink-0 rounded-full bg-primary'
               style={{
                 backgroundImage: file
                   ? `url(${URL.createObjectURL(file)})`
@@ -377,7 +377,7 @@ export default function Account() {
 
             <div
               onClick={handlePaperclipClick}
-              className='rounded-[8px] cursor-pointer border-[1.5px] w-fit p-2 flex justify-center items-center gap-1 border-[#FF0000] text-[#FF0000] text-[14px] font-semibold'
+              className='rounded-[8px] cursor-pointer border-[1.5px] w-fit p-2 flex justify-center items-center gap-1 border-primary text-primary text-[14px] font-semibold'
             >
               <ImagePlus />
               Change Photo
@@ -393,13 +393,13 @@ export default function Account() {
             <Tabs defaultValue='profile'>
               <TabsList className='border-b !py-0 rounded-none border-[#E4E7EC] w-full justify-start '>
                 <TabsTrigger
-                  className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                  className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                   value='profile'
                 >
                   Profile Settings
                 </TabsTrigger>
                 <TabsTrigger
-                  className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
+                  className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b data-[state=active]:border-primary'
                   value='security'
                 >
                   Security

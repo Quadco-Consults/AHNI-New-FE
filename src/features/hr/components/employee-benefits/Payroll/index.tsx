@@ -114,12 +114,12 @@ const Payroll: React.FC = () => {
     return (
       <div className='flex gap-2'>
         <Link href={`/dashboard/hr/employee-benefit/pay-roll/${payrollId}`}>
-          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <IconButton className='bg-alternate-light hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
         <IconButton
-          className='bg-[#F9F9F9] hover:text-primary'
+          className='bg-alternate-light hover:text-primary'
           onClick={() => {
             if (confirm('Are you sure you want to delete this payroll?')) {
               handleDeletePayroll(payrollId);

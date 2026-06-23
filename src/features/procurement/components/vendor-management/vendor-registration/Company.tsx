@@ -3,8 +3,8 @@
 import { Form } from "@/components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useFieldArray, useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { Label } from "@/components/ui/label";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
@@ -197,7 +197,7 @@ const Company = () => {
                   onClick={() => router.back()}
                   preffix={<ArrowLeft size={14} />}
                   type='button'
-                  className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                  className='bg-brand-light text-primary dark:text-gray-500'
                 >
                   Back
                 </FormButton>

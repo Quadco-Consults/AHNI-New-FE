@@ -1,8 +1,8 @@
 "use client";
 
 import FileUpload from "@/components/FileUpload";
-import FormButton from "@/components/atoms/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
 import {
   AlertDialog,
   AlertDialogAction,

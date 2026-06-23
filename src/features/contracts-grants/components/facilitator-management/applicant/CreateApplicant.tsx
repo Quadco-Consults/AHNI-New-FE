@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import FormButton from "@/components/FormButton";
 import { Button } from "@/components/ui/button";
 import { useRouter, useParams } from "next/navigation";

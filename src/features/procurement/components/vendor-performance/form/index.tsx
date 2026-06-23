@@ -3,8 +3,8 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import LongArrowRight from "@/components/icons/LongArrowRight";
 import GoBack from "@/components/GoBack";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";

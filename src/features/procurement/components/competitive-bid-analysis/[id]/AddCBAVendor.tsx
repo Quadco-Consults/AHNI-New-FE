@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { closeDialog, dialogSelector } from "@/store/ui";
 import { toast } from "sonner";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 

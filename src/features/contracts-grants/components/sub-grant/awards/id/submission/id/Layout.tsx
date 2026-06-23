@@ -1,4 +1,4 @@
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PartnerSubmissionDetails from "./organization-details";
 import SubGrantUploadDetail from "./uploads";

@@ -1,4 +1,4 @@
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
@@ -17,13 +17,13 @@ export default function PreAwardAssessmentStep() {
                     <BackNavigation />
                 </div>
                 <div>
-                    <p className="text-[#FF0000] font-semibold">Step 1/4</p>
+                    <p className="text-primary font-semibold">Step 1/4</p>
                 </div>
             </section>
             <section className="w-full">
                 <Card className="flex flex-col justify-center items-center gap-y-[1.25rem]">
                     <div className="w-full flex flex-col gap-y-[1.25rem]">
-                        <p className="text-[#DEA004] font-semibold">
+                        <p className="text-yellow-darker font-semibold">
                             PROGRAMMING CAPACITY
                         </p>
                         <p className="text-sm">
@@ -89,5 +89,5 @@ export default function PreAwardAssessmentStep() {
                                                 answersArray?.[index]
                                                     ?.response === option
                                                     ? "border-primary text-primary"
-                                                    : "border-[#756D6D] text-inherit"
+                                                    : "border-gray-text text-inherit"
                                             } */

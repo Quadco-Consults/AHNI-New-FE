@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import DescriptionCard from "@/components/DescriptionCard";
 import { LoadingSpinner } from "@/components/Loading";
 import { useSearchParams } from "next/navigation";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { useGetSingleItemQuery } from "@/features/modules/controllers";
 import { ColumnDef } from "@tanstack/react-table";
 import TableFilters from "@/components/TableFilters";

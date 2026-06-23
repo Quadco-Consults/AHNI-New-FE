@@ -9,8 +9,8 @@ import { Save } from "lucide-react";
 import { openDialog } from "@/store/ui";
 import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
-import FormInput from "@/components/atoms/FormInput";
-import FileUpload from "@/components/atoms/FileUpload";
+import FormInput from "@/components/FormInput";
+import FileUpload from "@/components/FileUpload";
 import {
   WorkforceQualificationFormValues,
   workforceQualificationSchema,

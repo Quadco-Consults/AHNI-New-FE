@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
 import { useSubmitConsultantApplication, useUploadApplicationDocument } from "@/features/contracts-grants/controllers/publicApplicationController";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import DescriptionCard from "@/components/DescriptionCard";
 import FilePreview from "@/components/FilePreview";
 import Card from "@/components/Card";
@@ -26,8 +26,8 @@ Calendar,
   AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
 import FormButton from "@/components/FormButton";
 import { Label } from "@/components/ui/label";
 import { countries } from "@/constants/countries";
@@ -90,7 +90,7 @@ const DetailsTag = ({
   label: string | number;
 }) => {
   return (
-    <div className='flex items-center border border-[#C7CBD5] text-sm p-1 px-[.625rem] gap-x-[.25rem] rounded-full'>
+    <div className='flex items-center border border-gray-border text-sm p-1 px-[.625rem] gap-x-[.25rem] rounded-full'>
       {icon}
       <p>{label}</p>
     </div>

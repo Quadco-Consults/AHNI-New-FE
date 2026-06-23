@@ -96,13 +96,13 @@ const CompetittveBidAnalysis = () => {
             <div className='flex basis-2/3 min-w-[30rem] items-end justify-end w-full border-b-4 '>
               <div className='grid w-full grid-cols-7 py-2'>
                 <div className='col-span-1 '>
-                  <p className='text-sm text-[#DEA004]'>S/N</p>
+                  <p className='text-sm text-yellow-darker'>S/N</p>
                 </div>
                 <div className='col-span-5 '>
-                  <p className='text-sm text-[#DEA004]'>Description</p>
+                  <p className='text-sm text-yellow-darker'>Description</p>
                 </div>
                 <div className='col-span-1'>
-                  <p className='text-sm text-[#DEA004]'>QTY</p>
+                  <p className='text-sm text-yellow-darker'>QTY</p>
                 </div>
               </div>
             </div>
@@ -118,23 +118,23 @@ const CompetittveBidAnalysis = () => {
                                     </div>
                                     <div className="grid w-full grid-cols-5 py-2">
                                         <div className="col-span-1 ">
-                                            <p className="text-sm text-[#DEA004]">
+                                            <p className="text-sm text-yellow-darker">
                                                 <Checkbox />
                                             </p>
                                         </div>
                                         <div className="col-span-1">
-                                            <p className="text-sm text-[#DEA004]">
+                                            <p className="text-sm text-yellow-darker">
                                                 Unit Price
                                             </p>
                                         </div>
                                         <div className="col-span-1">
-                                            <p className="text-sm text-[#DEA004]">
+                                            <p className="text-sm text-yellow-darker">
                                                 Total
                                             </p>
                                         </div>
 
                                         <div className="col-span-1">
-                                            <p className="text-sm text-[#DEA004]">
+                                            <p className="text-sm text-yellow-darker">
                                                 Grand Total
                                             </p>
                                         </div>

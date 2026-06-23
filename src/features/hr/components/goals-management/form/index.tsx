@@ -23,7 +23,7 @@ import { HrRoutes } from "@/constants/RouterConstants";
 import { useCreateGoal, CreateGoalPayload } from "@/features/hr/controllers/goalsController";
 import { useQueryClient } from "@tanstack/react-query";
 import GoBack from "@/components/GoBack";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import { useGetAllUsers, useGetReviewers } from "@/features/auth/controllers/userController";
 import { SelectContent } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";

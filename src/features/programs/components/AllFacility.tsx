@@ -58,14 +58,14 @@ export default function AllFacility() {
   return (
     <div>
       <div className='flex justify-between items-center py-6 mb-6'>
-        <h1 className='text-[#D92D20] font-semibold text-sm'>
+        <h1 className='text-error font-semibold text-sm'>
           Facility & Team Composition
         </h1>
         <div className='flex gap-2'>
           <Button
             onClick={() => setBulkUploadOpen(true)}
             variant='outline'
-            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-success border-[1px] border-gray-border'
             size='sm'
           >
             <Upload size={16} />
@@ -83,7 +83,7 @@ export default function AllFacility() {
               )
             }
             variant='outline'
-            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-yellow-darker border-[1px] border-gray-border'
             size='sm'
           >
             Click to add New
@@ -102,7 +102,7 @@ export default function AllFacility() {
         }}
       />
       <div>
-        <div className='flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
+        <div className='flex text-gray-text font-semibold text-sm border-b border-gray-300 pb-4'>
           <h1 className='flex-1'>Facility Name</h1>
           <h1 className='flex-1'>Contact Person</h1>
           <h1 className='flex-1'>Phone Number</h1>
@@ -120,7 +120,7 @@ export default function AllFacility() {
             {facility?.data?.results?.map((item) => (
               <div
                 key={item.id}
-                className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs'
+                className='flex justify-between mt-6 text-gray-text font-normal text-xs'
               >
                 <p className='flex-1'>{item.name}</p>
                 <p className='flex-1'>{item.contact_person}</p>

@@ -82,7 +82,7 @@ export default function SupportiveSupervisionPlan() {
                                     className="w-full flex gap-2 items-center justify-start"
                                     variant="ghost"
                                 >
-                                    <AddSquareIcon fillColor="#FF0000" />
+                                    <AddSquareIcon fillColor="hsl(var(--primary))" />
                                     Create Manually
                                 </Button>
                             </Link>

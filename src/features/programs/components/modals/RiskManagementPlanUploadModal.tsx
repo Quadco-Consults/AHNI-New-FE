@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { closeDialog } from "@/store/ui";
 import { z } from "zod";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch } from "@/hooks/useStore";
@@ -164,7 +164,7 @@ import { Upload as UploadFile } from "lucide-react";
 import FormButton from "@/components/FormButton";
 import { closeDialog } from "@/store/ui";
 import { z } from "zod";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch } from "@/hooks/useStore";
@@ -329,7 +329,7 @@ const RiskManagementPlanUploadModal = () => {
             <Button
               onClick={() => dispatch(closeDialog())}
               type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
             >
               Cancel
             </Button>

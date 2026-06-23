@@ -13,7 +13,7 @@ import useUrlQuery from "@/hooks/useQuery";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { z } from "zod";
 import { VendorAttestationSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -134,7 +134,7 @@ const Attestation = () => {
                     *
                   </span>
                 </Label>
-                <div className='border text-sm text-[#B3B7C1] px-2 py-6 rounded-xl bg-[#F9F9F9]'>
+                <div className='border text-sm text-[#B3B7C1] px-2 py-6 rounded-xl bg-alternate-light'>
                   I hereby attest that, to the best of my knowledge and belief,
                   all information provided in this form are true and correct. I
                   understand that AHNI may request additional information either
@@ -193,7 +193,7 @@ const Attestation = () => {
                   onClick={() => router.back()}
                   preffix={<ArrowLeft size={14} />}
                   type='button'
-                  className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                  className='bg-brand-light text-primary dark:text-gray-500'
                 >
                   Back
                 </FormButton>

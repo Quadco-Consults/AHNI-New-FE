@@ -139,7 +139,7 @@ export default function AdhocContractAcceptance() {
             {isLoading ? (
                 <div className="flex justify-center items-center py-12">
                     <div className="text-center">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#DEA004]"></div>
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-darker"></div>
                         <p className="mt-4 text-gray-600">Loading job adverts...</p>
                     </div>
                 </div>
@@ -163,7 +163,7 @@ export default function AdhocContractAcceptance() {
                             {groupedByAdvertisement.map((advertisement) => (
                                 <Card
                                     key={advertisement.id}
-                                    className="hover:shadow-lg transition-shadow duration-200 border-2 hover:border-[#DEA004]"
+                                    className="hover:shadow-lg transition-shadow duration-200 border-2 hover:border-yellow-darker"
                                 >
                                     <div className="space-y-4">
                                         {/* Header */}
@@ -206,7 +206,7 @@ export default function AdhocContractAcceptance() {
                                         {/* View Details Button */}
                                         <button
                                             onClick={() => router.push(`/dashboard/programs/adhoc/adhoc-acceptance/details/${advertisement.id}`)}
-                                            className="w-full bg-[#DEA004] hover:bg-[#C78F03] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                                            className="w-full bg-yellow-darker hover:bg-[#C78F03] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                                         >
                                             <Eye className="h-4 w-4" />
                                             View Contracts

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
 import Modal from "react-modal";
 import { Form } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import FormButton from "@/components/FormButton";
 import { Button } from "@/components/ui/button";
 import { useUpdateCompensationSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
@@ -251,7 +251,7 @@ const EditCompensationSpreadModal = (props: PropsType) => {
               <Button
                 type="button"
                 onClick={props.onCancel}
-                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                className="bg-brand-light text-primary dark:text-gray-500"
               >
                 Cancel
               </Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { Form } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, User, Calendar, ChevronRight } from "lucide-react";

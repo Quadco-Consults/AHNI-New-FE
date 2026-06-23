@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import LongArrowRight from "@/components/icons/LongArrowRight";
@@ -1314,7 +1314,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
             <div className='flex justify-between items-center mt-4 pt-4 border-t-2 border-gray-200'>
               <Button
                 type='button'
-                className='text-primary bg-[#FFF2F2] hover:bg-[#FFE5E5] flex gap-2 items-center justify-center px-6 py-3'
+                className='text-primary bg-brand-light hover:bg-[#FFE5E5] flex gap-2 items-center justify-center px-6 py-3'
                 onClick={() => {
                   console.log("🔵 Add Item button clicked");
                   console.log("🔵 Current fields length:", fields.length);

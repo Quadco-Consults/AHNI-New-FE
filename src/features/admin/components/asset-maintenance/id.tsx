@@ -1,6 +1,6 @@
 "use client";
 
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";

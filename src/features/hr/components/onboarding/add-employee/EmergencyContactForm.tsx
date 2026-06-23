@@ -3,9 +3,9 @@
 import React from "react";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { useParams } from "next/navigation";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 
 import { Separator } from "@/components/ui/separator";
 

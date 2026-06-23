@@ -1,6 +1,6 @@
 "use client";
 
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -123,7 +123,7 @@ const FundRequestSummaryModal = () => {
           <Button
             type="button"
             variant="outline"
-            className="text-[#DEA004] w-[250px] mt-5"
+            className="text-yellow-darker w-[250px] mt-5"
             onClick={handleAddInput}
           >
             Click to add another

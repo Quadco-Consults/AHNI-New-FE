@@ -7,8 +7,8 @@ import { useRouter, usePathname } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";
 import { Form } from "@/components/ui/form";
 import Card from "@/components/Card";
-import FormInput from "@/components/atoms/FormInput";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
 import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
 import { ChevronRight } from "lucide-react";
@@ -66,7 +66,7 @@ const Performance = () => {
                         <div className="flex justify-between gap-5 mt-10">
                             <Button
                                 type="button"
-                                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                                className="bg-brand-light text-primary dark:text-gray-500"
                             >
                                 Cancel
                             </Button>

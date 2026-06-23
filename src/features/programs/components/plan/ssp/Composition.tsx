@@ -5,8 +5,8 @@ import Link from "next/link";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import FormButton from "@/components/FormButton";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -300,7 +300,7 @@ const Composition = () => {
                 <Link href={RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION}>
                   <Button
                     type='button'
-                    className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                    className='bg-brand-light text-primary dark:text-gray-500'
                     size='lg'
                   >
                     Cancel

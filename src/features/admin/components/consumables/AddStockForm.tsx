@@ -1,8 +1,8 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { Form } from "@/components/ui/form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { useEffect } from "react";

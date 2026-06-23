@@ -99,7 +99,7 @@ export default function ProjectUploads() {
                 </p>
 
                 <Button
-                  className='flex gap-2 py-6 bg-[#FFF2F2] text-red-500 dark:bg-primary dark:text-white mx-auto'
+                  className='flex gap-2 py-6 bg-brand-light text-red-500 dark:bg-primary dark:text-white mx-auto'
                   type='button'
                   onClick={() => {
                     dispatch(
@@ -134,7 +134,7 @@ export default function ProjectUploads() {
                 ))}
 
                 <Button
-                  className='flex gap-2 py-6 bg-[#FFF2F2] text-red-500 dark:bg-primary dark:text-white'
+                  className='flex gap-2 py-6 bg-brand-light text-red-500 dark:bg-primary dark:text-white'
                   type='button'
                   onClick={() => {
                     dispatch(
@@ -171,7 +171,7 @@ export default function ProjectUploads() {
               <Button
                 type='button'
                 size='lg'
-                className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                className='bg-brand-light text-primary dark:text-gray-500'
               >
                 Previous
               </Button>

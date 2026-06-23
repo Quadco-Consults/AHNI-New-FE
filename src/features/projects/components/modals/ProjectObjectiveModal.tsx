@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
@@ -82,7 +82,7 @@ const ProjectObjectiveModal = () => {
                     <Button
                         onClick={() => append("")}
                         type="button"
-                        className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                        className="bg-brand-light text-primary dark:text-gray-500"
                     >
                         Add
                     </Button>
@@ -91,7 +91,7 @@ const ProjectObjectiveModal = () => {
                 <div className="flex justify-end gap-5 mt-16">
                     <Button
                         type="button"
-                        className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                        className="bg-brand-light text-primary dark:text-gray-500"
                         onClick={() => dispatch(closeDialog())}
                     >
                         Cancel

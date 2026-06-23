@@ -94,7 +94,7 @@ export default function DataTable<TData>({
               {table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
-                    className='cursor-pointer text-[#756D6D] text-sm dark:text-white'
+                    className='cursor-pointer text-gray-text text-sm dark:text-white'
                     key={row.id}
                     onClick={() => onRowClick && onRowClick(row)}
                   >

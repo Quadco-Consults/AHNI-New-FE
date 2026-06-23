@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { closeDialog, dialogSelector } from "@/store/ui";
 
 import FormTextArea from "@/components/FormTextArea";
-import FormMultiSelect from "@/components/atoms/FormMultiSelect";
+import FormMultiSelect from "@/components/FormMultiSelect";
 import {
   InterventionAreaSchema,
   TInterventionAreaData,

@@ -9,14 +9,14 @@ import {
 } from "@/components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { ChevronRight, Search } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import FormButton from "@/components/FormButton";
 import { Button } from "@/components/ui/button";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import {
   Dialog,
   DialogContent,
@@ -487,7 +487,7 @@ const Registration = () => {
                 <div>
                   <Dialog>
                     <DialogTrigger>
-                      <div className='text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'>
+                      <div className='text-yellow-darker font-medium border shadow-sm py-2 px-5 rounded-lg text-sm'>
                         Click to select categories that applies
                       </div>
                     </DialogTrigger>
@@ -628,7 +628,7 @@ const Registration = () => {
                 <Button
                   type='button'
                   onClick={() => router.back()}
-                  className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                  className='bg-brand-light text-primary dark:text-gray-500'
                 >
                   Cancel
                 </Button>

@@ -15,8 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import FormRadio from "@/components/atoms/FormRadio";
-import FormInput from "@/components/atoms/FormInput";
+import FormRadio from "@/components/FormRadio";
+import FormInput from "@/components/FormInput";
 import {
   Select,
   SelectContent,

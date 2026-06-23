@@ -9,13 +9,13 @@ export default function ProcurementPlansForm() {
 // import { useLocation, useNavigate } 
 // import { useFieldArray, useForm } from "react-hook-form";
 // import WorkPlanAPi from "@/features/programs/controllers/work-planController";
-// import FormSelect from "@/components/atoms/FormSelectField";
+// import FormSelect from "@/components/FormSelectField";
 // import { SelectContent, SelectItem } from "@/components/ui/select";
 // import { LoadingSpinner } from "@/components/Loading";
 // import { WorkPlanResultsData } from "definitions/program-types/program-workplan";
 // import { Form, FormMessage } from "@/components/ui/form";
-// import FormTextArea from "@/components/atoms/FormTextArea";
-// import FormInput from "@/components/atoms/FormInput";
+// import FormTextArea from "@/components/FormTextArea";
+// import FormInput from "@/components/FormInput";
 // import { z } from "zod";
 // import { ProcurementPlanSchema } from "@/features/procurement/types/procurement-validator";
 // import { zodResolver } from "@hookform/resolvers/zod";
@@ -175,7 +175,7 @@ export default function ProcurementPlansForm() {
 //                 <div className="flex justify-end mt-2">
 //                   <Button
 //                     type="button"
-//                     className="text-primary bg-[#FFF2F2] mt-2 flex gap-2 items-center justify-center"
+//                     className="text-primary bg-brand-light mt-2 flex gap-2 items-center justify-center"
 //                     onClick={() =>
 //                       append({
 //                         date_1: "",
@@ -282,7 +282,7 @@ export default function ProcurementPlansForm() {
 //             <div className="w-full flex items-center justify-end gap-5">
 //               <Button
 //                 type="button"
-//                 className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+//                 className="bg-brand-light text-primary dark:text-gray-500"
 //                 onClick={() => router.back()}
 //               >
 //                 Cancel

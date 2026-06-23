@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogDescription,
 } from "@/components/ui/dialog";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 

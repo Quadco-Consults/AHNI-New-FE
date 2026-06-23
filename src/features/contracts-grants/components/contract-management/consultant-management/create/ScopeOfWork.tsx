@@ -1,16 +1,16 @@
 "use client";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import FormInput from "@/components/atoms/FormInput";
-import FadedButton from "@/components/atoms/FadedButton";
+import FormTextArea from "@/components/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FadedButton from "@/components/FadedButton";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { Label } from "@/components/ui/label";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import Card from "@/components/Card";
 import FormButton from "@/components/FormButton";
 import ConsultantManagementLayout from "./Layout";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import {
   ScopeOfWorkSchema,
   TConsultantanagementDetailsFormData,
@@ -291,7 +291,7 @@ export default function ScopeOfWork() {
 
             {/* <div className='border-y border-[#DBDFE9] py-[1.875rem] pt-[3rem] space-y-[2rem]'>
               <div className='w-full flex flex-col gap-y-[1.25rem]'>
-                <p className='text-[#DEA004] font-semibold'>
+                <p className='text-yellow-darker font-semibold'>
                   Specific Deliverables
                 </p>
                 <p className='text-[#4D4545] text-sm'>
@@ -389,7 +389,7 @@ export default function ScopeOfWork() {
             </div>
 
             {/* <Card className="space-y-5">
-                            <p className="text-[#DEA004] font-semibold">
+                            <p className="text-yellow-darker font-semibold">
                                 Payment Schedule
                             </p>
                             <p className="text-[#4D4545] text-sm">
@@ -473,7 +473,7 @@ export default function ScopeOfWork() {
 
             <Card>
               <div className='w-full flex flex-col gap-y-[1.25rem]'>
-                <p className='text-[#DEA004] font-semibold'>
+                <p className='text-yellow-darker font-semibold'>
                   Confidential and Proprietary Information
                 </p>
                 <p className='text-[#4D4545] text-sm'>

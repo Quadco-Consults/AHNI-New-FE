@@ -2,7 +2,7 @@
 
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -314,7 +314,7 @@ export default function AcceptanceForm() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                <FileText className="h-5 w-5 text-[#DEA004]" />
+                                <FileText className="h-5 w-5 text-yellow-darker" />
                                 Contract Document
                             </h3>
                             <p className="text-sm text-gray-600 mt-1">Download and review your contract</p>

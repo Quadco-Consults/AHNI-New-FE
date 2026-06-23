@@ -387,7 +387,7 @@ export default function Summary() {
       <div className='flex justify-end gap-5 mt-16'>
         <Button
           type='button'
-          className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+          className='bg-brand-light text-primary dark:text-gray-500'
           onClick={() => router.back()}
         >
           Back

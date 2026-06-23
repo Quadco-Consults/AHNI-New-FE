@@ -117,11 +117,11 @@ const Grant: React.FC = () => {
         <Link
           href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: "1" })}
         >
-          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <IconButton className='bg-alternate-light hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton className='bg-alternate-light hover:text-primary'>
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>
       </div>

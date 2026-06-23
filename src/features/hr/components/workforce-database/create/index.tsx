@@ -5,9 +5,9 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
 import { Form, FormLabel } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import Card from "@/components/Card";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import GoBack from "@/components/GoBack";
 import { Save } from "lucide-react";
 import { openDialog } from "@/store/ui";
@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { LoadingSpinner } from "@/components/Loading";
 
-import FileUpload from "@/components/atoms/FileUpload";
+import FileUpload from "@/components/FileUpload";
 import { toast } from "sonner";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
@@ -28,7 +28,7 @@ import FormButton from "@/components/FormButton";
 
 import { HrRoutes } from "@/constants/RouterConstants";
 import { updateStepCompletion } from "@/store/stepTracker";
-import FormCheckBox from "@/components/atoms/FormCheckBox";
+import FormCheckBox from "@/components/FormCheckBox";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { IProjectSingleData } from "definitions/project";
 import { useCreateEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";

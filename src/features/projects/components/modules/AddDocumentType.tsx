@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -18,7 +18,7 @@ import {
     useAddDocumentType,
     useUpdateDocumentType,
 } from "@/features/modules/controllers/project/documentTypeController";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 
 const AddDocumentTypes = () => {
     const { dialogProps } = useAppSelector(dialogSelector);

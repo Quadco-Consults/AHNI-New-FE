@@ -1,7 +1,7 @@
 "use client";
 
-import FormButton from "@/components/atoms/FormButton";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormButton from "@/components/FormButton";
+import FormTextArea from "@/components/FormTextArea";
 import {
   AlertDialog,
   AlertDialogAction,

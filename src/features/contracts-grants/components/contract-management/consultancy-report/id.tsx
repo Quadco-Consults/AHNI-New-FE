@@ -2,7 +2,7 @@
 
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useRef, useState, useMemo } from "react";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import Card from "@/components/Card";
 import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";

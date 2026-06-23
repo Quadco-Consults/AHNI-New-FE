@@ -1,6 +1,6 @@
 "use client";
 
-import FormCheckBox from "@/components/atoms/FormCheckBox";
+import FormCheckBox from "@/components/FormCheckBox";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";

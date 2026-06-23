@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import FormInput from "@/components/atoms/FormInput";
-import FormRadio from "@/components/atoms/FormRadio";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormRadio from "@/components/FormRadio";
+import FormSelect from "@/components/FormSelect";
 import Card from "@/components/Card";
 import GoBack from "@/components/GoBack";
 import { Label } from "@/components/ui/label";
@@ -137,7 +137,7 @@ const CreateTimesheet = () => {
               <FormButton
                 onClick={handleCancel}
                 type='button'
-                className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                className='bg-brand-light text-primary dark:text-gray-500'
                 disabled={isCreating}
               >
                 Cancel

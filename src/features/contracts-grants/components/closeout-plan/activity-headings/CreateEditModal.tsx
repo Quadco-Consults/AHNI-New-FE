@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import {

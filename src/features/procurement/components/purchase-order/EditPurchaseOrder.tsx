@@ -25,7 +25,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { PurchaseOrderListSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import FormButton from "@/components/FormButton";
 import LongArrowRight from "@/components/icons/LongArrowRight";
@@ -37,7 +37,7 @@ import {
 } from "@/features/procurement/controllers/purchaseOrderController";
 import { RouteEnum } from "@/constants/RouterConstants";
 import MultiSelectFormField from "@/components/ui/multiselect";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers";
 import { toast } from "sonner";

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { CheckCircle, Clock, XCircle, AlertCircle, FileText, CreditCard, Handshake } from "lucide-react";
 import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { useModifyPurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
 import { useQueryClient } from "@tanstack/react-query";
 

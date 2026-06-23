@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -19,7 +19,7 @@ import {
     useAddFundingSource,
     useUpdateFundingSource,
 } from "@/features/modules/controllers/project/fundingSourceController";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 
 const AddFundingSource = () => {
     const { dialogProps } = useAppSelector(dialogSelector);

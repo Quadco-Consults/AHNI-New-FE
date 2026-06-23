@@ -219,12 +219,12 @@ const GoalsManagement: React.FC = () => {
     return (
       <div className="flex gap-2">
         <Link href={`/dashboard/hr/goals-management/${goalId}`}>
-          <IconButton className="bg-[#F9F9F9] hover:text-primary">
+          <IconButton className="bg-alternate-light hover:text-primary">
             <Eye size={16} />
           </IconButton>
         </Link>
         <IconButton
-          className="bg-[#F9F9F9] hover:text-red-600"
+          className="bg-alternate-light hover:text-red-600"
           onClick={() => {
             // TODO: Implement delete functionality
             console.log('Delete goal:', goalId);

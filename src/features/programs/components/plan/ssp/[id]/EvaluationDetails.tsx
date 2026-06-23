@@ -1,7 +1,7 @@
 "use client";
 
 import { skipToken } from "@reduxjs/toolkit/query";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import Card from "@/components/Card";
 import FilePreview from "@/components/FilePreview";

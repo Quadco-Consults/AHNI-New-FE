@@ -3,7 +3,7 @@
 import { Form } from "@/components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useFieldArray, useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import FormButton from "@/components/FormButton";
@@ -217,7 +217,7 @@ const Reference = () => {
                   onClick={() => router.back()}
                   preffix={<ArrowLeft size={14} />}
                   type='button'
-                  className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+                  className='bg-brand-light text-primary dark:text-gray-500'
                 >
                   Back
                 </FormButton>

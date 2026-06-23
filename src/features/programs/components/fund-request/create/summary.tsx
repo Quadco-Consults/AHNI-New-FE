@@ -20,8 +20,8 @@ import {
   TFundRequestActivityFormValues,
 } from "@/features/programs/types/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
 import { useGetAllCostCategoriesManager } from "@/features/modules/controllers/finance/costCategoryController";
 import ActivityBulkImport from "../ActivityBulkImport";
 import { Copy, Trash2 } from "lucide-react";
@@ -263,7 +263,7 @@ const FundSummary: React.FC = () => {
           <Button
             type='button'
             variant='outline'
-            className='text-[#DEA004] w-[250px] mt-5'
+            className='text-yellow-darker w-[250px] mt-5'
             onClick={() =>
               append({
                 activity_description: "",
@@ -282,7 +282,7 @@ const FundSummary: React.FC = () => {
             <FormButton
               onClick={() => router.back()}
               type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
             >
               Back
             </FormButton>

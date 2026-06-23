@@ -69,7 +69,7 @@ export default function AllApprovalThresholds() {
   return (
     <div>
       <div className='flex items-center justify-between py-6 mb-6'>
-        <h1 className='text-[#D92D20] font-semibold text-sm'>Approval Thresholds</h1>
+        <h1 className='text-error font-semibold text-sm'>Approval Thresholds</h1>
 
         <div className="flex items-center gap-4">
           <div className="flex items-stretch gap-2 border border-gray-300 rounded-md shadow-sm px-4 py-2 w-[350px]">
@@ -88,7 +88,7 @@ export default function AllApprovalThresholds() {
           <Button
             onClick={() => setBulkUploadOpen(true)}
             variant='outline'
-            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-success border-[1px] border-gray-border'
             size='sm'
           >
             <Upload size={16} />
@@ -107,7 +107,7 @@ export default function AllApprovalThresholds() {
               )
             }
             variant='outline'
-            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-yellow-darker border-[1px] border-gray-border'
             size='sm'
           >
             Click to add New
@@ -182,7 +182,7 @@ export default function AllApprovalThresholds() {
       </div>
 
       <div>
-        <div className='flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
+        <div className='flex justify-between text-gray-text font-semibold text-sm border-b border-gray-300 pb-4'>
           <h1 className='flex-[1.2]'>Transaction Type</h1>
           <h1 className='flex-1'>Approval Level</h1>
           <h1 className='flex-1'>Position</h1>
@@ -200,7 +200,7 @@ export default function AllApprovalThresholds() {
             {thresholds?.data?.results?.map((item) => (
               <div
                 key={item.id}
-                className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs items-center'
+                className='flex justify-between mt-6 text-gray-text font-normal text-xs items-center'
               >
                 <p className='flex-[1.2]'>{item.transaction_type_display}</p>
                 <p className='flex-1'>{item.approval_level_display}</p>

@@ -1,33 +1,34 @@
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { LoadingSpinner } from "@/components/Loading";
-import { ComponentProps, FC, ReactNode } from "react";
+"use client";
 
-interface ButtonProps extends ComponentProps<typeof Button> {
-    children: ReactNode;
-    loading?: boolean;
-    suffix?: ReactNode;
-    preffix?: ReactNode;
+import React from 'react';
+import { Button } from '@/components/ui/button';
+
+interface FadedButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
-const FadedButton: FC<ButtonProps> = ({
-    loading,
-    children,
-    suffix,
-    preffix,
-    className,
-    ...rest
+const FadedButton: React.FC<FadedButtonProps> = ({
+  children,
+  onClick,
+  className = "",
+  disabled = false,
+  type = "button"
 }) => {
-    return (
-        <Button variant="custom" className={cn("gap-x-1", className)} disabled={loading} {...rest}>
-            {preffix ? preffix : undefined}
-            {loading ? (
-                <LoadingSpinner size="sm" text="" className="mr-1" />
-            ) : undefined}
-            {loading ? <span>Please wait...</span> : children}
-            {suffix ? suffix : undefined}
-        </Button>
-    );
+  return (
+    <Button
+      onClick={onClick}
+      className={`opacity-60 hover:opacity-100 transition-opacity ${className}`}
+      disabled={disabled}
+      type={type}
+      variant="outline"
+    >
+      {children}
+    </Button>
+  );
 };
 
 export default FadedButton;

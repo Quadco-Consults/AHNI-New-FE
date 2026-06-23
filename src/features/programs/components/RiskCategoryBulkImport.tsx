@@ -162,7 +162,7 @@ const RiskCategoryBulkImport = () => {
         <Button
           variant="outline"
           size="sm"
-          className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#0A7E32] border-[1px] border-[#C7CBD5]"
+          className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-[#0A7E32] border-[1px] border-gray-border"
         >
           <Upload className="h-4 w-4" />
           Bulk Upload

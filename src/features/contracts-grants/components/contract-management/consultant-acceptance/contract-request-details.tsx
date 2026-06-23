@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import Card from "@/components/Card";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { Button } from "@/components/ui/button";
 import { useGetSingleContractRequest } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
@@ -77,7 +77,7 @@ export default function ContractRequestDetails() {
                 <BackNavigation />
                 <Card className="mt-5 p-6">
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#DEA004] mx-auto mb-4"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-darker mx-auto mb-4"></div>
                         <p>Loading contract details...</p>
                     </div>
                 </Card>
@@ -212,7 +212,7 @@ export default function ContractRequestDetails() {
                                     className={`border-2 rounded-lg p-4 transition-all hover:shadow-md ${
                                         applicant.offer_accepted
                                             ? 'bg-green-50 border-green-200'
-                                            : 'bg-white border-gray-200 hover:border-[#DEA004]'
+                                            : 'bg-white border-gray-200 hover:border-yellow-darker'
                                     }`}
                                 >
                                     <div className="flex items-center justify-between gap-4">
@@ -270,7 +270,7 @@ export default function ContractRequestDetails() {
                                                 className={`flex items-center gap-2 ${
                                                     applicant.offer_accepted
                                                         ? 'bg-green-600 hover:bg-green-700'
-                                                        : 'bg-[#DEA004] hover:bg-[#c48f04]'
+                                                        : 'bg-yellow-darker hover:bg-[#c48f04]'
                                                 }`}
                                                 onClick={() => {
                                                     const basePath = pathname?.includes("adhoc")

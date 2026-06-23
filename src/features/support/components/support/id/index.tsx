@@ -8,7 +8,7 @@ import { LoadingSpinner } from "@/components/Loading";
 import DescriptionCard from "@/components/DescriptionCard";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Clock } from "lucide-react";
 import { toast } from "sonner";

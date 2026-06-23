@@ -3,7 +3,7 @@
 import { useRouter, usePathname, useParams } from "next/navigation";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import FormButton from "@/components/FormButton";
 import { Button } from "@/components/ui/button";
 import Card from "@/components/Card";
@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
 import { Separator } from "@/components/ui/separator";
 
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useFieldArray } from "react-hook-form";
 import {
@@ -533,7 +533,7 @@ const EditFundRequest = () => {
             <Button
               type='button'
               variant='outline'
-              className='text-[#DEA004] w-[250px]'
+              className='text-yellow-darker w-[250px]'
               onClick={() =>
                 append({
                   activity_description: "",
@@ -552,7 +552,7 @@ const EditFundRequest = () => {
           <div className='flex justify-end gap-5 mt-16'>
             <Button
               type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
               onClick={goBack}
               disabled={isUpdating}
             >

@@ -128,20 +128,20 @@ export default function Notifications() {
                     <div className="w-full h-fit flex border-b-[2px] border-[#E4E7EC]">
                         <div
                             onClick={() => setIsClosed(false)}
-                            className={`font-medium p-[16px] cursor-pointer text-[14px] leading-[145%] tracking-[0%] ${!isClosed ? "text-[#FF0000] border-b-[2px] border-[#FF0000]" : "text-[#667185]"}`}
+                            className={`font-medium p-[16px] cursor-pointer text-[14px] leading-[145%] tracking-[0%] ${!isClosed ? "text-primary border-b-[2px] border-primary" : "text-[#667185]"}`}
                         >
                             Open Tickets ({openTicketsCount})
                         </div>
                         <div
                             onClick={() => setIsClosed(true)}
-                            className={`font-medium p-[16px] cursor-pointer text-[14px] leading-[145%] tracking-[0%] ${isClosed ? "text-[#FF0000] border-b-[2px] border-[#FF0000]" : "text-[#667185]"}`}
+                            className={`font-medium p-[16px] cursor-pointer text-[14px] leading-[145%] tracking-[0%] ${isClosed ? "text-primary border-b-[2px] border-primary" : "text-[#667185]"}`}
                         >
                             Closed Tickets ({closedTicketsCount})
                         </div>
                     </div>
                     <DataTable
                         data={displayedTickets}
-                        headClass="bg-[#FFF2F2]"
+                        headClass="bg-brand-light"
                         columns={supportColumn}
                         isLoading={isFetching}
                         pagination={{

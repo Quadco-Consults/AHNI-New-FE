@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
 import Card from "@/components/Card";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -1049,7 +1049,7 @@ export default function ApplicantInterviewPage() {
 
             <Card className="space-y-5">
                 <div>
-                    <h1 className="text-[#DEA004] font-bold text-lg">
+                    <h1 className="text-yellow-darker font-bold text-lg">
                         Consultant Evaluation Metric
                     </h1>
                     <p className="text-gray-600 mt-2">
@@ -1077,7 +1077,7 @@ export default function ApplicantInterviewPage() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <div className="bg-gray-50 p-4 rounded-lg">
-                            <h2 className="text-lg text-[#DEA004] font-bold mb-4">
+                            <h2 className="text-lg text-yellow-darker font-bold mb-4">
                                 Relevant Experience Requirements
                             </h2>
                             <div className="space-y-4">

@@ -164,7 +164,7 @@ const PayGroupModal = (props: PropsType) => {
             <div className='flex items-center justify-between'>
               <Button
                 type='button'
-                className='bg-[#FFF2F2] text-primary border-none'
+                className='bg-brand-light text-primary border-none'
                 onClick={props.onCancel}
               >
                 Cancel

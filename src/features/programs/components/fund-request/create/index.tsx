@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import FormButton from "@/components/FormButton";
 import { Button } from "@/components/ui/button";
 import Card from "@/components/Card";
@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangleIcon } from "lucide-react";
 
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 // import { useGetAllPartners } from "@/features/modules/controllers/project/partners";
 import {
@@ -512,7 +512,7 @@ const CreateFundRequest = () => {
           <div className='flex justify-end gap-5 mt-16'>
             <Button
               type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
               onClick={goBack}
             >
               Cancel

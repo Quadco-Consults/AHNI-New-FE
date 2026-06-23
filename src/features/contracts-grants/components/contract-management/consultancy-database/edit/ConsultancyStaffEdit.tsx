@@ -202,7 +202,7 @@ export default function ConsultancyStaffEdit() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Personal Information */}
             <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="text-lg font-semibold text-[#DEA004]">Personal Information</h3>
+              <h3 className="text-lg font-semibold text-yellow-darker">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormInput
                   form={form}
@@ -255,7 +255,7 @@ export default function ConsultancyStaffEdit() {
 
             {/* Contract Information */}
             <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="text-lg font-semibold text-[#DEA004]">Contract Information</h3>
+              <h3 className="text-lg font-semibold text-yellow-darker">Contract Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormInput
                   form={form}
@@ -281,7 +281,7 @@ export default function ConsultancyStaffEdit() {
 
             {/* Assignment Details */}
             <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="text-lg font-semibold text-[#DEA004]">Assignment Details</h3>
+              <h3 className="text-lg font-semibold text-yellow-darker">Assignment Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormInput
                   form={form}
@@ -319,7 +319,7 @@ export default function ConsultancyStaffEdit() {
 
             {/* Supervisory Information */}
             <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="text-lg font-semibold text-[#DEA004]">Supervisory Information</h3>
+              <h3 className="text-lg font-semibold text-yellow-darker">Supervisory Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormInput
                   form={form}
@@ -352,7 +352,7 @@ export default function ConsultancyStaffEdit() {
 
             {/* Banking Information */}
             <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="text-lg font-semibold text-[#DEA004]">Banking Information</h3>
+              <h3 className="text-lg font-semibold text-yellow-darker">Banking Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormInput
                   form={form}
@@ -389,7 +389,7 @@ export default function ConsultancyStaffEdit() {
 
             {/* Professional Background (Facilitators) */}
             <div className="border rounded-lg p-4 space-y-4">
-              <h3 className="text-lg font-semibold text-[#DEA004]">Professional Background</h3>
+              <h3 className="text-lg font-semibold text-yellow-darker">Professional Background</h3>
               <div className="grid grid-cols-1 gap-4">
                 <FormTextArea
                   form={form}

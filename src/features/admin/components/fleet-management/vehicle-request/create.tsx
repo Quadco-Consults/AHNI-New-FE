@@ -2,10 +2,10 @@
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import FormCombobox from "@/components/FormCombobox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -23,7 +23,7 @@ import {
   VehicleRequestSchema,
 } from "@/features/admin/types/fleet-management/vehicle-request";
 import { useEffect, useMemo } from "react";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import {
   useCreateVehicleRequestMutation,
   useEditVehicleRequestMutation,
@@ -627,7 +627,7 @@ const NewVehicleRequest = () => {
                 <Button
                   onClick={() => onTeamClick()}
                   type='button'
-                  className='w-3/12 text-[#DEA004] bg-white border '
+                  className='w-3/12 text-yellow-darker bg-white border '
                 >
                   Click to select team members
                 </Button>

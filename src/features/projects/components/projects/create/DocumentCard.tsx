@@ -114,7 +114,7 @@ export default function DocumentCard({
           </div>
         </div>
         <div
-          className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden cursor-pointer hover:bg-[#0000002A] transition-colors'
+          className='bg-black/10 py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden cursor-pointer hover:bg-black/15 transition-colors'
           onClick={handleView}
           title="Click to view PDF"
         >

@@ -1,6 +1,6 @@
 "use client";
 
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import React, { useState } from "react";
 import GrantDetailsCard from "./_components/GrantDetailsCard";
 import ExpenditureHistory from "./_components/ExpenditureHistory";

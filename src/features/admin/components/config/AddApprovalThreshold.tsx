@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormCheckBox from "@/components/atoms/FormCheckBox";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormCheckBox from "@/components/FormCheckBox";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";

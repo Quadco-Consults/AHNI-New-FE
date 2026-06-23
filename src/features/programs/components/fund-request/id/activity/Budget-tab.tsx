@@ -100,7 +100,7 @@ const BudgetTab = ({ fundRequest }: BudgetTabProps) => {
       <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
         <div className="flex justify-between items-center font-bold text-lg">
           <span>Total Budget Amount:</span>
-          <span className="text-[#DEA004]">
+          <span className="text-yellow-darker">
             {totalAmount.toLocaleString()} {fundRequest?.currency || 'USD'}
           </span>
         </div>

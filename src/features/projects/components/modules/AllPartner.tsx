@@ -25,7 +25,7 @@ export default function AllPartner() {
     return (
         <div>
             <div className="flex justify-between items-center py-6 mb-6">
-                <h1 className="text-[#D92D20] font-semibold text-sm">
+                <h1 className="text-error font-semibold text-sm">
                     Partners
                 </h1>
                 <div className="flex gap-2">
@@ -42,7 +42,7 @@ export default function AllPartner() {
                             )
                         }
                         variant="outline"
-                        className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
+                        className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-yellow-darker border-[1px] border-gray-border"
                         size="sm"
                     >
                         Click to add New

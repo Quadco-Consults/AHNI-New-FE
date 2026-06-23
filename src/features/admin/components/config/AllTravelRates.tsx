@@ -93,7 +93,7 @@ export default function AllTravelRates() {
   return (
     <div>
       <div className='flex justify-between items-center py-6 mb-6'>
-        <h1 className='text-[#D92D20] font-semibold text-sm'>Travel Rates</h1>
+        <h1 className='text-error font-semibold text-sm'>Travel Rates</h1>
         <Button
           onClick={() =>
             dispatch(
@@ -106,14 +106,14 @@ export default function AllTravelRates() {
             )
           }
           variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-white text-yellow-darker border-[1px] border-gray-border'
           size='sm'
         >
           Click to add New
         </Button>
       </div>
       <div>
-        <div className='flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
+        <div className='flex text-gray-text font-semibold text-sm border-b border-gray-300 pb-4'>
           <h1 className='flex-1'>Location</h1>
           <h1 className='flex-1'>Category</h1>
           <h1 className='flex-1'>Per Diem</h1>
@@ -136,7 +136,7 @@ export default function AllTravelRates() {
             {travelRates?.data?.results?.map((item) => (
               <div
                 key={item?.id || Math.random()}
-                className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs items-center'
+                className='flex justify-between mt-6 text-gray-text font-normal text-xs items-center'
               >
                 <div className='flex-1'>
                   <p className="font-medium">{item?.state_name || item?.state || 'N/A'}</p>

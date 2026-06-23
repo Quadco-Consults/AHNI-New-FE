@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { Upload, FileText, CheckCircle, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { AdminRoutes } from "@/constants/RouterConstants";

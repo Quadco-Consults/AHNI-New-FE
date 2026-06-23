@@ -64,7 +64,7 @@ const AuditLog = () => {
       <div className=''>
         {" "}
         <IconButton
-          className='bg-[#F9F9F9] hover:text-primary'
+          className='bg-alternate-light hover:text-primary'
           onClick={() => onViewAction(data)}
         >
           <Icon icon='ph:eye-duotone' fontSize={15} />

@@ -282,7 +282,7 @@ const OperationalCost = (data: ProcurementPlanResultsData) => {
                   </th>
                   <th
                     colSpan={1}
-                    className="px-4 py-2 border text-center font-semibold text-[#DEA004]"
+                    className="px-4 py-2 border text-center font-semibold text-yellow-darker"
                   >
                     BUDGET REFERENCE NUMBER
                   </th>
@@ -331,7 +331,7 @@ const OperationalCost = (data: ProcurementPlanResultsData) => {
                   </th>
                   <th
                     colSpan={7}
-                    className="px-4 py-2 border text-sm font-semibold text-center text-[#DEA004]"
+                    className="px-4 py-2 border text-sm font-semibold text-center text-yellow-darker"
                   >
                     PROCUREMENT MILESTONES
                   </th>

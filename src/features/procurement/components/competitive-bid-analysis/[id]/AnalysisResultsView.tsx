@@ -25,9 +25,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormSelect from "@/components/FormSelectField";
 import { SelectContent, SelectItem } from "@/components/ui/select";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

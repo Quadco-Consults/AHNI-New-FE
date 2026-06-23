@@ -220,12 +220,12 @@ const PerformanceManagement: React.FC = () => {
         <Link
           href={`/dashboard/hr/performance-management/${assessmentId}`}
         >
-          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <IconButton className='bg-alternate-light hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
         <IconButton
-          className='bg-[#F9F9F9] hover:text-red-600'
+          className='bg-alternate-light hover:text-red-600'
           onClick={() => {
             // TODO: Implement delete functionality
             // Debug: console.log('Delete assessment:', assessmentId);

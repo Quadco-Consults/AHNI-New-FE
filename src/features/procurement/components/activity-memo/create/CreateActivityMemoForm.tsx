@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
 import Card from "@/components/Card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
@@ -901,7 +901,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
               <div className="flex justify-between items-center mt-4">
                 <Button
                   type="button"
-                  className="text-primary bg-[#FFF2F2] flex gap-2"
+                  className="text-primary bg-brand-light flex gap-2"
                   onClick={() =>
                     append({
                       item: "",

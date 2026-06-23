@@ -305,7 +305,7 @@ const ActionListAction = ({ data, onRefresh, isRefreshing }: any) => {
       <div className='flex gap-2'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="rounded-lg px-2 py-2 bg-[#F9F9F9] dark:text-black hover:text-primary dark:hover:text-primary">
+            <button className="rounded-lg px-2 py-2 bg-alternate-light dark:text-black hover:text-primary dark:hover:text-primary">
               <CircleEllipsisIcon />
             </button>
           </DropdownMenuTrigger>

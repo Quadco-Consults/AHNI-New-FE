@@ -5,9 +5,9 @@ import LongArrowLeft from "@/components/icons/LongArrowLeft";
 import Card from "@/components/Card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormSelect from "@/components/atoms/FormSelectField";
-import FormInput from "@/components/atoms/FormInput";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
 import { Button } from "@/components/ui/button";
 import { RouteEnum } from "@/constants/RouterConstants";
 
@@ -245,7 +245,7 @@ const CreateRickManagement = () => {
 
           <div className='flex justify-end gap-5 mt-16'>
             <Button
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
               onClick={goBack}
             >
               Cancel

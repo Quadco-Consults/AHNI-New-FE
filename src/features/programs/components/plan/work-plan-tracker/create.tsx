@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
 import LongArrowLeft from "@/components/icons/LongArrowLeft";
 import Card from "@/components/Card";
 import { Form } from "@/components/ui/form";
@@ -300,7 +300,7 @@ export default function CreateActivityTracker() {
             <FormButton
               onClick={goBack}
               type='button'
-              className='bg-[#FFF2F2] text-primary dark:text-gray-500'
+              className='bg-brand-light text-primary dark:text-gray-500'
               size='lg'
             >
               Cancel

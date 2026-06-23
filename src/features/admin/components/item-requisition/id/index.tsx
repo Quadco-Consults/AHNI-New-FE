@@ -1,7 +1,7 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import Card from "@/components/Card";
 import DescriptionCard from "@/components/DescriptionCard";
 import GoBack from "@/components/GoBack";

@@ -193,7 +193,7 @@ const ActionListAction = ({ data }: any) => {
     <div className="flex items-center gap-2">
       <Dialog>
         <DialogTrigger>
-          <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary">
+          <div className="rounded-lg px-2 py-2 bg-alternate-light hover:text-primary dark:text-black dark:hover:text-primary">
             <Edit size={16} />
           </div>
         </DialogTrigger>
@@ -319,7 +319,7 @@ const ActionListAction = ({ data }: any) => {
           </div>
         </DialogContent>
       </Dialog>
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+      <IconButton className="bg-alternate-light hover:text-primary">
         <Trash2 size={16} />
       </IconButton>
     </div>

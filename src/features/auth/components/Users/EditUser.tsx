@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
 import { Switch } from "@/components/ui/switch";
 import { Form } from "@/components/ui/form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { closeDialog, dialogSelector } from "@/store/ui";
 import { TUpdateUserFormValues, UpdateUserSchema } from "@/features/auth/types/user";
 import { useGetAllRoles } from "../../controllers/roleController";
-import FormMultiSelect from "@/components/atoms/FormMultiSelect";
+import FormMultiSelect from "@/components/FormMultiSelect";
 
 const genderOptions = [
   { label: "Male", value: "MALE" },

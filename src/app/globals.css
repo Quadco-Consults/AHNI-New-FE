@@ -47,8 +47,19 @@
     --gray-dark: 20 8% 30%;       /* #4D4545 */
     --gray-overlay: 0 0% 0% / 10%; /* #0000001A */
     --gray-border: 210 18% 87%;   /* #CDD5E0 */
+    --gray-border-light: 220 27% 90%; /* #DBDFE9 */
     --alternate-light: 0 0% 97.6%; /* #F9F9F9 */
     --alternate: 0 40% 98%;       /* #FFF2F2 */
+
+    /* AHNI Brand Colors */
+    --brand-light: 0 100% 97%;    /* #FFF2F2 - AHNI Light Pink */
+    --brand-lighter: 0 86% 95%;   /* #FEE2E2 - AHNI Lighter Pink */
+
+    /* Extended Utility Colors */
+    --navy-dark: 225 42% 15%;     /* #141B34 - Dark Navy */
+    --beige-light: 40 22% 90%;    /* #EBE8E1 - Light Beige */
+    --beige: 48 26% 68%;          /* #c4bd97 - Beige */
+    --tan: 21 35% 47%;            /* #A46C4C - Tan */
 
     /* Status Colors */
     --success: 142 76% 36%;       /* Green for approved/success */
@@ -159,8 +170,19 @@
     --gray-dark: 210 6% 85%;         /* Much lighter on dark */
     --gray-overlay: 0 0% 100% / 10%; /* White overlay for dark */
     --gray-border: 217.2 32.6% 25%;  /* Darker border for dark mode */
+    --gray-border-light: 220 27% 30%; /* Darker for dark mode */
     --alternate-light: 217.2 32.6% 8%; /* Dark alternate */
     --alternate: 217.2 32.6% 12%;    /* Slightly lighter dark alternate */
+
+    /* AHNI Brand Colors - Dark Mode */
+    --brand-light: 0 100% 10%;       /* Much darker for dark mode */
+    --brand-lighter: 0 86% 15%;      /* Darker for dark mode */
+
+    /* Extended Utility Colors - Dark Mode */
+    --navy-dark: 225 42% 85%;        /* Inverted/lighter for dark mode */
+    --beige-light: 40 22% 20%;       /* Darker for dark mode */
+    --beige: 48 26% 35%;             /* Darker for dark mode */
+    --tan: 21 35% 60%;               /* Lighter for dark mode */
 
     /* Status Colors - Dark Mode Optimized */
     --success: 142 76% 46%;          /* Slightly brighter green */

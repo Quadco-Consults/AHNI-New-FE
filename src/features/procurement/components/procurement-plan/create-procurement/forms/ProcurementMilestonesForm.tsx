@@ -5,9 +5,9 @@ import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import ProcurementPlanLayout from "../ProcurementPlanLayout";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProcurementMilestoneSchema } from "@/features/procurement/types/procurement-validator";
@@ -63,7 +63,7 @@ const ProcurementMilestonesForm = () => {
             <div className="w-full flex items-center justify-end gap-5">
               <Button
                 type="button"
-                className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                className="bg-brand-light text-primary dark:text-gray-500"
                 onClick={() => router.back()}
               >
                 Back

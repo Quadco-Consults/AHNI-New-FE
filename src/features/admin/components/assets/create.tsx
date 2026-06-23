@@ -1,10 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 import { Form } from "@/components/ui/form";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import {
@@ -25,7 +25,7 @@ import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
 import { useGetAllPartners } from "@/features/modules/controllers/project/partnerController";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormTextArea from "@/components/FormTextArea";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
 import {
   useAddItem,

@@ -19,9 +19,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 
 // Form Components
-import FormInput from "@/components/atoms/FormInput";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
+import FormSelect from "@/components/FormSelect";
 import FormCheckBox from "@/components/FormCheckBox";
 import FormButton from "@/components/FormButton";
 

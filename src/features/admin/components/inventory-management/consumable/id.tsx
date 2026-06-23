@@ -1,6 +1,6 @@
 "use client";
 
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import ConsumableDetails from "@/features/admin/components/inventory-management/ConsumableDetails";
 
 export default function ViewConsumable() {

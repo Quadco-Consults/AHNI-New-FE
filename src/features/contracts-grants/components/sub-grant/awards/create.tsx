@@ -2,10 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@reduxjs/toolkit/query";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
 import Card from "@/components/Card";
 import { CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -305,7 +305,7 @@ export default function CreateSubGrant() {
                                 <Button
                                     variant="ghost"
                                     type="button"
-                                    className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
+                                    className="text-yellow-darker font-medium border shadow-sm py-2 px-5 rounded-lg text-sm"
                                     onClick={() =>
                                         dispatch(
                                             openDialog({

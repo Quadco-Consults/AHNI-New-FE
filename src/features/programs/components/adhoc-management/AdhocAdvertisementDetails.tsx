@@ -1,6 +1,6 @@
 "use client";
 
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { Button } from "@/components/ui/button";
 import { ProgramRoutes } from "@/constants/RouterConstants";

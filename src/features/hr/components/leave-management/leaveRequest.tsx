@@ -161,12 +161,12 @@ const LeaveManagement: React.FC = () => {
         <Link
           href={HrRoutes.LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL.replace(":id", data.original.id)}
         >
-          <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+          <IconButton className='bg-alternate-light hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
         <IconButton
-          className='bg-[#F9F9F9] hover:text-primary'
+          className='bg-alternate-light hover:text-primary'
           onClick={() => handleDelete(data.original.id)}
         >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />

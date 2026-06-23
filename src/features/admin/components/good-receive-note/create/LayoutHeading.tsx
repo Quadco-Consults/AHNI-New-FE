@@ -64,7 +64,7 @@ export default function GoodReceiveNoteLayoutHeading() {
 
                             {i !== steps.length - 1 && (
                                 <div className="flex items-center justify-center w-full text-center ">
-                                    <Separator className="w-[70%] text-center h-[2px] bg-[#756D6D] " />
+                                    <Separator className="w-[70%] text-center h-[2px] bg-gray-text " />
                                 </div>
                             )}
                         </div>

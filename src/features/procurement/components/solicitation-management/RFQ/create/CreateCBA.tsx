@@ -1,8 +1,8 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelectField";
 // import GoBack from "@/components/GoBack";
 import { Button } from "@/components/ui/button";
 import {
@@ -578,7 +578,7 @@ const CreateCBA = () => {
               <div>
                 <Dialog>
                   <DialogTrigger>
-                    <div className="text-[#DEA004] font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
+                    <div className="text-yellow-darker font-medium border shadow-sm py-2 px-5 rounded-lg text-sm">
                       Click to select team members to make up the committee
                     </div>
                   </DialogTrigger>
@@ -1043,7 +1043,7 @@ const CreateCBA = () => {
             <Button
               onClick={() => router.back()}
               type="button"
-              className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+              className="bg-brand-light text-primary dark:text-gray-500"
             >
               Cancel
             </Button>

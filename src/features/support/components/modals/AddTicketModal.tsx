@@ -7,13 +7,13 @@ import { Upload as UploadFile } from "lucide-react";
 import FormButton from "@/components/FormButton";
 import { closeDialog } from "@/store/ui";
 import { z } from "zod";
-import FormSelect from "@/components/atoms/FormSelect";
+import FormSelect from "@/components/FormSelect";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch } from "@/hooks/useStore";
-import FormInput from "@/components/atoms/FormInput";
-import FormTextArea from "@/components/atoms/FormTextArea";
-import FormRadio from "@/components/atoms/FormRadio";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
+import FormRadio from "@/components/FormRadio";
 import { SupportSchema } from "@/features/support/types/support/support";
 import { useCreateTicket } from "@/features/support/controllers/supportController";
 import { useGetUserProfile, useGetCurrentUser } from "@/features/auth/controllers/userController";
@@ -218,7 +218,7 @@ const AddTicketModal = () => {
                         <Button
                             onClick={() => dispatch(closeDialog())}
                             type="button"
-                            className="bg-[#FFF2F2] text-primary dark:text-gray-500"
+                            className="bg-brand-light text-primary dark:text-gray-500"
                         >
                             Cancel
                         </Button>

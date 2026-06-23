@@ -115,10 +115,10 @@ const ActionListAction = ({ data }: any) => {
   // console.log(data);
   return (
     <div className="flex items-center gap-2">
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+      <IconButton className="bg-alternate-light hover:text-primary">
         <Edit size={16} />
       </IconButton>
-      <IconButton className="bg-[#F9F9F9] hover:text-primary">
+      <IconButton className="bg-alternate-light hover:text-primary">
         <Trash2 size={16} />
       </IconButton>
     </div>

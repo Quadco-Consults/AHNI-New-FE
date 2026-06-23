@@ -63,7 +63,23 @@ module.exports = {
           dark: "hsl(var(--gray-dark))",
           overlay: "hsl(var(--gray-overlay))",
           border: "hsl(var(--gray-border))",
+          borderLight: "hsl(var(--gray-border-light))",
         },
+        // AHNI Brand Colors
+        brand: {
+          DEFAULT: "hsl(var(--primary))",     // #FF0000
+          light: "hsl(var(--brand-light))",   // #FFF2F2
+          lighter: "hsl(var(--brand-lighter))", // #FEE2E2
+        },
+        // Extended Utility Colors
+        navy: {
+          dark: "hsl(var(--navy-dark))",      // #141B34
+        },
+        beige: {
+          DEFAULT: "hsl(var(--beige))",
+          light: "hsl(var(--beige-light))",
+        },
+        tan: "hsl(var(--tan))",
         // Status colors using CSS variables
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",

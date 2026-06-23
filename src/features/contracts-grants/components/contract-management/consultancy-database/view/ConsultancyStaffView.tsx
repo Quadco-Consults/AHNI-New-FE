@@ -222,7 +222,7 @@ export default function ConsultancyStaffView() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Personal Information</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Personal Information</h3>
               <div className="space-y-3">
                 {consultantData.name && (
                   <DescriptionCard
@@ -270,7 +270,7 @@ export default function ConsultancyStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Contract Status</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Contract Status</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   label="Current Status"
@@ -307,7 +307,7 @@ export default function ConsultancyStaffView() {
         <TabsContent value="contract" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Contract Period</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Contract Period</h3>
               <div className="space-y-3">
                 {consultantData.position_under_contract && (
                   <DescriptionCard
@@ -337,7 +337,7 @@ export default function ConsultancyStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Assignment Details</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Assignment Details</h3>
               <div className="space-y-3">
                 {(consultantData.project || consultantData.location || consultantData.contract_request || consultantData.type ||
                   consultantData.health_facility || consultantData.spoke_site_name || consultantData.lga || consultantData.cluster ||
@@ -428,7 +428,7 @@ export default function ConsultancyStaffView() {
         <TabsContent value="education" className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Education Background</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Education Background</h3>
               {applicant.education && applicant.education.length > 0 ? (
                 <div className="space-y-4">
                   {applicant.education.map((edu: any, index: number) => (
@@ -449,7 +449,7 @@ export default function ConsultancyStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Employment History</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Employment History</h3>
               {applicant.employment_history && applicant.employment_history.length > 0 ? (
                 <div className="space-y-4">
                   {applicant.employment_history.map((emp: any, index: number) => (
@@ -470,7 +470,7 @@ export default function ConsultancyStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Special Consultant Services</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Special Consultant Services</h3>
               {applicant.special_consultant_services && applicant.special_consultant_services.length > 0 ? (
                 <div className="space-y-4">
                   {applicant.special_consultant_services.map((service: any, index: number) => (
@@ -491,7 +491,7 @@ export default function ConsultancyStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Language Proficiency</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Language Proficiency</h3>
               {applicant.language_proficiency && applicant.language_proficiency.length > 0 ? (
                 <div className="space-y-4">
                   {applicant.language_proficiency.map((lang: any, index: number) => (
@@ -579,8 +579,8 @@ export default function ConsultancyStaffView() {
           {/* Payment History Table */}
           <Card>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-[#DEA004]">Payment History</h3>
-              <Button className="flex items-center gap-2 bg-[#DEA004] hover:bg-[#c48f04]">
+              <h3 className="text-xl font-semibold text-yellow-darker">Payment History</h3>
+              <Button className="flex items-center gap-2 bg-yellow-darker hover:bg-[#c48f04]">
                 <Plus className="h-4 w-4" />
                 New Payment
               </Button>
@@ -742,7 +742,7 @@ export default function ConsultancyStaffView() {
           {/* Payment Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Payment Statistics</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Payment Statistics</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   label="Average Payment Amount"
@@ -760,7 +760,7 @@ export default function ConsultancyStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Recent Activity</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Recent Activity</h3>
               <div className="space-y-3">
                 {payments.length > 0 ? (
                   payments.slice(0, 3).map((payment: any, index: number) => (
@@ -791,7 +791,7 @@ export default function ConsultancyStaffView() {
         <TabsContent value="monitoring" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Technical Monitor</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Technical Monitor</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   label="Monitor User"
@@ -813,7 +813,7 @@ export default function ConsultancyStaffView() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Record Information</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Record Information</h3>
               <div className="space-y-3">
                 <DescriptionCard
                   label="Created"
@@ -830,7 +830,7 @@ export default function ConsultancyStaffView() {
           {/* References */}
           {applicant.referees && applicant.referees.length > 0 && (
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">References</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">References</h3>
               <div className="space-y-4">
                 {applicant.referees.map((referee: any, index: number) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4">
@@ -851,7 +851,7 @@ export default function ConsultancyStaffView() {
         <TabsContent value="documents" className="space-y-6">
           {applicant.documents && applicant.documents.length > 0 ? (
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Uploaded Documents</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {applicant.documents.map((doc: any, index: number) => (
                   <FilePreview
@@ -867,7 +867,7 @@ export default function ConsultancyStaffView() {
             </Card>
           ) : (
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <h3 className="text-lg font-semibold mb-4 text-yellow-darker">Uploaded Documents</h3>
               <div className="text-center py-8 text-gray-500">
                 No documents uploaded
               </div>

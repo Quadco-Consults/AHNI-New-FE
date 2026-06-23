@@ -6,7 +6,7 @@ import ServiceLevelAgreementLayout from "./Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import { toast } from "sonner";
 import { useGetSingleAgreement, useUpdateAgreement } from "@/features/contracts-grants/controllers/agreementController";

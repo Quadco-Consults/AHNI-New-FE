@@ -3,10 +3,10 @@
 import React from "react";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import FormInput from "@/components/atoms/FormInput";
+import FormInput from "@/components/FormInput";
 import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
-import FormCheckBox from "@/components/atoms/FormCheckBox";
+import FormCheckBox from "@/components/FormCheckBox";
 import { openDialog } from "@/store/ui";
 import { Save } from "lucide-react";
 
