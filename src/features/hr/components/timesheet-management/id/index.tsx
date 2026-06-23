@@ -383,9 +383,9 @@ const TimesheetManagementFull = () => {
   // Project Select Component
   const ProjectSelect = ({ value, onChange, rowIndex }: any) => {
     const { data: projectsData, isLoading } = useGetAvailableProjects();
-    // Handle API wrapper structure - timesheet API returns {data: [...]}
+    // Handle API wrapper structure - API returns {status: "success", data: {status: true, data: [...]}}
     // Ensure allProjects is always an array
-    const allProjects = Array.isArray(projectsData?.data) ? projectsData.data : [];
+    const allProjects = Array.isArray(projectsData?.data?.data) ? projectsData.data.data : [];
     // Filter out empty IDs
     const projects = allProjects.filter((project: any) => project?.id && project.id.trim() !== '');
 
@@ -471,9 +471,9 @@ const TimesheetManagementFull = () => {
     );
 
     // Extract activities from response
-    // Response structure: {data: [...]} - direct array from timesheet endpoint
+    // Response structure: {status: "success", data: {status: true, data: [...]}}
     // Ensure activities is always an array
-    const activities = Array.isArray(activitiesData?.data) ? activitiesData.data : [];
+    const activities = Array.isArray(activitiesData?.data?.data) ? activitiesData.data.data : [];
 
     // Function to refresh ActivityPlan cache
     const refreshActivityPlans = useCallback(async () => {
@@ -650,7 +650,7 @@ const TimesheetManagementFull = () => {
   // Display Components for Read-Only View
   const ProjectDisplay = ({ entry }: { entry: TimesheetEntry }) => {
     const { data: projectsData } = useGetAvailableProjects();
-    const allProjects = Array.isArray(projectsData?.data) ? projectsData.data : [];
+    const allProjects = Array.isArray(projectsData?.data?.data) ? projectsData.data.data : [];
     const project = allProjects.find((p: any) => p.id === entry.project);
     const projectName = project?.title || project?.project_name || project?.project_id || entry.project_name || "Unknown Project";
 
@@ -672,7 +672,7 @@ const TimesheetManagementFull = () => {
     if (entry.workplan_activity || entry.activity_plan) {
       const activityId = entry.workplan_activity || entry.activity_plan;
       const { data: activitiesData } = useGetAvailableActivities(undefined, !!activityId);
-      const activities = Array.isArray(activitiesData?.data) ? activitiesData.data : [];
+      const activities = Array.isArray(activitiesData?.data?.data) ? activitiesData.data.data : [];
       const activity = activities.find((a: any) => a.id === activityId);
 
       if (activity) {
