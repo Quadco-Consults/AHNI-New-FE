@@ -47,6 +47,7 @@ import {
   useCreatePaymentDisbursement,
   formatCurrencyAmount,
 } from "@/features/finance/controllers/paymentDisbursementController";
+import { useCreatePaymentVoucher } from "@/features/finance/controllers/paymentVoucherController";
 import { useGetBankAccounts } from "@/features/finance/controllers/accountingController";
 import { useGetChartOfAccounts } from "@/features/finance/controllers/accountingController";
 import type { PendingPaymentRequest } from "@/features/finance/types/payment-disbursement.types";
@@ -76,6 +77,7 @@ export default function ProcessPaymentRequestDialog({
   onSuccess,
 }: ProcessPaymentRequestDialogProps) {
   const { createDisbursement, isLoading, isSuccess } = useCreatePaymentDisbursement();
+  const { createPaymentVoucher, isLoading: isPVLoading, isSuccess: isPVSuccess } = useCreatePaymentVoucher();
 
   // Fetch real bank accounts
   const { data: bankAccountsData } = useGetBankAccounts({ is_active: true });
@@ -134,8 +136,10 @@ export default function ProcessPaymentRequestDialog({
 
     try {
       // Use net_amount if available (after tax deductions), otherwise use total_amount
-      const paymentAmount = paymentRequest.net_amount || paymentRequest.total_amount;
+      const grossAmount = paymentRequest.gross_amount || paymentRequest.total_amount;
+      const netAmount = paymentRequest.net_amount || paymentRequest.total_amount;
 
+      // Step 1: Create Payment Disbursement
       await createDisbursement({
         payment_request_id: paymentRequest.id,
         payment_date: data.payment_date,
@@ -143,9 +147,40 @@ export default function ProcessPaymentRequestDialog({
         bank_account_id: data.bank_account_id,
         chart_account_id: data.chart_account_id,
         payment_reference: data.payment_reference,
-        total_amount: paymentAmount,
+        total_amount: netAmount,
         notes: data.notes || '',
       });
+
+      // Step 2: Create Payment Voucher
+      await createPaymentVoucher({
+        payment_request_id: paymentRequest.id,
+        payment_date: data.payment_date,
+        payment_method: data.payment_method as any,
+        bank_account_id: data.bank_account_id,
+        payment_reference: data.payment_reference,
+        chart_account_id: data.chart_account_id,
+
+        // Amounts
+        gross_amount: grossAmount,
+        total_wht: paymentRequest.total_wht || 0,
+        total_vat: paymentRequest.total_vat || 0,
+        total_paye: paymentRequest.total_paye || 0,
+        total_pension: paymentRequest.total_pension || 0,
+        total_nhis: paymentRequest.total_nhis || 0,
+        net_amount: netAmount,
+
+        // Payee information
+        payee_name: paymentRequest.requested_by || "Unknown",
+        payment_description: paymentRequest.payment_reason,
+
+        // Optional fields
+        project_id: paymentRequest.project?.id,
+        budget_line_id: paymentRequest.budget_line?.id,
+        cheque_number: data.payment_method === "CHEQUE" ? data.payment_reference : undefined,
+        notes: data.notes || '',
+      });
+
+      toast.success("Payment processed and Payment Voucher created successfully!");
     } catch (error: any) {
       toast.error(error.message || "Failed to process payment");
     }
@@ -552,11 +587,12 @@ export default function ProcessPaymentRequestDialog({
                   type="submit"
                   disabled={
                     isLoading ||
+                    isPVLoading ||
                     (selectedBankAccount &&
                       selectedBankAccount.current_balance < (paymentRequest.net_amount || paymentRequest.total_amount))
                   }
                 >
-                  {isLoading ? "Processing..." : "Process Payment"}
+                  {(isLoading || isPVLoading) ? "Processing..." : "Process Payment"}
                 </Button>
               </DialogFooter>
             </form>
