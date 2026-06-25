@@ -179,6 +179,13 @@ export interface PendingPaymentRequest {
   created_datetime: string;
   items_count: number;
 
+  // Tax calculation fields
+  gross_amount?: number;
+  total_wht?: number;
+  total_vat?: number;
+  total_paye?: number;
+  net_amount?: number;
+
   // Project & Fund Allocation
   project?: {
     id: string;

@@ -75,7 +75,13 @@ export default function CreatePaymentRequest() {
           phone_number: "",
           email: "",
           address: "",
-          deduction_amount: "",
+          // Structured deductions
+          wht_deduction: "",
+          pension_deduction: "",
+          nhis_deduction: "",
+          loan_deduction: "",
+          other_deductions: "",
+          deduction_amount: "", // Auto-calculated
           expense_account: "",
           department: "",
           project: "",
@@ -391,7 +397,13 @@ export default function CreatePaymentRequest() {
             phone_number: "",
             email: "",
             address: "",
-            deduction_amount: "",
+            // Structured deductions
+            wht_deduction: "",
+            pension_deduction: "",
+            nhis_deduction: "",
+            loan_deduction: "",
+            other_deductions: "",
+            deduction_amount: "", // Auto-calculated
             expense_account: "",
             department: "",
             project: "",
@@ -561,9 +573,10 @@ export default function CreatePaymentRequest() {
           form.setValue(`payment_items.${index}.tax_identification_number`, staffData.tax_identification_number);
         }
 
-        // Auto-populate default deduction
-        if (defaultDeduction !== undefined && defaultDeduction !== null) {
-          form.setValue(`payment_items.${index}.deduction_amount`, defaultDeduction.toString());
+        // Auto-calculate structured deductions from profile
+        const currentGrossAmount = parseFloat(form.getValues(`payment_items.${index}.amount_in_figures`) || '0');
+        if (currentGrossAmount > 0) {
+          calculateDeductionsFromProfile(currentGrossAmount, staffData, index);
         }
 
       } else if (staffType === "ADHOC_STAFF") {
@@ -608,13 +621,14 @@ export default function CreatePaymentRequest() {
           form.setValue(`payment_items.${index}.tax_identification_number`, staffData.tax_identification_number);
         }
 
-        // Auto-populate default deduction
-        if (defaultDeduction !== undefined && defaultDeduction !== null) {
-          form.setValue(`payment_items.${index}.deduction_amount`, defaultDeduction.toString());
+        // Auto-calculate structured deductions from profile
+        const currentGrossAmount = parseFloat(form.getValues(`payment_items.${index}.amount_in_figures`) || '0');
+        if (currentGrossAmount > 0) {
+          calculateDeductionsFromProfile(currentGrossAmount, staffData, index);
         }
       }
     }
-  }, [consultantOptions, facilitatorOptions, adhocOptions, form, defaultDeduction]);
+  }, [consultantOptions, facilitatorOptions, adhocOptions, form, calculateDeductionsFromProfile]);
 
   // Helper function to convert amount to words
   const handleAmountChange = useCallback((amount: string, index: number) => {
@@ -624,6 +638,61 @@ export default function CreatePaymentRequest() {
     } else {
       form.setValue(`payment_items.${index}.amount_in_words`, '');
     }
+  }, [form]);
+
+  // Helper function to calculate deductions from profile rates + gross amount
+  const calculateDeductionsFromProfile = useCallback((grossAmount: number, profileData: any, index: number) => {
+    if (!grossAmount || grossAmount <= 0) return;
+
+    // System default rates (fallback)
+    const DEFAULT_WHT_RATE = 5.00;
+    const DEFAULT_PENSION_RATE = 8.00;
+    const DEFAULT_NHIS_RATE = 1.75;
+
+    // Get rates from profile (null = use default)
+    const whtRate = profileData?.wht_rate ?? DEFAULT_WHT_RATE;
+    const pensionRate = profileData?.pension_rate ?? DEFAULT_PENSION_RATE;
+    const nhisRate = profileData?.nhis_rate ?? DEFAULT_NHIS_RATE;
+
+    // Calculate percentage-based deductions
+    const wht = (grossAmount * whtRate / 100).toFixed(2);
+    const pension = (grossAmount * pensionRate / 100).toFixed(2);
+    const nhis = (grossAmount * nhisRate / 100).toFixed(2);
+
+    // Fixed deductions from profile
+    const loan = (profileData?.loan_amount || 0).toString();
+    const other = (profileData?.other_deductions_amount || 0).toString();
+
+    // Set all deduction fields
+    form.setValue(`payment_items.${index}.wht_deduction`, wht);
+    form.setValue(`payment_items.${index}.pension_deduction`, pension);
+    form.setValue(`payment_items.${index}.nhis_deduction`, nhis);
+    form.setValue(`payment_items.${index}.loan_deduction`, loan);
+    form.setValue(`payment_items.${index}.other_deductions`, other);
+
+    // Total will auto-calculate via calculateTotalDeductions
+    calculateTotalDeductions(index);
+  }, [form]);
+
+  // Helper function to calculate total deductions from structured deduction fields
+  const calculateTotalDeductions = useCallback((index: number) => {
+    const paymentItems = form.getValues('payment_items');
+    const item = paymentItems[index];
+
+    if (!item) return;
+
+    // Parse each deduction field, defaulting to 0 if empty or invalid
+    const wht = parseFloat(item.wht_deduction || '0') || 0;
+    const pension = parseFloat(item.pension_deduction || '0') || 0;
+    const nhis = parseFloat(item.nhis_deduction || '0') || 0;
+    const loan = parseFloat(item.loan_deduction || '0') || 0;
+    const other = parseFloat(item.other_deductions || '0') || 0;
+
+    // Calculate total (matching backend logic)
+    const total = wht + pension + nhis + loan + other;
+
+    // Update the deduction_amount field with 2 decimal precision
+    form.setValue(`payment_items.${index}.deduction_amount`, total.toFixed(2));
   }, [form]);
 
   // Watch for changes in staff selections and amount changes to auto-populate
@@ -672,15 +741,51 @@ export default function CreatePaymentRequest() {
               const index = parseInt(match[1]);
               const amount = value.payment_items?.[index]?.amount_in_figures;
               if (amount) {
+                // Convert amount to words
                 handleAmountChange(String(amount), index);
+
+                // If staff is selected, recalculate percentage-based deductions
+                const grossAmount = parseFloat(amount);
+                if (grossAmount > 0) {
+                  // Check which type of staff is selected
+                  const consultant = value.payment_items?.[index]?.consultant;
+                  const facilitator = value.payment_items?.[index]?.facilitator;
+                  const adhocStaff = value.payment_items?.[index]?.adhoc_staff;
+
+                  let staffData = null;
+                  if (consultant) {
+                    staffData = consultantOptions.find(opt => opt.value === consultant)?.data;
+                  } else if (facilitator) {
+                    staffData = facilitatorOptions.find(opt => opt.value === facilitator)?.data;
+                  } else if (adhocStaff) {
+                    staffData = adhocOptions.find(opt => opt.value === adhocStaff)?.data;
+                  }
+
+                  // Recalculate deductions if staff is selected
+                  if (staffData) {
+                    calculateDeductionsFromProfile(grossAmount, staffData, index);
+                  }
+                }
               }
+            }
+          }
+          // Check if any structured deduction field was changed (manual override)
+          if (name.includes('wht_deduction') ||
+              name.includes('pension_deduction') ||
+              name.includes('nhis_deduction') ||
+              name.includes('loan_deduction') ||
+              name.includes('other_deductions')) {
+            const match = name.match(/payment_items\.(\d+)\./);
+            if (match) {
+              const index = parseInt(match[1]);
+              calculateTotalDeductions(index);
             }
           }
         }, 0); // Close setTimeout with 0ms delay
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, handleStaffSelection, handleAmountChange]); // Added handler dependencies
+  }, [form, handleStaffSelection, handleAmountChange, calculateTotalDeductions, calculateDeductionsFromProfile, consultantOptions, facilitatorOptions, adhocOptions]); // Added handler dependencies
 
   return (
     <PaymentRequestLayout>
@@ -920,23 +1025,103 @@ export default function CreatePaymentRequest() {
                             </p>
                           </div>
 
-                          {/* Deduction Amount - Show for CONSULTANT, FACILITATOR, ADHOC_STAFF */}
+                          {/* Structured Deductions - Show for CONSULTANT, FACILITATOR, ADHOC_STAFF */}
                           {(paymentType === "CONSULTANT" || paymentType === "FACILITATOR" || paymentType === "ADHOC_STAFF") && (
-                            <div>
-                              <FormInput
-                                label='Deduction Amount'
-                                name={`payment_items.${index}.deduction_amount`}
-                                placeholder={isLoadingDeduction ? 'Loading...' : 'Auto-calculated'}
-                                readOnly
-                                className='bg-amber-50'
-                              />
-                              <p className='text-xs text-amber-600 mt-1'>
-                                {isLoadingDeduction ? '⏳ Loading deduction...' :
-                                 defaultDeduction && defaultDeduction > 0
-                                   ? `✓ Default deduction: ₦${Number(defaultDeduction).toLocaleString()}`
-                                   : 'ℹ️ No default deduction set for this payment type'}
-                              </p>
-                            </div>
+                            <>
+                              {/* Deductions Section Header */}
+                              <div className='col-span-full mt-4'>
+                                <div className='border-b pb-2'>
+                                  <h5 className='text-sm font-semibold text-gray-700'>Deductions</h5>
+                                  <p className='text-xs text-gray-500 mt-1'>
+                                    Enter individual deductions. Total will be auto-calculated.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* WHT Deduction */}
+                              <div>
+                                <FormInput
+                                  label='WHT Deduction (5%)'
+                                  name={`payment_items.${index}.wht_deduction`}
+                                  type='number'
+                                  placeholder='0.00'
+                                  step='0.01'
+                                />
+                                <p className='text-xs text-gray-500 mt-1'>
+                                  Withholding Tax (typically 5% for consultants)
+                                </p>
+                              </div>
+
+                              {/* Pension Deduction */}
+                              <div>
+                                <FormInput
+                                  label='Pension Deduction'
+                                  name={`payment_items.${index}.pension_deduction`}
+                                  type='number'
+                                  placeholder='0.00'
+                                  step='0.01'
+                                />
+                                <p className='text-xs text-gray-500 mt-1'>
+                                  Pension contribution (if applicable)
+                                </p>
+                              </div>
+
+                              {/* NHIS Deduction */}
+                              <div>
+                                <FormInput
+                                  label='NHIS Deduction'
+                                  name={`payment_items.${index}.nhis_deduction`}
+                                  type='number'
+                                  placeholder='0.00'
+                                  step='0.01'
+                                />
+                                <p className='text-xs text-gray-500 mt-1'>
+                                  National Health Insurance Scheme contribution
+                                </p>
+                              </div>
+
+                              {/* Loan Deduction */}
+                              <div>
+                                <FormInput
+                                  label='Loan Repayment'
+                                  name={`payment_items.${index}.loan_deduction`}
+                                  type='number'
+                                  placeholder='0.00'
+                                  step='0.01'
+                                />
+                                <p className='text-xs text-gray-500 mt-1'>
+                                  Loan repayment deduction
+                                </p>
+                              </div>
+
+                              {/* Other Deductions */}
+                              <div>
+                                <FormInput
+                                  label='Other Deductions'
+                                  name={`payment_items.${index}.other_deductions`}
+                                  type='number'
+                                  placeholder='0.00'
+                                  step='0.01'
+                                />
+                                <p className='text-xs text-gray-500 mt-1'>
+                                  All other deductions combined
+                                </p>
+                              </div>
+
+                              {/* Total Deduction (Read-only, auto-calculated) */}
+                              <div>
+                                <FormInput
+                                  label='Total Deductions'
+                                  name={`payment_items.${index}.deduction_amount`}
+                                  placeholder='Auto-calculated'
+                                  readOnly
+                                  className='bg-amber-50 font-semibold'
+                                />
+                                <p className='text-xs text-amber-600 mt-1'>
+                                  ✓ Auto-calculated from structured deductions
+                                </p>
+                              </div>
+                            </>
                           )}
                         </div>
                       </div>
@@ -1026,7 +1211,13 @@ export default function CreatePaymentRequest() {
                       phone_number: "",
                       email: "",
                       address: "",
-                      deduction_amount: defaultDeduction ? defaultDeduction.toString() : "",
+                      // Structured deductions
+                      wht_deduction: "",
+                      pension_deduction: "",
+                      nhis_deduction: "",
+                      loan_deduction: "",
+                      other_deductions: "",
+                      deduction_amount: "", // Auto-calculated
                       expense_account: "",
                       department: "",
                       project: "",

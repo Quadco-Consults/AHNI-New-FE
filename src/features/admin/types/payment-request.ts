@@ -18,8 +18,13 @@ export const PaymentItemSchema = z.object({
     consultant_legacy_id: z.string().optional(),
     staff_legacy_id: z.string().optional(),
     facilitator_legacy_id: z.string().optional(),
-    // Deduction fields
-    deduction_amount: z.string().optional(),
+    // Structured Deduction fields
+    wht_deduction: z.string().optional(),
+    pension_deduction: z.string().optional(),
+    nhis_deduction: z.string().optional(),
+    loan_deduction: z.string().optional(),
+    other_deductions: z.string().optional(),
+    deduction_amount: z.string().optional(), // Auto-calculated (read-only)
     // Chart of Accounts integration fields
     expense_account: z.string().optional(),
     department: z.string().optional(),
@@ -100,6 +105,13 @@ export interface IPaymentRequestPayload {
         consultant_legacy_id?: string;
         staff_legacy_id?: string;
         facilitator_legacy_id?: string;
+        // Structured Deduction fields
+        wht_deduction?: string;
+        pension_deduction?: string;
+        nhis_deduction?: string;
+        loan_deduction?: string;
+        other_deductions?: string;
+        deduction_amount?: string; // Auto-calculated
         // Chart of Accounts integration fields
         expense_account?: string;
         department?: string;
@@ -205,6 +217,15 @@ export interface IPaymentRequestSingleData {
         consultant?: string | null;
         facilitator?: string | null;
         adhoc_staff?: string | null;
+        // Structured Deduction fields
+        wht_deduction?: string;
+        pension_deduction?: string;
+        nhis_deduction?: string;
+        loan_deduction?: string;
+        other_deductions?: string;
+        deduction_amount?: string;
+        gross_amount?: string;
+        net_amount?: string;
         // Chart of Accounts integration fields
         expense_account?: string;
         department?: string;

@@ -336,7 +336,9 @@ export default function BulkPaymentComponent() {
           <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
             <li>Select payment type and filter (cluster or location) to download template</li>
             <li>Open the downloaded Excel file and fill in payment details for each staff member</li>
-            <li>Fill in the required fields: Days for This Payment, Payment Period Start/End, and verify Deduction amounts</li>
+            <li>Fill in the required fields: Days for This Payment, Payment Period Start/End</li>
+            <li>Fill in structured deductions: WHT Deduction (5%), Pension, NHIS, Loan Repayment, Other Deductions</li>
+            <li>Total deductions will be auto-calculated from the structured deduction fields</li>
             <li>Save the Excel file after making changes</li>
             <li>Upload the filled template along with payment date, reason, and approvers</li>
             <li>The system will create payment requests for all staff in the template</li>

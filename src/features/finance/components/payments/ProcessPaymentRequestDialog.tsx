@@ -133,6 +133,9 @@ export default function ProcessPaymentRequestDialog({
     }
 
     try {
+      // Use net_amount if available (after tax deductions), otherwise use total_amount
+      const paymentAmount = paymentRequest.net_amount || paymentRequest.total_amount;
+
       await createDisbursement({
         payment_request_id: paymentRequest.id,
         payment_date: data.payment_date,
@@ -140,7 +143,7 @@ export default function ProcessPaymentRequestDialog({
         bank_account_id: data.bank_account_id,
         chart_account_id: data.chart_account_id,
         payment_reference: data.payment_reference,
-        total_amount: paymentRequest.total_amount,
+        total_amount: paymentAmount,
         notes: data.notes || '',
       });
     } catch (error: any) {
@@ -221,6 +224,66 @@ export default function ProcessPaymentRequestDialog({
               </div>
             </CardContent>
           </Card>
+
+          {/* Tax Calculation Summary */}
+          {(paymentRequest.gross_amount || paymentRequest.total_wht || paymentRequest.total_vat || paymentRequest.total_paye) && (
+            <Card className="border-blue-200 bg-blue-50/30">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Tax Calculation Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Gross Amount (Before Tax):</span>
+                    <span className="font-medium">
+                      ₦{(paymentRequest.gross_amount || 0).toLocaleString()}
+                    </span>
+                  </div>
+
+                  {paymentRequest.total_wht > 0 && (
+                    <div className="flex justify-between text-sm pl-4 border-l-2 border-orange-300">
+                      <span className="text-muted-foreground">Less: Withholding Tax (WHT)</span>
+                      <span className="font-medium text-orange-600">
+                        -₦{(paymentRequest.total_wht || 0).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
+                  {paymentRequest.total_vat > 0 && (
+                    <div className="flex justify-between text-sm pl-4 border-l-2 border-orange-300">
+                      <span className="text-muted-foreground">Less: VAT</span>
+                      <span className="font-medium text-orange-600">
+                        -₦{(paymentRequest.total_vat || 0).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
+                  {paymentRequest.total_paye > 0 && (
+                    <div className="flex justify-between text-sm pl-4 border-l-2 border-orange-300">
+                      <span className="text-muted-foreground">Less: PAYE</span>
+                      <span className="font-medium text-orange-600">
+                        -₦{(paymentRequest.total_paye || 0).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between font-semibold text-base pt-2 border-t-2 border-blue-300">
+                    <span className="text-blue-700">Net Amount to Pay:</span>
+                    <span className="text-blue-700">
+                      ₦{(paymentRequest.net_amount || paymentRequest.total_amount || 0).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-muted-foreground bg-blue-100 p-2 rounded-md">
+                  Tax withholdings will be automatically recorded and included in the next tax remittance cycle.
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Project & Fund Allocation */}
           <Card>
@@ -425,7 +488,7 @@ export default function ProcessPaymentRequestDialog({
                 )}
               />
 
-              {selectedBankAccount && selectedBankAccount.current_balance < paymentRequest.total_amount && (
+              {selectedBankAccount && selectedBankAccount.current_balance < (paymentRequest.net_amount || paymentRequest.total_amount) && (
                 <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
                   <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
                   <div className="flex-1">
@@ -433,7 +496,7 @@ export default function ProcessPaymentRequestDialog({
                       Insufficient Balance
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Account balance (₦{selectedBankAccount.current_balance.toLocaleString()}) is less than the payment amount (₦{paymentRequest.total_amount.toLocaleString()})
+                      Account balance (₦{selectedBankAccount.current_balance.toLocaleString()}) is less than the payment amount (₦{(paymentRequest.net_amount || paymentRequest.total_amount).toLocaleString()})
                     </p>
                   </div>
                 </div>
@@ -490,7 +553,7 @@ export default function ProcessPaymentRequestDialog({
                   disabled={
                     isLoading ||
                     (selectedBankAccount &&
-                      selectedBankAccount.current_balance < paymentRequest.total_amount)
+                      selectedBankAccount.current_balance < (paymentRequest.net_amount || paymentRequest.total_amount))
                   }
                 >
                   {isLoading ? "Processing..." : "Process Payment"}
