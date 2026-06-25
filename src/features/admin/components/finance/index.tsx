@@ -11,6 +11,7 @@ import FcoNumber from "./AllFCONumber";
 import ProjectClasses from "./AllProjectClasses";
 import ChartsOfAccount from "./AllChartAccounts";
 import AllCostGroupings from "./AllCostGroupings";
+import DeductionRateDefaults from "../deduction-rate-defaults";
 
 const Finance = () => {
   const router = useRouter();
@@ -55,6 +56,9 @@ const Finance = () => {
           <TabsList>
             <TabsTrigger value='chartsOfAccount'>Charts of Account</TabsTrigger>
           </TabsList>
+          <TabsList>
+            <TabsTrigger value='deductionRates'>Deduction Rate Defaults</TabsTrigger>
+          </TabsList>
           <TabsContent value='categories'>
             <Card className='mt-10 pb-8 px-6'>
               <CostCategories />
@@ -89,6 +93,11 @@ const Finance = () => {
           <TabsContent value='chartsOfAccount'>
             <Card className='mt-10 pb-8 px-6'>
               <ChartsOfAccount />
+            </Card>
+          </TabsContent>
+          <TabsContent value='deductionRates'>
+            <Card className='mt-10 pb-8 px-6'>
+              <DeductionRateDefaults />
             </Card>
           </TabsContent>
         </Tabs>

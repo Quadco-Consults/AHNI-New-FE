@@ -4,6 +4,7 @@ export * from './assetMaintenanceController';
 export * from './assetRequestController';
 export * from './consumableController';
 export * from './deductionSettingsController';
+export * from './deductionRateDefaultsController';
 export * from './expenseAuthorizationController';
 export * from './facilityMaintenanceController';
 export * from './fuelRequestController';
@@ -20,6 +21,7 @@ export { useGetAllAssetMaintenance, useGetAllAssetMaintenanceQuery } from './ass
 export { useGetAllAssetRequests, useGetAllAssetRequestsQuery } from './assetRequestController';
 export { useGetAllConsumables, useGetAllConsumablesQuery } from './consumableController';
 export { useGetAllDeductionSettings } from './deductionSettingsController';
+export { useGetAllDeductionRateDefaults, useGetActiveDeductionRateDefaults } from './deductionRateDefaultsController';
 export { useGetAllExpenseAuthorizations, useGetAllExpenseAuthorizationsQuery } from './expenseAuthorizationController';
 export { useGetAllFacilityMaintenance, useGetAllFacilityMaintenanceQuery } from './facilityMaintenanceController';
 export { useGetAllFuelRequests, useGetAllFuelRequestsQuery } from './fuelRequestController';
