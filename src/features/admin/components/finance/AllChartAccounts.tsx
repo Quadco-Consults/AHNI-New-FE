@@ -101,9 +101,10 @@ export default function AllChartAccounts() {
       />
       <div>
         <div className='flex justify-between text-gray-text font-semibold text-sm border-b border-gray-300 pb-4'>
-          <h1 className='flex-1'>Name</h1>
+          <h1 className='flex-1'>Account Code</h1>
+          <h1 className='flex-1'>Account Name</h1>
+          <h1 className='flex-1'>Account Type</h1>
           <h1 className='flex-1'>Description</h1>
-          <h1 className='flex-1'>Code</h1>
           <h1 className='flex-1'></h1>
         </div>
 
@@ -116,9 +117,10 @@ export default function AllChartAccounts() {
                 key={item.id}
                 className='flex justify-between mt-6 text-gray-text font-normal text-xs'
               >
-                <p className='flex-1'>{item.name}</p>
+                <p className='flex-1'>{item.account_code}</p>
+                <p className='flex-1'>{item.account_name}</p>
+                <p className='flex-1'>{item.account_type || "N/A"}</p>
                 <p className='flex-1'>{item.description || "N/A"}</p>
-                <p className='flex-1'>{item.code}</p>
                 <div className='flex-1'>
                   <TableAction
                     update
