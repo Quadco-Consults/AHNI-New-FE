@@ -13,6 +13,16 @@ export type PaymentMethod =
 
 export type PaymentVoucherStatus = "DRAFT" | "ISSUED" | "PAID" | "CANCELLED";
 
+export interface PaymentVoucherLineItem {
+  id: string;
+  line_number: number;
+  account_code?: string;
+  description: string;
+  amount: number;
+  is_deduction: boolean;
+  created_datetime: string;
+}
+
 export interface PaymentVoucher {
   id: string;
   pv_number: string;
@@ -51,6 +61,12 @@ export interface PaymentVoucher {
   budget_line?: string; // UUID
   chart_account: string; // UUID
 
+  // Template fields (matching AHNI PV format)
+  fco?: string; // Fund/Cost Object code
+  activity_code?: string; // Budget line activity code
+  currency: string; // Payment currency (default: NGN)
+  amount_in_words?: string; // Net amount in words
+
   // Status and Approval
   status: PaymentVoucherStatus;
   status_display: string;
@@ -60,6 +76,12 @@ export interface PaymentVoucher {
   prepared_by_name?: string;
   reviewed_by?: string; // UUID
   approved_by?: string; // UUID
+
+  // Signature dates
+  prepared_date?: string;
+  reviewed_date?: string;
+  authorised_date?: string;
+  approved_date?: string;
 
   // Payee information
   payee_name: string;
@@ -81,6 +103,9 @@ export interface PaymentVoucher {
 }
 
 export interface PaymentVoucherDetails extends PaymentVoucher {
+  // Line items for multi-line PV support
+  line_items?: PaymentVoucherLineItem[];
+
   bank_account_details?: {
     id: string;
     bank_name: string;
@@ -169,6 +194,20 @@ export interface CreatePaymentVoucher {
   payee_bank?: string;
   payee_account_number?: string;
   payment_description: string;
+
+  // Template fields (FCO, Activity Code, etc.)
+  fco?: string;
+  activity_code?: string;
+  currency?: string;
+
+  // Line items for multi-line PV (optional)
+  line_items?: Array<{
+    line_number: number;
+    account_code?: string;
+    description: string;
+    amount: number;
+    is_deduction: boolean;
+  }>;
 
   // Optional fields
   project_id?: string;

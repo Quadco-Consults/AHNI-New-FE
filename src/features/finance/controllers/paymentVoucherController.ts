@@ -370,3 +370,43 @@ export const canEditPaymentVoucher = (status: string): boolean => {
 export const canCancelPaymentVoucher = (status: string): boolean => {
   return status !== "PAID" && status !== "CANCELLED";
 };
+
+/**
+ * Download payment voucher as PDF
+ */
+export const downloadPaymentVoucherPDF = async (
+  voucherId: string,
+  pvNumber?: string
+): Promise<void> => {
+  try {
+    const response = await AxiosWithToken.get(
+      `${BASE_URL}${voucherId}/download_pdf/`,
+      {
+        responseType: "blob", // Important for binary data
+      }
+    );
+
+    // Create blob from response
+    const blob = new Blob([response.data], { type: "application/pdf" });
+
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `PV_${pvNumber || voucherId}.pdf`
+    );
+
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error downloading payment voucher PDF:", error);
+    throw error;
+  }
+};
