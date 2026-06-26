@@ -46,10 +46,12 @@ import {
   Calculator,
   DollarSign,
   FileSpreadsheet,
-  Printer
+  Printer,
+  Upload
 } from "lucide-react";
 import { toast } from "sonner";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
+import UploadStatementDialog from "./components/UploadStatementDialog";
 
 // AHNI Bank Reconciliation Data Structure
 interface UnpresentedCheque {
@@ -278,6 +280,7 @@ export default function BankReconciliationPage() {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedReconciliation, setSelectedReconciliation] = useState<BankReconciliation | null>(null);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   // Get current user profile for auto-populating prepared by field
   const { data: userProfile, isLoading: userLoading } = useGetUserProfile();
@@ -401,6 +404,10 @@ export default function BankReconciliationPage() {
           <Button onClick={printReconciliation} variant="outline">
             <Printer size={16} className="mr-2" />
             Print
+          </Button>
+          <Button onClick={() => setShowUploadDialog(true)} variant="outline">
+            <Upload size={16} className="mr-2" />
+            Upload Statement
           </Button>
           <Button onClick={() => setShowCreateDialog(true)}>
             <Plus size={16} className="mr-2" />
@@ -958,6 +965,12 @@ export default function BankReconciliationPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Upload Bank Statement Dialog */}
+      <UploadStatementDialog
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+      />
     </div>
   );
 }

@@ -41,6 +41,9 @@ export const ExpenseAuthorizationSchema = z.object({
     ta_number: z.string().min(1, "Please enter TA number"),
     department: z.string().min(1, "Please select a department"),
     fco: z.string().min(1, "Please select a fco"),
+    currency: z.enum(["NGN", "USD"], {
+        required_error: "Please select currency",
+    }),
     is_managing_director_notified: z.boolean().optional(),
     is_travel_advances_dependent: z.boolean(),
     is_document_needed: z.boolean(),

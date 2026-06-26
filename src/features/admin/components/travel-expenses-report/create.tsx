@@ -175,18 +175,33 @@ export default function SimpleTravelExpenseReportPage() {
     const activity = form.watch(`activities.${index}`);
     if (!activity) return;
 
+    // All expense fields
+    const visaFee = parseFloat(activity.visa_fee || "0") || 0;
     const airportTaxi = parseFloat(activity.airport_taxi_fee || "0") || 0;
     const registration = parseFloat(activity.registration_fee || "0") || 0;
     const interCityTaxi = parseFloat(activity.inter_city_taxi_fee || "0") || 0;
+    const mileageCost = parseFloat(activity.mileage_cost || "0") || 0;
+    const hotelAccommodation = parseFloat(activity.hotel_accommodation || "0") || 0;
+    const perDiem = parseFloat(activity.per_diem || "0") || 0;
+    const communicationCosts = parseFloat(activity.communication_costs || "0") || 0;
+    const withinCityTaxi = parseFloat(activity.within_city_taxi_fee || "0") || 0;
     const others = parseFloat(activity.others || "0") || 0;
 
-    const total = airportTaxi + registration + interCityTaxi + others;
+    const total = visaFee + airportTaxi + registration + interCityTaxi +
+                  mileageCost + hotelAccommodation + perDiem +
+                  communicationCosts + withinCityTaxi + others;
 
     console.log('💰 CALCULATING TOTAL:', {
       index,
+      visaFee,
       airportTaxi,
       registration,
       interCityTaxi,
+      mileageCost,
+      hotelAccommodation,
+      perDiem,
+      communicationCosts,
+      withinCityTaxi,
       others,
       total
     });
@@ -306,9 +321,15 @@ export default function SimpleTravelExpenseReportPage() {
           arrival_datetime: convertToDateFormat(activity.arrival_datetime),
           assignment_location: activity.assignment_location,
           visa_free: String(activity.visa_free),
-          airport_taxi_fee: activity.airport_taxi_fee,
-          registration_fee: activity.registration_fee,
-          inter_city_taxi_fee: activity.inter_city_taxi_fee,
+          visa_fee: activity.visa_fee || "",
+          per_diem: activity.per_diem || "",
+          hotel_accommodation: activity.hotel_accommodation || "",
+          mileage_cost: activity.mileage_cost || "",
+          communication_costs: activity.communication_costs || "",
+          within_city_taxi_fee: activity.within_city_taxi_fee || "",
+          airport_taxi_fee: activity.airport_taxi_fee || "",
+          registration_fee: activity.registration_fee || "",
+          inter_city_taxi_fee: activity.inter_city_taxi_fee || "",
           total_amount: activity.total_amount,
           others: activity.others || "",
         })),
@@ -363,9 +384,15 @@ export default function SimpleTravelExpenseReportPage() {
           arrival_datetime: `${activity.arrival_datetime}T00:00:00Z`,
           assignment_location: activity.assignment_location,
           visa_free: activity.visa_free === "true",
-          airport_taxi_fee: activity.airport_taxi_fee,
-          registration_fee: activity.registration_fee,
-          inter_city_taxi_fee: activity.inter_city_taxi_fee,
+          visa_fee: activity.visa_fee || "0",
+          per_diem: activity.per_diem || "0",
+          hotel_accommodation: activity.hotel_accommodation || "0",
+          mileage_cost: activity.mileage_cost || "0",
+          communication_costs: activity.communication_costs || "0",
+          within_city_taxi_fee: activity.within_city_taxi_fee || "0",
+          airport_taxi_fee: activity.airport_taxi_fee || "0",
+          registration_fee: activity.registration_fee || "0",
+          inter_city_taxi_fee: activity.inter_city_taxi_fee || "0",
           total_amount: activity.total_amount,
           others: activity.others || "",
         };
@@ -621,6 +648,12 @@ export default function SimpleTravelExpenseReportPage() {
                       arrival_datetime: "",
                       assignment_location: "",
                       visa_free: "",
+                      visa_fee: "",
+                      per_diem: "",
+                      hotel_accommodation: "",
+                      mileage_cost: "",
+                      communication_costs: "",
+                      within_city_taxi_fee: "",
                       airport_taxi_fee: "",
                       registration_fee: "",
                       inter_city_taxi_fee: "",
@@ -704,25 +737,87 @@ export default function SimpleTravelExpenseReportPage() {
                         options={visaFreeOptions}
                       />
 
+                      {/* Conditionally show Visa Fee if not visa free */}
+                      {form.watch(`activities.${index}.visa_free`) === "false" && (
+                        <FormInput
+                          label="Visa Fee"
+                          name={`activities.${index}.visa_fee`}
+                          placeholder="Enter Visa Fee"
+                          type="number"
+                          step="0.01"
+                        />
+                      )}
+
+                      <FormInput
+                        label="Per Diem (DSA)"
+                        name={`activities.${index}.per_diem`}
+                        placeholder="Enter Per Diem Amount"
+                        type="number"
+                        step="0.01"
+                      />
+
+                      <FormInput
+                        label="Hotel Accommodation"
+                        name={`activities.${index}.hotel_accommodation`}
+                        placeholder="Enter Hotel Cost"
+                        type="number"
+                        step="0.01"
+                      />
+
+                      <FormInput
+                        label="Mileage Cost (#30/KM)"
+                        name={`activities.${index}.mileage_cost`}
+                        placeholder="Enter Mileage Cost"
+                        type="number"
+                        step="0.01"
+                      />
+
+                      <FormInput
+                        label="Communication Costs (Phone/Fax/Email)"
+                        name={`activities.${index}.communication_costs`}
+                        placeholder="Enter Communication Costs"
+                        type="number"
+                        step="0.01"
+                      />
+
+                      <FormInput
+                        label="Within City Taxi Fee"
+                        name={`activities.${index}.within_city_taxi_fee`}
+                        placeholder="Enter Within City Taxi"
+                        type="number"
+                        step="0.01"
+                      />
+
                       <FormInput
                         label="Airport Taxi Fee"
                         name={`activities.${index}.airport_taxi_fee`}
                         placeholder="Enter Amount"
-                        required
+                        type="number"
+                        step="0.01"
                       />
 
                       <FormInput
                         label="Registration Fee"
                         name={`activities.${index}.registration_fee`}
                         placeholder="Enter Amount"
-                        required
+                        type="number"
+                        step="0.01"
                       />
 
                       <FormInput
                         label="Inter-City Taxi Fee"
                         name={`activities.${index}.inter_city_taxi_fee`}
                         placeholder="Enter Amount"
-                        required
+                        type="number"
+                        step="0.01"
+                      />
+
+                      <FormInput
+                        label="Others"
+                        name={`activities.${index}.others`}
+                        placeholder="Other expenses (optional)"
+                        type="number"
+                        step="0.01"
                       />
 
                       <FormInput
@@ -731,13 +826,7 @@ export default function SimpleTravelExpenseReportPage() {
                         placeholder="Auto-calculated"
                         required
                         readOnly
-                        className="bg-gray-50"
-                      />
-
-                      <FormInput
-                        label="Others"
-                        name={`activities.${index}.others`}
-                        placeholder="Other expenses (optional)"
+                        className="bg-gray-50 col-span-2"
                       />
                     </div>
                   </div>

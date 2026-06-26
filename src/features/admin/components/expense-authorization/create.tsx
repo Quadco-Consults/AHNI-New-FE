@@ -428,6 +428,17 @@ export default function CreateExpenseAuthorization() {
                 required
                 options={fcoOptions}
               />
+
+              <FormSelect
+                label='Currency'
+                name='currency'
+                placeholder='Select Currency'
+                required
+                options={[
+                  { label: "Naira (NGN)", value: "NGN" },
+                  { label: "US Dollars (USD)", value: "USD" },
+                ]}
+              />
             </div>
 
             {/* Single Traveler Address */}

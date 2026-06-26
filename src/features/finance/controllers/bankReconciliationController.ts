@@ -235,6 +235,57 @@ export const useCreateBankStatement = () => {
   };
 };
 
+/**
+ * Import transactions from bank statement file
+ */
+export const useImportBankStatementTransactions = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    {
+      status: string;
+      message: string;
+      data: {
+        statement_id: string;
+        total_transactions: number;
+        auto_matched: number;
+        suggested_matches: number;
+        unmatched: number;
+        metadata: any;
+        transactions: BankTransaction[];
+      };
+    },
+    Error,
+    FormData
+  >({
+    endpoint: "",
+    queryKey: ["bank-statements", "bank-transactions"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const importTransactions = async (statementId: string, file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      await callApi({
+        endpoint: `${BASE_URL}bank-statements/${statementId}/import_transactions/`,
+        data: formData,
+      });
+    } catch (err) {
+      console.error("Error importing transactions:", err);
+      throw err;
+    }
+  };
+
+  return {
+    importTransactions,
+    isLoading,
+    isSuccess,
+    error,
+    data,
+  };
+};
+
 // ===== BANK TRANSACTION HOOKS =====
 
 /**
