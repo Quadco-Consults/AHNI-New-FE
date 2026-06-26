@@ -43,21 +43,15 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, User, DollarSign, AlertCircle, Calendar } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  useCreatePaymentDisbursement,
-  formatCurrencyAmount,
-} from "@/features/finance/controllers/paymentDisbursementController";
+import { formatCurrencyAmount } from "@/features/finance/controllers/paymentDisbursementController";
 import { useCreatePaymentVoucher } from "@/features/finance/controllers/paymentVoucherController";
 import { useGetBankAccounts } from "@/features/finance/controllers/accountingController";
 import { useGetChartOfAccounts } from "@/features/finance/controllers/accountingController";
 import type { PendingPaymentRequest } from "@/features/finance/types/payment-disbursement.types";
 
 const formSchema = z.object({
-  payment_date: z.string().min(1, "Payment date is required"),
-  payment_method: z.string().min(1, "Payment method is required"),
   bank_account_id: z.string().min(1, "Bank account is required"),
   chart_account_id: z.string().min(1, "Chart of account is required"),
-  payment_reference: z.string().min(1, "Payment reference is required"),
   notes: z.string().optional(),
 });
 
@@ -76,8 +70,7 @@ export default function ProcessPaymentRequestDialog({
   paymentRequest,
   onSuccess,
 }: ProcessPaymentRequestDialogProps) {
-  const { createDisbursement, isLoading, isSuccess } = useCreatePaymentDisbursement();
-  const { createPaymentVoucher, isLoading: isPVLoading, isSuccess: isPVSuccess } = useCreatePaymentVoucher();
+  const { createPaymentVoucher, isLoading, isSuccess } = useCreatePaymentVoucher();
 
   // Fetch real bank accounts
   const { data: bankAccountsData } = useGetBankAccounts({ is_active: true });
@@ -93,11 +86,8 @@ export default function ProcessPaymentRequestDialog({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      payment_date: new Date().toISOString().split("T")[0],
-      payment_method: "BANK_TRANSFER",
       bank_account_id: "",
       chart_account_id: "",
-      payment_reference: "",
       notes: "",
     },
   });
@@ -106,11 +96,8 @@ export default function ProcessPaymentRequestDialog({
   useEffect(() => {
     if (open) {
       form.reset({
-        payment_date: new Date().toISOString().split("T")[0],
-        payment_method: "BANK_TRANSFER",
         bank_account_id: "",
         chart_account_id: "",
-        payment_reference: "",
         notes: "",
       });
     }
@@ -125,39 +112,15 @@ export default function ProcessPaymentRequestDialog({
   }, [isSuccess, onSuccess, onClose]);
 
   const onSubmit = async (data: FormValues) => {
-    // Validate payment date is not in the future
-    const paymentDate = new Date(data.payment_date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (paymentDate > today) {
-      toast.error("Payment date cannot be in the future");
-      return;
-    }
-
     try {
       // Use net_amount if available (after tax deductions), otherwise use total_amount
       const grossAmount = paymentRequest.gross_amount || paymentRequest.total_amount;
       const netAmount = paymentRequest.net_amount || paymentRequest.total_amount;
 
-      // Step 1: Create Payment Disbursement
-      await createDisbursement({
-        payment_request_id: paymentRequest.id,
-        payment_date: data.payment_date,
-        payment_method: data.payment_method as any,
-        bank_account_id: data.bank_account_id,
-        chart_account_id: data.chart_account_id,
-        payment_reference: data.payment_reference,
-        total_amount: netAmount,
-        notes: data.notes || '',
-      });
-
-      // Step 2: Create Payment Voucher
+      // Create Payment Voucher (status = ISSUED by default)
       await createPaymentVoucher({
         payment_request_id: paymentRequest.id,
-        payment_date: data.payment_date,
-        payment_method: data.payment_method as any,
         bank_account_id: data.bank_account_id,
-        payment_reference: data.payment_reference,
         chart_account_id: data.chart_account_id,
 
         // Amounts
@@ -171,18 +134,19 @@ export default function ProcessPaymentRequestDialog({
 
         // Payee information
         payee_name: paymentRequest.requested_by || "Unknown",
+        payee_bank: paymentRequest.beneficiary_bank_name,
+        payee_account_number: paymentRequest.beneficiary_account_number,
         payment_description: paymentRequest.payment_reason,
 
         // Optional fields
         project_id: paymentRequest.project?.id,
         budget_line_id: paymentRequest.budget_line?.id,
-        cheque_number: data.payment_method === "CHEQUE" ? data.payment_reference : undefined,
         notes: data.notes || '',
       });
 
-      toast.success("Payment processed and Payment Voucher created successfully!");
+      toast.success("Payment Voucher created successfully! You can now print it and make payment externally.");
     } catch (error: any) {
-      toast.error(error.message || "Failed to process payment");
+      toast.error(error.message || "Failed to create Payment Voucher");
     }
   };
 
@@ -195,9 +159,9 @@ export default function ProcessPaymentRequestDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Process Payment Request</DialogTitle>
+          <DialogTitle>Create Payment Voucher</DialogTitle>
           <DialogDescription>
-            Process payment for {paymentRequest.payment_reason}
+            Create a payment voucher for {paymentRequest.payment_reason}. The voucher will be issued and ready for printing/external payment.
           </DialogDescription>
         </DialogHeader>
 
@@ -402,52 +366,13 @@ export default function ProcessPaymentRequestDialog({
           {/* Payment Form */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="payment_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Date *</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Date when the payment will be made
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="payment_method"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Method *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select payment method" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
-                        <SelectItem value="CHEQUE">Cheque</SelectItem>
-                        <SelectItem value="CASH">Cash</SelectItem>
-                        <SelectItem value="MOBILE_MONEY">Mobile Money</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Method used to make the payment
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-blue-800">
+                  <strong>Note:</strong> This will create a Payment Voucher (PV) with status "ISSUED".
+                  After creating the PV, you can print it and make the payment through your external banking platform.
+                  Once payment is completed, return here to mark the PV as PAID.
+                </p>
+              </div>
 
               <FormField
                 control={form.control}
@@ -523,40 +448,6 @@ export default function ProcessPaymentRequestDialog({
                 )}
               />
 
-              {selectedBankAccount && selectedBankAccount.current_balance < (paymentRequest.net_amount || paymentRequest.total_amount) && (
-                <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                  <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-destructive">
-                      Insufficient Balance
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Account balance (₦{selectedBankAccount.current_balance.toLocaleString()}) is less than the payment amount (₦{(paymentRequest.net_amount || paymentRequest.total_amount).toLocaleString()})
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <FormField
-                control={form.control}
-                name="payment_reference"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Reference *</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g., TRX123456, CHQ001, etc."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Bank transaction reference or cheque number
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="notes"
@@ -585,14 +476,9 @@ export default function ProcessPaymentRequestDialog({
                 </Button>
                 <Button
                   type="submit"
-                  disabled={
-                    isLoading ||
-                    isPVLoading ||
-                    (selectedBankAccount &&
-                      selectedBankAccount.current_balance < (paymentRequest.net_amount || paymentRequest.total_amount))
-                  }
+                  disabled={isLoading}
                 >
-                  {(isLoading || isPVLoading) ? "Processing..." : "Process Payment"}
+                  {isLoading ? "Creating PV..." : "Create Payment Voucher"}
                 </Button>
               </DialogFooter>
             </form>

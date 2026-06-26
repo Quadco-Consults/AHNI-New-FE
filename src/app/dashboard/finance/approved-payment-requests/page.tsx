@@ -111,7 +111,7 @@ export default function ApprovedPaymentRequestsPage() {
             {isProcessed ? (
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2 className="h-3 w-3" />
-                Processed
+                PV Created
               </Badge>
             ) : (
               <Button
@@ -120,7 +120,7 @@ export default function ApprovedPaymentRequestsPage() {
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <CreditCard className="h-4 w-4 mr-1" />
-                Process Payment
+                Create PV
               </Button>
             )}
           </div>
@@ -135,7 +135,7 @@ export default function ApprovedPaymentRequestsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Approved Payment Requests</h1>
           <p className="text-muted-foreground mt-1">
-            Process approved payment requests and generate payment vouchers
+            Create Payment Vouchers for approved payment requests. Print PVs and make payments externally.
           </p>
         </div>
 
@@ -166,7 +166,7 @@ export default function ApprovedPaymentRequestsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Approved Payment Requests</h1>
           <p className="text-muted-foreground mt-1">
-            Process approved payment requests and generate payment vouchers
+            Create Payment Vouchers for approved payment requests. Print PVs and make payments externally.
           </p>
         </div>
         <div className="flex items-center gap-2">
