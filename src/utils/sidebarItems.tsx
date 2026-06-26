@@ -1402,6 +1402,26 @@ export const departmentalLinks: SidebarItem[] = [
           ]
           },
           {
+            name: "Payment Vouchers",
+            path: "/dashboard/finance/payment-vouchers",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_paymentvoucher"]
+            }
+          ]
+          },
+          {
+            name: "Approved Payment Requests",
+            path: "/dashboard/finance/approved-payment-requests",
+            permissions: [
+            {
+              module: "adminapp",
+              codenames: ["view_paymentrequest"]
+            }
+          ]
+          },
+          {
             name: "Honour Certificates",
             path: "/dashboard/finance/honour-certificates",
             permissions: [
@@ -1418,6 +1438,47 @@ export const departmentalLinks: SidebarItem[] = [
             {
               module: "finance",
               codenames: ["view_pettycash"]
+            }
+          ]
+          }
+        ]
+      },
+      {
+        name: "Tax Management",
+        permissions: [
+        {
+          module: "finance",
+          codenames: ["view_taxtype"]
+        }
+      ],
+        children: [
+          {
+            name: "Tax Types",
+            path: "/dashboard/finance/tax-types",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_taxtype"]
+            }
+          ]
+          },
+          {
+            name: "Tax Authorities",
+            path: "/dashboard/finance/tax-authorities",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_taxauthority"]
+            }
+          ]
+          },
+          {
+            name: "Tax Remittance",
+            path: "/dashboard/finance/tax-remittance",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_taxremittance"]
             }
           ]
           }
