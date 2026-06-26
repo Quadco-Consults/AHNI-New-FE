@@ -31,50 +31,72 @@ export default function ApprovedPaymentRequestsPage() {
   // Column definitions
   const columns = [
     {
-      accessorKey: "request_number",
-      header: "Request Number",
+      header: "Request Type",
+      id: "payment_type",
+      accessorKey: "payment_type",
       cell: ({ row }: any) => (
         <div className="flex items-center gap-2">
           <FileText className="h-4 w-4 text-gray-500" />
-          <span className="font-mono text-sm">{row.getValue("request_number")}</span>
+          <Badge variant="outline" className="font-mono text-xs">
+            {row.getValue("payment_type")}
+          </Badge>
         </div>
       ),
     },
     {
-      accessorKey: "requested_by_name",
       header: "Requested By",
-      cell: ({ row }: any) => (
-        <div className="text-sm">{row.getValue("requested_by_name")}</div>
-      ),
+      id: "requested_by",
+      cell: ({ row }: any) => {
+        const requested_by = row.original.requested_by;
+        const displayName = typeof requested_by === 'string'
+          ? requested_by
+          : requested_by?.full_name || requested_by?.email || "N/A";
+        return <div className="text-sm">{displayName}</div>;
+      },
     },
     {
-      accessorKey: "beneficiary_name",
       header: "Beneficiary",
-      cell: ({ row }: any) => (
-        <div className="text-sm font-medium">{row.getValue("beneficiary_name")}</div>
-      ),
+      id: "beneficiary",
+      cell: ({ row }: any) => {
+        const payment_items = row.original.payment_items;
+        if (payment_items && payment_items.length > 0) {
+          const firstItem = payment_items[0];
+          if (payment_items.length === 1) {
+            return <div className="text-sm font-medium">{firstItem.payment_to}</div>;
+          } else {
+            return <div className="text-sm font-medium">{firstItem.payment_to} <span className="text-gray-500">(+{payment_items.length - 1} more)</span></div>;
+          }
+        }
+        return <div className="text-sm text-gray-400">—</div>;
+      },
     },
     {
-      accessorKey: "description",
-      header: "Description",
+      header: "Payment Reason",
+      id: "payment_reason",
+      accessorKey: "payment_reason",
       cell: ({ row }: any) => (
         <div className="text-sm text-gray-600 max-w-xs truncate">
-          {row.getValue("description")}
+          {row.getValue("payment_reason") || "—"}
         </div>
       ),
     },
     {
-      accessorKey: "amount",
       header: "Amount",
-      cell: ({ row }: any) => (
-        <div className="font-semibold text-green-600">
-          {formatCurrency(row.getValue("amount"))}
-        </div>
-      ),
+      id: "total_amount",
+      accessorKey: "total_amount",
+      cell: ({ row }: any) => {
+        const amount = parseFloat(row.getValue("total_amount") || "0");
+        return (
+          <div className="font-semibold text-green-600">
+            {formatCurrency(amount)}
+          </div>
+        );
+      },
     },
     {
-      accessorKey: "status",
       header: "Status",
+      id: "status",
+      accessorKey: "status",
       cell: ({ row }: any) => {
         const status = row.getValue("status");
         return (
@@ -86,10 +108,11 @@ export default function ApprovedPaymentRequestsPage() {
       },
     },
     {
-      accessorKey: "approval_date",
-      header: "Approved On",
+      header: "Payment Date",
+      id: "payment_date",
+      accessorKey: "payment_date",
       cell: ({ row }: any) => {
-        const date = row.getValue("approval_date");
+        const date = row.getValue("payment_date");
         return date ? (
           <span className="text-sm text-gray-600">
             {new Date(date).toLocaleDateString()}
