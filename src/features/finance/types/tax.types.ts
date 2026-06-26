@@ -65,6 +65,7 @@ export interface TaxRemittance {
   receipt_file?: string;
   status: RemittanceSubmissionStatus;
   created_by: string;
+  payment_voucher?: string; // Payment Voucher ID (auto-generated when status = PAID)
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -89,6 +90,9 @@ export interface UpdateRemittanceStatusRequest {
   remittance_date?: string;
   payment_reference?: string;
   receipt_file?: File;
+  // Fields for Payment Voucher creation (required when status = PAID)
+  bank_account_id?: string;
+  chart_account_id?: string;
 }
 
 export interface CalculateTaxRequest {

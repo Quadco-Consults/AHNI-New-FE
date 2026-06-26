@@ -33,6 +33,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useUpdateRemittanceStatus } from "../../controllers/taxController";
+import { useGetBankAccounts, useGetChartOfAccounts } from "../../controllers/accountingController";
 import { TaxRemittance, UpdateRemittanceStatusRequest } from "../../types/tax.types";
 import { Send, Upload } from "lucide-react";
 
@@ -43,16 +44,18 @@ const updateStatusSchema = z.object({
   remittance_date: z.string().optional(),
   payment_reference: z.string().optional(),
   receipt_file: z.any().optional(),
+  bank_account_id: z.string().optional(),
+  chart_account_id: z.string().optional(),
 }).refine(
   (data) => {
-    // If status is PAID, remittance_date and payment_reference are required
+    // If status is PAID, all fields are required
     if (data.status === "PAID") {
-      return !!data.remittance_date && !!data.payment_reference;
+      return !!data.remittance_date && !!data.payment_reference && !!data.bank_account_id && !!data.chart_account_id;
     }
     return true;
   },
   {
-    message: "Remittance date and payment reference are required when marking as PAID",
+    message: "Remittance date, payment reference, bank account, and chart of account are required when marking as PAID",
     path: ["payment_reference"],
   }
 );
@@ -75,12 +78,18 @@ export default function UpdateRemittanceStatusDialog({
 
   const { mutateAsync: updateStatus } = useUpdateRemittanceStatus(remittance.id);
 
+  // Fetch bank accounts and chart of accounts
+  const { data: bankAccountsData } = useGetBankAccounts({ is_active: true });
+  const { data: chartAccountsData } = useGetChartOfAccounts({ is_active: true });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(updateStatusSchema),
     defaultValues: {
       status: "SUBMITTED",
       remittance_date: "",
       payment_reference: "",
+      bank_account_id: "",
+      chart_account_id: "",
     },
   });
 
@@ -93,6 +102,8 @@ export default function UpdateRemittanceStatusDialog({
         status: remittance.status === "PREPARED" ? "SUBMITTED" : "PAID",
         remittance_date: remittance.remittance_date || new Date().toISOString().split("T")[0],
         payment_reference: remittance.payment_reference || "",
+        bank_account_id: "",
+        chart_account_id: "",
       });
       setSelectedFile(null);
     }
@@ -106,6 +117,8 @@ export default function UpdateRemittanceStatusDialog({
         remittance_date: data.remittance_date,
         payment_reference: data.payment_reference,
         receipt_file: selectedFile || undefined,
+        bank_account_id: data.bank_account_id,
+        chart_account_id: data.chart_account_id,
       };
 
       await updateStatus(payload);
@@ -255,6 +268,68 @@ export default function UpdateRemittanceStatusDialog({
                       </FormControl>
                       <FormDescription>
                         Bank transaction reference or cheque number
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="bank_account_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bank Account *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select bank account" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {bankAccountsData?.data?.map((account: any) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              {account.account_name} - {account.account_number}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Bank account used to pay this tax
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="chart_account_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Chart of Account *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select chart of account" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {chartAccountsData?.data?.map((account: any) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              {account.account_code} - {account.account_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Expense account for tax payment
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

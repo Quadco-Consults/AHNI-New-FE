@@ -5,8 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Card from "@/components/Card";
 import DataTable from "@/components/Table/DataTable";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, DollarSign, Send, CheckCircle2 } from "lucide-react";
+import { Plus, FileText, DollarSign, Send, CheckCircle2, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
   useGetTaxWithholdings,
   useGetTaxRemittances,
@@ -218,10 +219,24 @@ export default function TaxRemittancePage() {
               </Button>
             )}
             {remittance.status === "PAID" && (
-              <Badge variant="default" className="gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Completed
-              </Badge>
+              <>
+                <Badge variant="default" className="gap-1">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Completed
+                </Badge>
+                {remittance.payment_voucher && (
+                  <Link href={`/dashboard/finance/payment-vouchers/${remittance.payment_voucher}`}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-green-600 hover:text-green-700"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      View PV
+                    </Button>
+                  </Link>
+                )}
+              </>
             )}
           </div>
         );
