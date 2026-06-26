@@ -96,6 +96,12 @@ const TravelReconciliationWorkflow: React.FC<TravelReconciliationWorkflowProps> 
     return expenses.map((expense: any) => {
       const actualTotal = (expense.activities || []).reduce((total: number, activity: any) => {
         return total +
+          parseFloat(activity.visa_fee || 0) +
+          parseFloat(activity.per_diem || 0) +
+          parseFloat(activity.hotel_accommodation || 0) +
+          parseFloat(activity.mileage_cost || 0) +
+          parseFloat(activity.communication_costs || 0) +
+          parseFloat(activity.within_city_taxi_fee || 0) +
           parseFloat(activity.airport_taxi_fee || 0) +
           parseFloat(activity.registration_fee || 0) +
           parseFloat(activity.inter_city_taxi_fee || 0) +
