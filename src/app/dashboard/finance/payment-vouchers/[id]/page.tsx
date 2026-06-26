@@ -19,8 +19,13 @@ import {
   DollarSign,
   Building2,
   CreditCard,
+  BookOpen,
+  Lock,
+  AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 import { useReactToPrint } from "react-to-print";
 
 import {
@@ -405,6 +410,117 @@ export default function PaymentVoucherDetailPage({
                 )}
               </CardContent>
             </Card>
+
+            {/* Journal Entry */}
+            {pv.journal_entry_details && (
+              <Card className="border-2 border-blue-200 dark:border-blue-800">
+                <CardHeader className="bg-blue-50 dark:bg-blue-900/20">
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                    <span>Journal Entry</span>
+                    {pv.journal_entry_details.is_system_generated && (
+                      <Badge variant="secondary" className="ml-auto">
+                        <Lock className="h-3 w-3 mr-1" />
+                        Auto-Generated
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 mt-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Entry Number
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <p className="font-mono font-semibold text-blue-600">
+                        {pv.journal_entry_details.entry_number}
+                      </p>
+                      <Link
+                        href={`/dashboard/finance/journal-entries?entry=${pv.journal_entry_details.id}`}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Entry Date
+                    </label>
+                    <p>
+                      {new Date(pv.journal_entry_details.entry_date).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Description
+                    </label>
+                    <p className="text-sm">{pv.journal_entry_details.description}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Total Debits
+                      </label>
+                      <p className="text-lg font-semibold text-green-600">
+                        {formatCurrencyAmount(pv.journal_entry_details.total_debit)}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Total Credits
+                      </label>
+                      <p className="text-lg font-semibold text-red-600">
+                        {formatCurrencyAmount(pv.journal_entry_details.total_credit)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2">
+                    {pv.journal_entry_details.is_posted ? (
+                      <Badge variant="default" className="bg-green-600">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Posted
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Draft
+                      </Badge>
+                    )}
+                    {pv.journal_entry_details.is_balanced ? (
+                      <Badge variant="outline" className="border-green-600 text-green-600">
+                        ✓ Balanced
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-orange-600 text-orange-600">
+                        ⚠ Unbalanced
+                      </Badge>
+                    )}
+                  </div>
+
+                  {pv.journal_entry_details.edit_restriction_message && (
+                    <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-amber-800 dark:text-amber-200">
+                        <p className="font-medium mb-1">Read-Only Entry</p>
+                        <p className="text-xs">{pv.journal_entry_details.edit_restriction_message}</p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Notes */}
             {pv.notes && (

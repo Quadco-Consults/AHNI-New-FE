@@ -1412,6 +1412,16 @@ export const departmentalLinks: SidebarItem[] = [
           ]
           },
           {
+            name: "Expense Recovery",
+            path: "/dashboard/finance/expense-recovery",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_vendorbill"]
+            }
+          ]
+          },
+          {
             name: "Approved Payment Requests",
             path: "/dashboard/finance/approved-payment-requests",
             permissions: [
