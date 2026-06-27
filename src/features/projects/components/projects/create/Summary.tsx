@@ -161,6 +161,8 @@ export default function ProjectSummaryPage() {
       start_date: "",
       end_date: "",
       intervention_areas: [],
+      ahni_role: "PRIME_RECIPIENT",
+      prime_recipient_organization: "",
     },
   });
 
@@ -191,6 +193,8 @@ export default function ProjectSummaryPage() {
         currency,
         intervention_areas,
         targets,
+        ahni_role,
+        prime_recipient_organization,
         // eslint-disable-next-line no-unsafe-optional-chaining
       } = project?.data;
 
@@ -253,6 +257,8 @@ export default function ProjectSummaryPage() {
         currency,
         start_date,
         end_date,
+        ahni_role: ahni_role || "PRIME_RECIPIENT",
+        prime_recipient_organization: prime_recipient_organization || "",
       });
 
       console.log("✅ Form reset with values:", {
@@ -346,6 +352,8 @@ export default function ProjectSummaryPage() {
       end_date,
       location,
       intervention_areas,
+      ahni_role,
+      prime_recipient_organization,
     } = data;
 
     // Get partners from Redux state
@@ -384,6 +392,8 @@ export default function ProjectSummaryPage() {
       currency: currency,
       location,
       intervention_areas,
+      ahni_role: ahni_role || "PRIME_RECIPIENT",
+      prime_recipient_organization: prime_recipient_organization || null,
     };
 
     console.log("🚀 FORM SUBMISSION - Complete Data Being Sent to Backend:");
@@ -621,6 +631,45 @@ export default function ProjectSummaryPage() {
                     <span className='text-sm text-red-500 font-medium'>
                       {errors.funding_sources.message}
                     </span>
+                  )}
+                </div>
+
+                <hr />
+
+                {/* NEW: Ahni's Role Section */}
+                <div className='space-y-5'>
+                  <div>
+                    <h3 className='text-lg font-semibold text-gray-900 mb-1'>Ahni&apos;s Role in this Project</h3>
+                    <p className='text-sm text-gray-600'>Specify whether Ahni is receiving funding directly or as a subrecipient</p>
+                  </div>
+
+                  <div className='grid grid-cols-2 gap-5'>
+                    <FormSelect
+                      label="Ahni's Role"
+                      name='ahni_role'
+                      placeholder="Select Ahni's role"
+                      options={[
+                        { label: "Prime Recipient (Direct funding from donor)", value: "PRIME_RECIPIENT" },
+                        { label: "Subrecipient (Under another organization)", value: "SUBRECIPIENT" },
+                      ]}
+                    />
+
+                    {form.watch('ahni_role') === 'SUBRECIPIENT' && (
+                      <FormInput
+                        label='Prime Recipient Organization'
+                        name='prime_recipient_organization'
+                        placeholder='e.g., Save the Children, UNICEF, etc.'
+                      />
+                    )}
+                  </div>
+
+                  {form.watch('ahni_role') === 'SUBRECIPIENT' && (
+                    <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+                      <p className='text-sm text-blue-800'>
+                        <strong>Note:</strong> When Ahni is a subrecipient, the prime recipient organization manages the main grant from the donor,
+                        and Ahni implements activities under their oversight.
+                      </p>
+                    </div>
                   )}
                 </div>
 

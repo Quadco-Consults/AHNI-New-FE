@@ -46,6 +46,9 @@ export const ProjectSchema = z.object({
   // Optional fields that shouldn't block form submission
   budget_performance: z.string().optional(),
   targets: z.array(ProjectTargetDefinitionSchema).optional(),
+  // NEW: Ahni's role fields
+  ahni_role: z.enum(['PRIME_RECIPIENT', 'SUBRECIPIENT']).optional().default('PRIME_RECIPIENT'),
+  prime_recipient_organization: z.string().optional(),
 });
 
 export type TProjectFormValues = z.infer<typeof ProjectSchema>;
@@ -82,6 +85,9 @@ export interface IProjectSingleData {
   status: string;
   total_obligation_amount: string;
   targets?: ProjectTargetDefinition[]; // Targets defined during project creation
+  // NEW: Ahni's role fields
+  ahni_role?: 'PRIME_RECIPIENT' | 'SUBRECIPIENT';
+  prime_recipient_organization?: string | null;
 }
 
 export interface ProjectsData {
