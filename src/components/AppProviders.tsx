@@ -2,7 +2,7 @@ import { ThemeProvider } from "@/configs/theme-provider";
 import { FC, ReactNode } from "react";
 import { Provider as ReduxProvider } from "react-redux";
 
-import AppDailog from "./modals/dialog/AppDailog";
+import AppDialog from "./modals/dialog/AppDialog";
 import { store } from "@/store/index";
 import { BrowserRouter } from "react-router-dom"; 
 import { Toaster } from "sonner";
@@ -16,7 +16,7 @@ const AppProviders: FC<PageProps> = ({ children }) => {
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <ReduxProvider store={store}>
                 <BrowserRouter>
-                    <AppDailog />
+                    <AppDialog />
                     <Toaster richColors={true} position="top-center" />
                     {children}
                 </BrowserRouter>

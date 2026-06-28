@@ -77,6 +77,7 @@
     "react-pdf": "^9.1.0",
     "react-rating-stars-component": "^2.2.0",
     "react-redux": "^9.1.0",
+    "react-router-dom": "^6.30.4",
     "react-to-print": "^3.1.1",
     "reactjs-otp-input": "^2.0.10",
     "read-excel-file": "^6.0.1",

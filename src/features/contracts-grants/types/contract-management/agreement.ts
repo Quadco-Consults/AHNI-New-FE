@@ -384,6 +384,9 @@ export interface IAgreementSingleData {
     approved_at?: string | null;
     approved_by?: string | null;
     approved_by_name?: string | null;
+    reviewer_id?: string | null;
+    authorizer_id?: string | null;
+    approver_id?: string | null;
 
     // Additional fields
     remarks?: string | null;

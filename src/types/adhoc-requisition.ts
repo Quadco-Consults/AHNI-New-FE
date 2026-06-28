@@ -45,6 +45,45 @@ export interface IAdhocRequisitionSingleData extends IAdhocRequisitionPaginatedD
   approval_comments?: string;
   created_by: string;
   updated_by?: string;
+  // Additional fields from usage
+  proposed_salary?: number;
+  project?: string | { id: string; name: string };
+  fco?: string | { id: string; name: string };
+  budget_line?: string;
+  total_budget?: number;
+  qualifications?: string;
+  skills_required?: string;
+  job_description?: string;
+  key_responsibilities?: string;
+  reporting_to?: string | { id: string; name: string };
+  work_arrangement?: string;
+  business_justification?: string;
+  urgency_reason?: string;
+  alternative_considered?: string;
+  reviewer?: string;
+  reviewer_id?: string;
+  reviewer_detail?: { id: string; name: string; email?: string };
+  authorizer?: string;
+  authorizer_id?: string;
+  authorizer_detail?: { id: string; name: string; email?: string };
+  approver?: string;
+  approver_id?: string;
+  approver_detail?: { id: string; name: string; email?: string };
+  additional_notes?: string;
+  converted_to_advertisement?: boolean;
+  advertisement_id?: string;
+  reviewed_at?: string;
+  authorized_at?: string;
+  approved_at?: string;
+  requested_by?: string;
+  approval_history?: Array<{
+    id: string;
+    level: string;
+    status: string;
+    user?: string;
+    comments?: string;
+    created_datetime?: string;
+  }>;
 }
 
 export interface IAdhocRequisitionCreateData {

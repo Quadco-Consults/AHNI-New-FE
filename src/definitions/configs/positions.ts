@@ -1,0 +1,1 @@
+export * from '@/features/admin/types/configs-types/positions';

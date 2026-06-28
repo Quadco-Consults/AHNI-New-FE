@@ -2,8 +2,12 @@ export type ProcurementPlanLineItem = {
   id?: string;
   budget_line?: string;
   implementer?: string;
+  implementer_owner?: string;
   implementation_location?: string;
+  location?: string;
   workplan_activity_reference?: string;
+  activity_reference?: string;
+  activity?: string;
   workplan_activity_object?: {
     id: string;
     name?: string;
@@ -13,20 +17,76 @@ export type ProcurementPlanLineItem = {
     job_category?: string;
   };
   description?: string;
+  description_of_goods_works_services?: string;
   approved_budget?: number;
+  approved_budget_amount_ngn?: number;
+  approved_budget_amount_usd?: number;
   pr_staff?: string;
+  responsible_pr_staff?: string;
+  procurement_officer?: string;
   mode_of_procurement?: string;
+  procurement_method?: string;
+  procurement_method_icb_ncb_etc?: string;
+  solicitation_method?: string;
   procurement_committee_review?: string;
+  committee_review?: string;
   is_ppm?: boolean;
+  ppm?: boolean;
+  ppm_status?: string;
+  non_ppm_status?: string;
   procurement_process?: string;
   donor_remarks?: string;
   implenter_remarks?: string;
+  internal_notes?: string;
+  performance_monitoring_remarks?: string;
   start_date?: string;
+  end_date?: string;
+  procurement_start_date?: string;
+  procurement_start_date_pr_submission?: string;
   expected_delivery_date_1?: string;
   expected_delivery_date_2?: string;
+  delivery_date?: string;
+  delivery_leadtime?: string;
+  delivery_leadtime_days?: number;
+  delivery_location_details?: string;
+  delivery_location_pho_offices_etc?: string;
+  delivery_to?: string;
   ware_houses?: string;
   workplan_activity?: string;
   selected_supplier?: string;
+  supplier_name?: string;
+  funding_source?: string;
+  budget_line_reference_number?: string;
+  budget_ref_num?: string;
+  procurement_category?: string;
+  quantity?: number;
+  total_quantity?: number;
+  unit_cost?: number;
+  unit_of_measure?: string;
+  uom?: string;
+  title?: string;
+  year?: string;
+  financial_year_targets?: string;
+  fy25_targets?: string;
+  pre_qualification_required?: boolean;
+  advertisement_date?: string;
+  bid_submission_deadline?: string;
+  bid_opening_date?: string;
+  bid_document_finalization_date?: string;
+  rfq_closing_date?: string;
+  technical_evaluation_date?: string;
+  financial_evaluation_date?: string;
+  evaluation_date?: string;
+  cba_report_date?: string;
+  cba_report_finalized?: boolean;
+  negotiation_date?: string;
+  contract_signing_date?: string;
+  po_issue_date?: string;
+  purchase_order_issued?: boolean;
+  completion_percentage?: number;
+  performance_score?: number;
+  performance_socre?: number;
+  key_performance_indicators?: string;
 };
 
 export type ProcurementPlanResultsData = {
@@ -34,7 +94,12 @@ export type ProcurementPlanResultsData = {
   created_at?: string;
   updated_at?: string;
   project?: string;
-  financial_year?: string;
+  financial_year?: string | {
+    id?: string;
+    year?: string;
+    start_date?: string;
+    end_date?: string;
+  };
   budget_line?: string;
   implementer?: string;
   implementation_location?: string;
@@ -65,6 +130,19 @@ export type ProcurementPlanResultsData = {
   items?: ProcurementPlanLineItem[];
   line_items?: ProcurementPlanLineItem[];
   procurement_items?: ProcurementPlanLineItem[];
+  data?: {
+    id?: string;
+    title?: string;
+    financial_year?: string | {
+      id?: string;
+      year?: string;
+      start_date?: string;
+      end_date?: string;
+    };
+    items?: ProcurementPlanLineItem[];
+    line_items?: ProcurementPlanLineItem[];
+    procurement_items?: ProcurementPlanLineItem[];
+  };
 };
 
 export interface ProcurementPlanData {

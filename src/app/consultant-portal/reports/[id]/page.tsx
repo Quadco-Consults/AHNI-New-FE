@@ -14,7 +14,8 @@ import FileUploadManager from "@/components/FileUploadManager";
 import { CardDescription } from "@/components/ui/card";
 
 export default function ConsultantReportDetailPage() {
-    const { id } = useParams();
+    const params = useParams();
+    const id = params?.id as string;
     const router = useRouter();
     const printRef = useRef<HTMLDivElement>(null);
 
