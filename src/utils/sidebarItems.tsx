@@ -1532,6 +1532,128 @@ export const departmentalLinks: SidebarItem[] = [
               codenames: ["view_chartofaccounts"]
             }
           ]
+          },
+          {
+            name: "Accounts Receivable",
+            path: "/dashboard/finance/accounts-receivable",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Accounts Payable",
+            path: "/dashboard/finance/accounts-payable",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Fixed Assets",
+            path: "/dashboard/finance/fixed-assets",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          }
+        ]
+      },
+      {
+        name: "Revenue Management",
+        permissions: [
+        {
+          module: "finance",
+          codenames: ["view_chartofaccounts"]
+        }
+      ],
+        children: [
+          {
+            name: "Customers",
+            path: "/dashboard/finance/customers",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Invoices",
+            path: "/dashboard/finance/invoices",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Sales Orders",
+            path: "/dashboard/finance/sales-orders",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          }
+        ]
+      },
+      {
+        name: "Expense Management",
+        permissions: [
+        {
+          module: "finance",
+          codenames: ["view_chartofaccounts"]
+        }
+      ],
+        children: [
+          {
+            name: "Expenses",
+            path: "/dashboard/finance/expenses",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Expense Tracking",
+            path: "/dashboard/finance/expense-tracking",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Travel Reconciliation",
+            path: "/dashboard/finance/travel-reconciliation",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Pending Payments",
+            path: "/dashboard/finance/pending-payments",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
           }
         ]
       },
@@ -1567,6 +1689,47 @@ export const departmentalLinks: SidebarItem[] = [
         ]
       },
       {
+        name: "Integrations",
+        permissions: [
+        {
+          module: "finance",
+          codenames: ["view_chartofaccounts"]
+        }
+      ],
+        children: [
+          {
+            name: "QuickBooks Settings",
+            path: "/dashboard/finance/quickbooks-settings",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Integration Dashboard",
+            path: "/dashboard/finance/integration-dashboard",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Financial Analysis",
+            path: "/dashboard/finance/analysis",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          }
+        ]
+      },
+      {
         name: "Reports",
         permissions: [
         {
@@ -1592,6 +1755,86 @@ export const departmentalLinks: SidebarItem[] = [
             {
               module: "finance",
               codenames: ["view_budgetreports"]
+            }
+          ]
+          },
+          {
+            name: "Trial Balance",
+            path: "/dashboard/finance/reports/trial-balance",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
+          {
+            name: "Balance Sheet",
+            path: "/dashboard/finance/reports/balance-sheet",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
+          {
+            name: "Income Statement",
+            path: "/dashboard/finance/reports/income-statement",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
+          {
+            name: "Cash Flow Statement",
+            path: "/dashboard/finance/reports/cash-flow",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
+          {
+            name: "General Ledger",
+            path: "/dashboard/finance/reports/general-ledger",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
+          {
+            name: "Accounts Receivable Aging",
+            path: "/dashboard/finance/reports/ar-aging",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
+          {
+            name: "Accounts Payable Aging",
+            path: "/dashboard/finance/reports/ap-aging",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
+          {
+            name: "Grant Budget vs Actuals",
+            path: "/dashboard/finance/reports/budget-variance",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
             }
           ]
           }
