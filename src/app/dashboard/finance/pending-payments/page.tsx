@@ -61,11 +61,11 @@ export default function PendingPaymentsPage() {
   const { data: payrollsData, isLoading: isLoadingPayrolls, refetch: refetchPayrolls } =
     useGetPendingPayrolls();
 
-  const paymentRequests = Array.isArray(paymentRequestsData?.data)
-    ? paymentRequestsData.data
+  const paymentRequests = paymentRequestsData?.data?.results
+    ? paymentRequestsData.data.results
     : [];
-  const payrolls = Array.isArray(payrollsData?.data)
-    ? payrollsData.data
+  const payrolls = payrollsData?.data?.results
+    ? payrollsData.data.results
     : [];
 
   // Filter payment requests

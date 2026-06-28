@@ -73,8 +73,8 @@ export default function CustomersPage() {
   const deleteCustomerMutation = useDeleteCustomer();
   const toggleStatusMutation = useToggleCustomerStatus();
 
-  const customers = Array.isArray(customersData?.data) ? customersData.data : [];
-  const totalCustomers = customersData?.meta?.total || 0;
+  const customers = customersData?.data?.results ? customersData.data.results : [];
+  const totalCustomers = customersData?.data?.pagination?.count || 0;
 
   // Handlers
   const handleSearch = (search: string) => {

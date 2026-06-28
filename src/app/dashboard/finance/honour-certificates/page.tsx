@@ -159,8 +159,8 @@ export default function HonourCertificatesPage() {
     },
   });
 
-  const certificates = certificatesData?.data || [];
-  const pendingApprovals = pendingApprovalsData?.data || [];
+  const certificates = certificatesData?.data?.results || [];
+  const pendingApprovals = pendingApprovalsData?.data?.results || [];
   const summary = summaryData?.data;
   const metadata = metadataData?.data;
 

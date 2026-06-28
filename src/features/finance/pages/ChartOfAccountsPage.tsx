@@ -37,7 +37,7 @@ export default function ChartOfAccountsPage() {
   const { data: accountsData, isLoading, error } = useGetChartOfAccounts(filters);
   const deleteAccount = useDeleteChartOfAccount();
 
-  const accounts = Array.isArray(accountsData?.data) ? accountsData.data : [];
+  const accounts = accountsData?.data?.results ? accountsData.data.results : [];
 
   // Debug logging
   console.log("ChartOfAccountsPage - Raw accountsData:", accountsData);

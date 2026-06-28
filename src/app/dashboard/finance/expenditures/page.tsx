@@ -175,11 +175,11 @@ export default function RecordedExpensesPage() {
     },
   });
 
-  const expenditures = Array.isArray(expendituresData?.data)
-    ? expendituresData.data
+  const expenditures = expendituresData?.data?.results
+    ? expendituresData.data.results
     : [];
-  const pendingApprovals = Array.isArray(pendingApprovalsData?.data)
-    ? pendingApprovalsData.data
+  const pendingApprovals = pendingApprovalsData?.data?.results
+    ? pendingApprovalsData.data.results
     : [];
   const summary = summaryData?.data;
   const metadata = metadataData?.data;

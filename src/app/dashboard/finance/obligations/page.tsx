@@ -162,11 +162,11 @@ export default function ObligationsPage() {
     },
   });
 
-  const obligations = Array.isArray(obligationsData?.data)
-    ? obligationsData.data
+  const obligations = obligationsData?.data?.results
+    ? obligationsData.data.results
     : [];
-  const pendingApprovals = Array.isArray(pendingApprovalsData?.data)
-    ? pendingApprovalsData.data
+  const pendingApprovals = pendingApprovalsData?.data?.results
+    ? pendingApprovalsData.data.results
     : [];
   const summary = summaryData?.data;
   const metadata = metadataData?.data;

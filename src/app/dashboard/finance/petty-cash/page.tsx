@@ -287,11 +287,11 @@ export default function PettyCashPage() {
   });
 
   // Use API data if available, otherwise fallback to sample data
-  const displayRequests = Array.isArray(pettyCashData?.data)
-    ? pettyCashData.data
+  const displayRequests = pettyCashData?.data?.results
+    ? pettyCashData.data.results
     : requests;
-  const authorizers = Array.isArray(authorizersData?.data)
-    ? authorizersData.data
+  const authorizers = authorizersData?.data?.results
+    ? authorizersData.data.results
     : [];
 
   // Convert API PettyCashRequest to LegacyPettyCashRequest for compatibility
