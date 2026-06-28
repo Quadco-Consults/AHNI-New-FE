@@ -207,6 +207,7 @@ export default function ApprovedPaymentRequestsPage() {
           pagination={{
             total: data?.data?.paginator?.count ?? 0,
             pageSize: data?.data?.paginator?.page_size ?? 10,
+            page: page,
             onChange: (page: number) => setPage(page),
           }}
         />
