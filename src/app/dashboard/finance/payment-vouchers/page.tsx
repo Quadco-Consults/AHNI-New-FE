@@ -57,10 +57,10 @@ export default function PaymentVouchersPage() {
     payment_method: paymentMethodFilter !== "all" ? paymentMethodFilter : undefined,
   });
 
-  const vouchers = Array.isArray(vouchersData?.data)
-    ? vouchersData.data
+  const vouchers = vouchersData?.data?.results
+    ? vouchersData.data.results
     : [];
-  const pagination = vouchersData?.pagination;
+  const pagination = vouchersData?.data?.pagination;
 
   // Calculate summary statistics
   const totalVouchers = vouchers.length;
@@ -381,10 +381,10 @@ export default function PaymentVouchersPage() {
         </div>
 
         {/* Pagination */}
-        {pagination && pagination.pages > 1 && (
+        {pagination && pagination.total_pages > 1 && (
           <div className="flex items-center justify-between border-t px-4 py-3">
             <div className="text-sm text-muted-foreground">
-              Showing page {pagination.page} of {pagination.pages} ({pagination.total} total)
+              Showing page {pagination.page} of {pagination.total_pages} ({pagination.count} total)
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -399,7 +399,7 @@ export default function PaymentVouchersPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setPage(page + 1)}
-                disabled={page === pagination.pages}
+                disabled={page === pagination.total_pages}
               >
                 Next
               </Button>
