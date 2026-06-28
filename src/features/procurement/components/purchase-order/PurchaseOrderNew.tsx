@@ -580,6 +580,48 @@ const PurchaseOrderNew = () => {
     return () => subscription.unsubscribe();
   }, [form, fields]);
 
+  // Auto-infer transaction_type from selected items' categories
+  useEffect(() => {
+    const currentItems = watch("items");
+    if (!currentItems || currentItems.length === 0 || !item?.data?.results) {
+      return;
+    }
+
+    // Extract transaction types from all items
+    const transactionTypes: string[] = [];
+    for (const formItem of currentItems) {
+      const itemId = formItem.item_id || formItem.description;
+      if (!itemId) continue;
+
+      // Find the item details
+      const itemDetails = item.data.results.find((i: any) => i.id === itemId);
+      if (!itemDetails?.category?.default_transaction_type) continue;
+
+      transactionTypes.push(itemDetails.category.default_transaction_type);
+    }
+
+    if (transactionTypes.length === 0) {
+      return; // No items with categories, keep current value
+    }
+
+    // Find the most common transaction type
+    const typeCounts = transactionTypes.reduce((acc: Record<string, number>, type: string) => {
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
+
+    const mostCommonType = Object.entries(typeCounts).reduce((max, [type, count]) => {
+      return count > max.count ? { type, count } : max;
+    }, { type: "SUPPLIES", count: 0 }).type;
+
+    // Only auto-set if different from current value
+    const currentTransactionType = watch("transaction_type");
+    if (mostCommonType !== currentTransactionType) {
+      console.log(`🔍 Auto-inferring transaction_type: ${mostCommonType} (from ${transactionTypes.length} items)`);
+      setValue("transaction_type", mostCommonType as any);
+    }
+  }, [watch("items"), item, setValue]);
+
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
     console.log("📝 Form submission started");
     console.log("📝 Form submission data:", data);
@@ -1019,17 +1061,29 @@ const PurchaseOrderNew = () => {
           </div>
           <div className="grid grid-cols-2 pt-5 gap-5">
             <FormInput name="delivery_lead_time" label="Delivery Lead Time" />
-            <FormSelect
-              name="transaction_type"
-              label="Transaction Type"
-              required
-              options={[
-                { label: "Supply of Goods (WHT 2%)", value: "SUPPLIES" },
-                { label: "Professional Services (WHT 5%)", value: "PROFESSIONAL_SERVICES" },
-                { label: "Other Services/Rent/Contracts (WHT 10%)", value: "SERVICES" },
-                { label: "Dividends (WHT 10%)", value: "DIVIDENDS" },
-              ]}
-            />
+            <div>
+              <FormSelect
+                name="transaction_type"
+                label="Transaction Type"
+                required
+                options={[
+                  { label: "Supply of Goods (WHT 2%)", value: "SUPPLIES" },
+                  { label: "Professional Services (WHT 5%)", value: "PROFESSIONAL_SERVICES" },
+                  { label: "Other Services/Rent/Contracts (WHT 10%)", value: "SERVICES" },
+                  { label: "Dividends (WHT 10%)", value: "DIVIDENDS" },
+                ]}
+              />
+              {watch("items") && watch("items").length > 0 && (
+                <p className="text-xs text-gray-600 mt-1.5 flex items-start gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <span>
+                    Auto-selected based on item categories. You can change this if needed.
+                  </span>
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="mt-10">
