@@ -46,7 +46,8 @@ export default function PaymentVoucherDetailPage({
 
   // Fetch payment voucher details
   const { data: pvData, isLoading } = useGetPaymentVoucher(id);
-  const pv = pvData?.data;
+  // The API returns the payment voucher object directly
+  const pv = pvData as any;
 
   // Print handler
   const handlePrint = useReactToPrint({
