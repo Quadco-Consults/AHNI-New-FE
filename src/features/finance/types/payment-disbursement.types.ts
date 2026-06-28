@@ -185,6 +185,23 @@ export interface PendingPaymentRequest {
   total_vat?: number;
   total_paye?: number;
   net_amount?: number;
+  total_pension?: number;
+  total_nhis?: number;
+
+  // Vendor information (for purchase order payments)
+  vendor?: {
+    id: string;
+    company_name: string;
+    vendor_type?: string;
+  };
+  purchase_order?: {
+    id: string;
+    purchase_order_number: string;
+  };
+
+  // Beneficiary bank details (for consultants, adhoc staff, facilitators)
+  beneficiary_bank_name?: string;
+  beneficiary_account_number?: string;
 
   // Project & Fund Allocation
   project?: {

@@ -162,6 +162,7 @@ const PurchaseOrderNew = () => {
       purchase_request: "",
       payment_terms: "",
       delivery_lead_time: "",
+      transaction_type: "SUPPLIES", // Default to Supplies (WHT 2%)
       items: [],
       // Approval workflow fields - only for standalone PO creation
       // When creating from CBA, these are inherited/pre-filled
@@ -602,6 +603,7 @@ const PurchaseOrderNew = () => {
     const formData = {
       purchase_request: data?.purchase_request,
       vendor: data?.vendor || vendorValue, // Prefer form data, fallback to state
+      transaction_type: data?.transaction_type || "SUPPLIES", // Default to SUPPLIES if not provided
       ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
       ...(solicitationId && { solicitation: String(solicitationId) }), // Include Solicitation ID for RFQ link
       // Approval workflow fields - include if provided (for standalone PO creation)
@@ -1017,6 +1019,17 @@ const PurchaseOrderNew = () => {
           </div>
           <div className="grid grid-cols-2 pt-5 gap-5">
             <FormInput name="delivery_lead_time" label="Delivery Lead Time" />
+            <FormSelect
+              name="transaction_type"
+              label="Transaction Type"
+              required
+              options={[
+                { label: "Supply of Goods (WHT 2%)", value: "SUPPLIES" },
+                { label: "Professional Services (WHT 5%)", value: "PROFESSIONAL_SERVICES" },
+                { label: "Other Services/Rent/Contracts (WHT 10%)", value: "SERVICES" },
+                { label: "Dividends (WHT 10%)", value: "DIVIDENDS" },
+              ]}
+            />
           </div>
 
           <div className="mt-10">

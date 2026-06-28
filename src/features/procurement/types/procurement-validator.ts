@@ -276,6 +276,7 @@ export const PurchaseOrderListSchema = z.object({
   payment_terms: z.string().optional(),
   delivery_lead_time: z.string().optional(),
   delivery_location: z.string().optional(),
+  transaction_type: z.enum(["SUPPLIES", "PROFESSIONAL_SERVICES", "SERVICES", "DIVIDENDS"]).default("SUPPLIES"),
   // Approval workflow fields - optional because they may be inherited from CBA
   reviewed_by: z.string().optional(),
   authorized_by: z.string().optional(),

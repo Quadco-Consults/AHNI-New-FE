@@ -117,6 +117,18 @@ export default function ProcessPaymentRequestDialog({
       const grossAmount = paymentRequest.gross_amount || paymentRequest.total_amount;
       const netAmount = paymentRequest.net_amount || paymentRequest.total_amount;
 
+      // Determine payee name based on payment type
+      let payeeName = paymentRequest.requested_by || "Unknown";
+
+      // For Purchase Order payments, use vendor company name
+      if (paymentRequest.payment_type === "PURCHASE_ORDER" && paymentRequest.vendor?.company_name) {
+        payeeName = paymentRequest.vendor.company_name;
+      }
+      // For other payments (consultant, adhoc staff, facilitator), use beneficiary name from items if available
+      else if (paymentRequest.items && paymentRequest.items.length > 0 && paymentRequest.items[0].recipient) {
+        payeeName = paymentRequest.items[0].recipient;
+      }
+
       // Create Payment Voucher (status = ISSUED by default)
       await createPaymentVoucher({
         payment_request_id: paymentRequest.id,
@@ -133,7 +145,7 @@ export default function ProcessPaymentRequestDialog({
         net_amount: netAmount,
 
         // Payee information
-        payee_name: paymentRequest.requested_by || "Unknown",
+        payee_name: payeeName,
         payee_bank: paymentRequest.beneficiary_bank_name,
         payee_account_number: paymentRequest.beneficiary_account_number,
         payment_description: paymentRequest.payment_reason,

@@ -35,6 +35,7 @@ export interface IPurchaseOrderPaginatedData {
     delivery_lead_time: string;
     ship_to_address: string;
     payment_terms: string;
+    transaction_type?: string;
     authorized_datetime: null;
     approved_date: string;
     agreed_date: string;
@@ -124,6 +125,7 @@ export interface IPurchaseOrderSingleData {
     status_level: string;
     purchase_order_number: string;
     purchase_date: string;
+    transaction_type?: string;
     comment: null;
     delivery_lead_time: null;
     payment_terms: "";

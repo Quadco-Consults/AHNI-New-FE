@@ -63,30 +63,33 @@ export default function PaymentVouchersPage() {
   const pagination = vouchersData?.data?.pagination;
 
   // Calculate summary statistics
-  const totalVouchers = vouchers.length;
+  const totalVouchers = pagination?.count || vouchers.length;
   const totalGrossAmount = vouchers.reduce(
-    (sum: number, v: any) => sum + v.gross_amount,
+    (sum: number, v: any) => sum + (parseFloat(v.gross_amount) || 0),
     0
   );
   const totalNetAmount = vouchers.reduce(
-    (sum: number, v: any) => sum + v.net_amount,
+    (sum: number, v: any) => sum + (parseFloat(v.net_amount) || 0),
     0
   );
-  const totalDeductions = totalGrossAmount - totalNetAmount;
+  const totalDeductions = vouchers.reduce(
+    (sum: number, v: any) => sum + (parseFloat(v.total_deductions) || 0),
+    0
+  );
 
   const issuedCount = vouchers.filter(
-    (v: any) => v.status === "ISSUED"
+    (v: any) => v.status === "PENDING" || v.status === "ISSUED"
   ).length;
   const issuedValue = vouchers
-    .filter((v: any) => v.status === "ISSUED")
-    .reduce((sum: number, v: any) => sum + v.net_amount, 0);
+    .filter((v: any) => v.status === "PENDING" || v.status === "ISSUED")
+    .reduce((sum: number, v: any) => sum + (parseFloat(v.net_amount) || 0), 0);
 
   const paidCount = vouchers.filter(
-    (v: any) => v.status === "PAID"
+    (v: any) => v.status === "DISBURSED" || v.status === "PAID"
   ).length;
   const paidValue = vouchers
-    .filter((v: any) => v.status === "PAID")
-    .reduce((sum: number, v: any) => sum + v.net_amount, 0);
+    .filter((v: any) => v.status === "DISBURSED" || v.status === "PAID")
+    .reduce((sum: number, v: any) => sum + (parseFloat(v.net_amount) || 0), 0);
 
   const cancelledCount = vouchers.filter(
     (v: any) => v.status === "CANCELLED"
@@ -189,8 +192,9 @@ export default function PaymentVouchersPage() {
             size="sm"
             variant="ghost"
             onClick={() => {
-              toast.info("Print PV coming soon");
+              window.open(`/dashboard/finance/payment-vouchers/${row.original.id}`, '_blank');
             }}
+            title="View & Print"
           >
             <Printer className="h-4 w-4" />
           </Button>

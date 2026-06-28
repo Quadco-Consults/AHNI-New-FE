@@ -445,11 +445,19 @@ export const formatObligationType = (type: string): string => {
  * Format currency amount
  */
 export const formatCurrencyAmount = (
-  amount: number,
+  amount: number | string,
   currency: string = "NGN"
 ): string => {
   const currencySymbol = currency === "NGN" ? "₦" : "$";
-  return `${currencySymbol}${amount.toLocaleString("en-US", {
+
+  // Convert to number and handle null/undefined amounts
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+
+  if (numAmount === null || numAmount === undefined || isNaN(numAmount)) {
+    return `${currencySymbol}0.00`;
+  }
+
+  return `${currencySymbol}${numAmount.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;

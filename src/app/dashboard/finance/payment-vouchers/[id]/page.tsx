@@ -4,36 +4,75 @@ import { use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
   Printer,
   Download,
-  CheckCircle,
-  Clock,
-  XCircle,
-  FileText,
-  User,
-  Calendar,
-  DollarSign,
-  Building2,
-  CreditCard,
-  BookOpen,
-  Lock,
-  AlertCircle,
-  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
-import Link from "next/link";
 import { useReactToPrint } from "react-to-print";
 
 import {
   useGetPaymentVoucher,
   getPaymentVoucherStatusColor,
-  formatPVNumber,
   formatCurrencyAmount,
+  downloadPaymentVoucherPDF,
 } from "@/features/finance/controllers/paymentVoucherController";
+
+// Convert number to words (Naira)
+const numberToWords = (num: number): string => {
+  if (num === 0) return "Zero Naira Only";
+
+  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+  const teens = ["Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  const thousands = ["", "Thousand", "Million", "Billion"];
+
+  const convertHundreds = (n: number): string => {
+    let str = "";
+    if (n >= 100) {
+      str += ones[Math.floor(n / 100)] + " Hundred ";
+      n %= 100;
+    }
+    if (n >= 10 && n < 20) {
+      str += teens[n - 10] + " ";
+    } else if (n >= 20 || n < 10) {
+      if (n >= 20) {
+        str += tens[Math.floor(n / 10)] + " ";
+        n %= 10;
+      }
+      if (n > 0) {
+        str += ones[n] + " ";
+      }
+    }
+    return str.trim();
+  };
+
+  const integerPart = Math.floor(num);
+  const decimalPart = Math.round((num - integerPart) * 100);
+
+  let result = "";
+  let thousandCounter = 0;
+  let tempNum = integerPart;
+
+  while (tempNum > 0) {
+    const chunk = tempNum % 1000;
+    if (chunk !== 0) {
+      const chunkWords = convertHundreds(chunk);
+      result = chunkWords + (thousands[thousandCounter] ? " " + thousands[thousandCounter] : "") + " " + result;
+    }
+    tempNum = Math.floor(tempNum / 1000);
+    thousandCounter++;
+  }
+
+  result = result.trim() + " Naira";
+
+  if (decimalPart > 0) {
+    result += " and " + convertHundreds(decimalPart) + " Kobo";
+  }
+
+  return result.trim() + " Only";
+};
 
 export default function PaymentVoucherDetailPage({
   params,
@@ -46,14 +85,40 @@ export default function PaymentVoucherDetailPage({
 
   // Fetch payment voucher details
   const { data: pvData, isLoading } = useGetPaymentVoucher(id);
-  // The API returns the payment voucher object directly
   const pv = pvData as any;
 
   // Print handler
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     documentTitle: `Payment-Voucher-${pv?.pv_number}`,
+    pageStyle: `
+      @page {
+        size: A4;
+        margin: 15mm 12mm;
+      }
+      @media print {
+        body {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+          font-size: 11px;
+        }
+        .no-print { display: none !important; }
+        table { page-break-inside: avoid; }
+      }
+    `,
   });
+
+  // Download PDF handler
+  const handleDownloadPDF = async () => {
+    try {
+      toast.loading("Generating PDF...");
+      await downloadPaymentVoucherPDF(id, pv?.pv_number);
+      toast.success("PDF downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download PDF. Please try again.");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -69,11 +134,7 @@ export default function PaymentVoucherDetailPage({
   if (!pv) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <FileText className="h-16 w-16 text-muted-foreground mb-4" />
         <h2 className="text-2xl font-bold mb-2">Payment Voucher Not Found</h2>
-        <p className="text-muted-foreground mb-4">
-          The payment voucher you're looking for doesn't exist
-        </p>
         <Button onClick={() => router.push("/dashboard/finance/payment-vouchers")}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Payment Vouchers
@@ -82,11 +143,22 @@ export default function PaymentVoucherDetailPage({
     );
   }
 
+  // Get line items or create single line from totals
+  const lineItems = pv.line_items && pv.line_items.length > 0
+    ? pv.line_items
+    : [{
+        line_number: 1,
+        account_code: pv.chart_account_details?.account_code || '',
+        description: pv.payment_description || 'Payment',
+        amount: pv.gross_amount,
+        is_deduction: false
+      }];
+
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="space-y-4 p-4">
+      {/* Header - No Print */}
+      <div className="flex items-center justify-between no-print">
+        <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
@@ -96,10 +168,8 @@ export default function PaymentVoucherDetailPage({
             Back
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {formatPVNumber(pv.pv_number)}
-            </h1>
-            <p className="text-muted-foreground">Payment Voucher Details</p>
+            <h1 className="text-2xl font-bold tracking-tight">{pv.pv_number}</h1>
+            <p className="text-sm text-muted-foreground">Payment Voucher</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -110,7 +180,7 @@ export default function PaymentVoucherDetailPage({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => toast.info("Download PDF coming soon")}
+            onClick={handleDownloadPDF}
           >
             <Download className="h-4 w-4 mr-2" />
             Download PDF
@@ -121,419 +191,174 @@ export default function PaymentVoucherDetailPage({
         </div>
       </div>
 
-      {/* Printable Content */}
-      <div ref={printRef} className="print:p-8">
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Left Column */}
-          <div className="space-y-6">
-            {/* Payment Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Payment Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    PV Number
-                  </label>
-                  <p className="text-lg font-mono font-bold">{pv.pv_number}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Payment Date
-                  </label>
-                  <p className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    {new Date(pv.payment_date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Payment Method
-                  </label>
-                  <p>{pv.payment_method_display}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Payment Reference
-                  </label>
-                  <p className="font-mono text-sm">{pv.payment_reference}</p>
-                </div>
-                {pv.cheque_number && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Cheque Number
-                    </label>
-                    <p className="font-mono">{pv.cheque_number}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Payee Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Payee Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Payee Name
-                  </label>
-                  <p className="font-semibold">{pv.payee_name}</p>
-                </div>
-                {pv.payee_bank && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Bank
-                    </label>
-                    <p>{pv.payee_bank}</p>
-                  </div>
-                )}
-                {pv.payee_account_number && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Account Number
-                    </label>
-                    <p className="font-mono">{pv.payee_account_number}</p>
-                  </div>
-                )}
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Payment Description
-                  </label>
-                  <p className="text-sm">{pv.payment_description}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bank Account */}
-            {pv.bank_account_details && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
-                    Bank Account (Source)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Bank Name
-                    </label>
-                    <p>{pv.bank_account_details.bank_name}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Account Number
-                    </label>
-                    <p className="font-mono">
-                      {pv.bank_account_details.account_number}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Account Name
-                    </label>
-                    <p>{pv.bank_account_details.account_name}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+      {/* Printable Payment Voucher Template */}
+      <div ref={printRef} className="bg-white max-w-5xl mx-auto">
+        {/* Header Section */}
+        <div className="border border-gray-300">
+          {/* Logo and Organization Header */}
+          <div className="text-center py-3 border-b border-gray-300">
+            <div className="flex items-center justify-center mb-2">
+              <img src="/imgs/logo.png" alt="AHNI Logo" className="h-16 w-auto" />
+            </div>
+            <div className="font-semibold text-sm">Achieving Health Nigeria Initiative (AHNI)</div>
+            <div className="text-xs text-gray-600">30 Anthony Enahoro Street, Utako, Abuja, Nigeria</div>
           </div>
 
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Amount Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Amount Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center py-2">
-                  <span className="font-medium">Gross Amount:</span>
-                  <span className="text-lg font-semibold">
-                    {formatCurrencyAmount(pv.gross_amount)}
-                  </span>
-                </div>
+          {/* Title */}
+          <div className="text-center py-2 border-b border-gray-300">
+            <h2 className="text-base font-bold">CHECK PAYMENT VOUCHER</h2>
+          </div>
 
-                <Separator />
+          {/* Payable To and Voucher Details */}
+          <div className="border-b border-gray-300">
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  <td className="border-r border-gray-300 py-1.5 px-2 text-xs font-medium w-20">Payable to</td>
+                  <td className="bg-green-50 py-1.5 px-2 text-sm font-semibold">{pv.payee_name}</td>
+                  <td className="border-l border-gray-300 py-1.5 px-2 text-xs font-medium w-28">Voucher Date</td>
+                  <td className="border-l border-gray-300 py-1.5 px-2 font-mono text-xs">
+                    {new Date(pv.payment_date).toLocaleDateString('en-GB')}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Deductions:
-                  </p>
-                  {pv.total_wht > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Withholding Tax (WHT):
-                      </span>
-                      <span className="text-orange-600">
-                        -{formatCurrencyAmount(pv.total_wht)}
-                      </span>
+          {/* Comments and Currency/Check No */}
+          <div className="border-b border-gray-300">
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  <td className="border-r border-gray-300 py-1.5 px-2 text-xs font-medium w-20 align-top">Comments</td>
+                  <td className="bg-green-50 py-1.5 px-2 text-xs" rowSpan={2}>
+                    {pv.payment_description || pv.notes || 'Payment as per approved request'}
+                  </td>
+                  <td className="border-l border-gray-300 py-1.5 px-2 text-xs font-medium w-28">Currency</td>
+                  <td className="border-l border-gray-300 py-1.5 px-2 font-mono text-xs">
+                    {pv.currency || 'Naira'}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-r border-gray-300"></td>
+                  <td className="border-l border-gray-300 py-1.5 px-2 text-xs font-medium">Check no</td>
+                  <td className="border-l border-gray-300 py-1.5 px-2 font-mono text-xs">
+                    {pv.payment_reference || pv.cheque_number || '-'}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Line Items Table */}
+          <div className="border-b border-gray-300">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border-r border-gray-300 py-1 px-2 text-left text-xs font-semibold w-20">FCO</th>
+                  <th className="border-r border-gray-300 py-1 px-2 text-left text-xs font-semibold w-24">Activity Code</th>
+                  <th className="border-r border-gray-300 py-1 px-2 text-left text-xs font-semibold w-24">Account Code</th>
+                  <th className="border-r border-gray-300 py-1 px-2 text-left text-xs font-semibold">Description</th>
+                  <th className="py-1 px-2 text-right text-xs font-semibold w-28">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="bg-green-50">
+                {lineItems.map((item: any, index: number) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="border-r border-gray-300 py-1.5 px-2 text-xs font-mono">
+                      {pv.fco || (index === 0 ? pv.project_details?.project_id || '' : '')}
+                    </td>
+                    <td className="border-r border-gray-300 py-1.5 px-2 text-xs font-mono">
+                      {pv.activity_code || ''}
+                    </td>
+                    <td className="border-r border-gray-300 py-1.5 px-2 text-xs font-mono">
+                      {item.account_code || ''}
+                    </td>
+                    <td className="border-r border-gray-300 py-1.5 px-2 text-xs">
+                      {item.description}
+                    </td>
+                    <td className="py-1.5 px-2 text-xs text-right font-mono">
+                      {item.amount < 0 || item.is_deduction
+                        ? `(${formatCurrencyAmount(Math.abs(item.amount)).replace('₦', '')})`
+                        : formatCurrencyAmount(item.amount).replace('₦', '')}
+                    </td>
+                  </tr>
+                ))}
+                {/* Empty rows to match template */}
+                {[...Array(Math.max(0, 6 - lineItems.length))].map((_, i) => (
+                  <tr key={`empty-${i}`} className="border-b border-gray-200">
+                    <td className="border-r border-gray-300 py-2 px-2">&nbsp;</td>
+                    <td className="border-r border-gray-300 py-2 px-2">&nbsp;</td>
+                    <td className="border-r border-gray-300 py-2 px-2">&nbsp;</td>
+                    <td className="border-r border-gray-300 py-2 px-2">&nbsp;</td>
+                    <td className="py-2 px-2">&nbsp;</td>
+                  </tr>
+                ))}
+                {/* Total Row */}
+                <tr className="border-t-2 border-gray-400 font-bold">
+                  <td className="border-r border-gray-300 py-1.5 px-2" colSpan={4}></td>
+                  <td className="py-1.5 px-2 text-right font-mono text-xs">
+                    {formatCurrencyAmount(pv.gross_amount).replace('₦', '')}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Amount in Words */}
+          <div className="border-b border-gray-300 py-2 px-2 bg-green-50">
+            <span className="text-xs font-semibold italic">Amount in Words: </span>
+            <span className="text-xs italic">
+              {pv.amount_in_words || numberToWords(parseFloat(pv.gross_amount) || 0)}
+            </span>
+          </div>
+
+          {/* Signature Section */}
+          <div>
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  {/* Prepared By */}
+                  <td className="border-r border-b border-gray-300 py-2 px-2 align-top w-1/2">
+                    <div className="text-xs space-y-0.5">
+                      <div className="font-semibold">Signed:</div>
+                      <div><span className="font-medium">Prepared by:</span> {pv.prepared_by_details?.name || '-'}</div>
+                      <div><span className="font-medium">Designation:</span> {pv.prepared_by_details?.designation || 'Senior Accountant'}</div>
+                      <div><span className="font-medium">Date:</span> {pv.prepared_date ? new Date(pv.prepared_date).toLocaleDateString('en-GB') : '-'}</div>
                     </div>
-                  )}
-                  {pv.total_vat > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">VAT:</span>
-                      <span className="text-orange-600">
-                        -{formatCurrencyAmount(pv.total_vat)}
-                      </span>
+                  </td>
+                  {/* Reviewed By */}
+                  <td className="border-b border-gray-300 py-2 px-2 align-top w-1/2">
+                    <div className="text-xs space-y-0.5">
+                      <div className="font-semibold">Signed:</div>
+                      <div><span className="font-medium">Reviewed by:</span> {pv.reviewed_by_details?.name || '-'}</div>
+                      <div><span className="font-medium">Designation:</span> {pv.reviewed_by_details?.designation || 'Finance Manager'}</div>
+                      <div><span className="font-medium">Date:</span> {pv.reviewed_date ? new Date(pv.reviewed_date).toLocaleDateString('en-GB') : '-'}</div>
                     </div>
-                  )}
-                  {pv.total_paye > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">PAYE:</span>
-                      <span className="text-orange-600">
-                        -{formatCurrencyAmount(pv.total_paye)}
-                      </span>
+                  </td>
+                </tr>
+                <tr>
+                  {/* Authorised By */}
+                  <td className="border-r border-gray-300 py-2 px-2 align-top">
+                    <div className="text-xs space-y-0.5">
+                      <div className="font-semibold">Signed:</div>
+                      <div><span className="font-medium">Authorised by:</span> {pv.authorised_by_details?.name || '-'}</div>
+                      <div><span className="font-medium">Designation:</span> {pv.authorised_by_details?.designation || 'Director of Finance'}</div>
+                      <div><span className="font-medium">Date:</span> {pv.authorised_date ? new Date(pv.authorised_date).toLocaleDateString('en-GB') : '-'}</div>
                     </div>
-                  )}
-                  {pv.total_pension > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Pension:</span>
-                      <span className="text-orange-600">
-                        -{formatCurrencyAmount(pv.total_pension)}
-                      </span>
+                  </td>
+                  {/* Approved By */}
+                  <td className="py-2 px-2 align-top">
+                    <div className="text-xs space-y-0.5">
+                      <div className="font-semibold">Signed:</div>
+                      <div><span className="font-medium">Approved by:</span> {pv.approved_by_details?.name || '-'}</div>
+                      <div><span className="font-medium">Designation:</span> {pv.approved_by_details?.designation || 'Managing Director'}</div>
+                      <div><span className="font-medium">Date:</span> {pv.approved_date ? new Date(pv.approved_date).toLocaleDateString('en-GB') : '-'}</div>
                     </div>
-                  )}
-                  {pv.total_nhis > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">NHIS:</span>
-                      <span className="text-orange-600">
-                        -{formatCurrencyAmount(pv.total_nhis)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-sm pt-2 border-t">
-                    <span className="font-medium">Total Deductions:</span>
-                    <span className="font-semibold text-orange-600">
-                      -{formatCurrencyAmount(pv.total_deductions)}
-                    </span>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="flex justify-between items-center py-2 bg-green-50 dark:bg-green-900/20 rounded-lg px-3">
-                  <span className="font-bold text-green-700 dark:text-green-400">
-                    Net Amount Paid:
-                  </span>
-                  <span className="text-xl font-bold text-green-700 dark:text-green-400">
-                    {formatCurrencyAmount(pv.net_amount)}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Project Details */}
-            {pv.project_details && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Project Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Project ID
-                    </label>
-                    <p className="font-mono">{pv.project_details.project_id}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Project Name
-                    </label>
-                    <p>{pv.project_details.title}</p>
-                  </div>
-                  {pv.project_details.donor && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">
-                        Donor
-                      </label>
-                      <p>{pv.project_details.donor}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Approvals */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Approvals</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {pv.prepared_by_details && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Prepared By
-                    </label>
-                    <p className="font-medium">{pv.prepared_by_details.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {pv.prepared_by_details.email}
-                    </p>
-                  </div>
-                )}
-                {pv.reviewed_by_details && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Reviewed By
-                    </label>
-                    <p className="font-medium">{pv.reviewed_by_details.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {pv.reviewed_by_details.email}
-                    </p>
-                  </div>
-                )}
-                {pv.approved_by_details && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Approved By
-                    </label>
-                    <p className="font-medium">{pv.approved_by_details.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {pv.approved_by_details.email}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Journal Entry */}
-            {pv.journal_entry_details && (
-              <Card className="border-2 border-blue-200 dark:border-blue-800">
-                <CardHeader className="bg-blue-50 dark:bg-blue-900/20">
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-blue-600" />
-                    <span>Journal Entry</span>
-                    {pv.journal_entry_details.is_system_generated && (
-                      <Badge variant="secondary" className="ml-auto">
-                        <Lock className="h-3 w-3 mr-1" />
-                        Auto-Generated
-                      </Badge>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 mt-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Entry Number
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <p className="font-mono font-semibold text-blue-600">
-                        {pv.journal_entry_details.entry_number}
-                      </p>
-                      <Link
-                        href={`/dashboard/finance/journal-entries?entry=${pv.journal_entry_details.id}`}
-                        className="text-blue-600 hover:text-blue-700"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Link>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Entry Date
-                    </label>
-                    <p>
-                      {new Date(pv.journal_entry_details.entry_date).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      )}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Description
-                    </label>
-                    <p className="text-sm">{pv.journal_entry_details.description}</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 pt-2 border-t">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">
-                        Total Debits
-                      </label>
-                      <p className="text-lg font-semibold text-green-600">
-                        {formatCurrencyAmount(pv.journal_entry_details.total_debit)}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">
-                        Total Credits
-                      </label>
-                      <p className="text-lg font-semibold text-red-600">
-                        {formatCurrencyAmount(pv.journal_entry_details.total_credit)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-2">
-                    {pv.journal_entry_details.is_posted ? (
-                      <Badge variant="default" className="bg-green-600">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Posted
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Draft
-                      </Badge>
-                    )}
-                    {pv.journal_entry_details.is_balanced ? (
-                      <Badge variant="outline" className="border-green-600 text-green-600">
-                        ✓ Balanced
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="border-orange-600 text-orange-600">
-                        ⚠ Unbalanced
-                      </Badge>
-                    )}
-                  </div>
-
-                  {pv.journal_entry_details.edit_restriction_message && (
-                    <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                      <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-amber-800 dark:text-amber-200">
-                        <p className="font-medium mb-1">Read-Only Entry</p>
-                        <p className="text-xs">{pv.journal_entry_details.edit_restriction_message}</p>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Notes */}
-            {pv.notes && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm whitespace-pre-wrap">{pv.notes}</p>
-                </CardContent>
-              </Card>
-            )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

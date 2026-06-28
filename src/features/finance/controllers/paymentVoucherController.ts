@@ -337,8 +337,15 @@ export const formatPVNumber = (number: string): string => {
 /**
  * Format currency amount
  */
-export const formatCurrencyAmount = (amount: number): string => {
-  return `₦${amount.toLocaleString("en-US", {
+export const formatCurrencyAmount = (amount: number | string): string => {
+  // Convert to number and handle null/undefined amounts
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+
+  if (numAmount === null || numAmount === undefined || isNaN(numAmount)) {
+    return "₦0.00";
+  }
+
+  return `₦${numAmount.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
