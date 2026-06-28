@@ -156,7 +156,7 @@ export const useSetDefaultBankAccount = () => {
 /**
  * Get all bank statements
  */
-export const useGetBankStatements = (filters?: BankStatementFilters) => {
+export const useGetBankStatements = (filters?: BankStatementFilters, enabled: boolean = true) => {
   return useQuery<{ status: string; data: BankStatement[] }>({
     queryKey: ["bank-statements", filters],
     queryFn: async () => {
@@ -173,6 +173,7 @@ export const useGetBankStatements = (filters?: BankStatementFilters) => {
         );
       }
     },
+    enabled,
     refetchOnWindowFocus: false,
   });
 };

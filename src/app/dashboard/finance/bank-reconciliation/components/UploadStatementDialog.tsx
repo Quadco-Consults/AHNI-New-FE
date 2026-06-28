@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -51,7 +51,8 @@ export default function UploadStatementDialog({
   // Fetch bank statements for selected account
   const { data: statementsData, isLoading: statementsLoading } =
     useGetBankStatements(
-      selectedAccount ? { bank_account_id: selectedAccount } : undefined
+      selectedAccount ? { bank_account_id: selectedAccount } : undefined,
+      !!selectedAccount // Only fetch when account is selected
     );
   const statements = statementsData?.data || [];
 
@@ -116,6 +117,14 @@ export default function UploadStatementDialog({
     }
   };
 
+  // Handle successful import
+  useEffect(() => {
+    if (importSuccess && importData?.data) {
+      setImportResults(importData.data);
+      toast.success(`Successfully imported ${importData.data.total_transactions} transactions`);
+    }
+  }, [importSuccess, importData]);
+
   const handleUpload = async () => {
     if (!selectedStatement) {
       toast.error("Please select a bank statement");
@@ -129,13 +138,8 @@ export default function UploadStatementDialog({
 
     try {
       await importTransactions(selectedStatement, selectedFile);
-
-      // Show results
-      if (importData?.data) {
-        setImportResults(importData.data);
-        toast.success(`Successfully imported ${importData.data.total_transactions} transactions`);
-      }
     } catch (error: any) {
+      console.error("Upload error:", error);
       toast.error(error?.message || "Failed to import transactions");
     }
   };
