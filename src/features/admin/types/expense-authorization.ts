@@ -25,7 +25,21 @@ const DestinationSchema = z.object({
     accommodation_required: z.boolean(),
     transport_required: z.boolean(),
     travel_fee: TravelFeeSchema,
-});
+    // Activity tracking
+    workplan_activity: z.string().optional(),
+    unplanned_activity: z.string().optional(),
+}).refine(
+    (data) => {
+        // Either workplan_activity or unplanned_activity must be selected (but not both)
+        const hasWorkplanActivity = !!data.workplan_activity;
+        const hasUnplannedActivity = !!data.unplanned_activity;
+        return (hasWorkplanActivity || hasUnplannedActivity) && !(hasWorkplanActivity && hasUnplannedActivity);
+    },
+    {
+        message: "Please select either a WorkPlan Activity or an Unplanned Activity (not both)",
+        path: ["workplan_activity"],
+    }
+);
 
 // Traveler schema for multiple travelers
 const TravelerSchema = z.object({
@@ -145,6 +159,24 @@ interface IDestination {
     purpose: string;
     accommodation_required: boolean;
     transport_required: boolean;
+    workplan_activity?: string | {
+        id: string;
+        activity_code: string;
+        activity_description: string;
+        start_date: string;
+        end_date: string;
+    } | null;
+    unplanned_activity?: string | {
+        id: string;
+        activity_code: string;
+        activity_description: string;
+        start_date: string;
+        end_date: string;
+        budget_allocated: string;
+        budget_approval_status: string;
+    } | null;
+    budget_line?: string | any | null;
+    activity_code?: string | null;
     travel_fee: {
         id: string;
         created_datetime: string;

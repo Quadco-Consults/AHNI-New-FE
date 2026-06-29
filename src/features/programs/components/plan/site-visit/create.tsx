@@ -41,6 +41,8 @@ import { useGetAllAnnualPlans } from "@/features/programs/controllers/annualSupe
 import { AnnualPlanStatus } from "@/features/programs/types/annual-supervision-plan";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
+import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 import TravelFeesCalculator from "@/features/programs/components/travel-fees/TravelFeesCalculator";
 import { TravelFees } from "@/features/programs/hooks/useTravelRates";
 
@@ -50,6 +52,7 @@ const SiteVisitCreate = () => {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [selectedPlannedVisit, setSelectedPlannedVisit] = useState<string>("");
   const [travelFees, setTravelFees] = useState<TravelFees | null>(null);
+  const [selectedProject, setSelectedProject] = useState<string>("");
 
   // Site Visit API
   const createSiteVisit = useCreateSiteVisit();
@@ -77,6 +80,23 @@ const SiteVisitCreate = () => {
   const { data: projectsData, isLoading: isProjectsLoading } = useGetAllProjects({
     page: 1,
     size: 1000,
+  });
+
+  // Fetch Activity Plans (WorkPlan Activities)
+  const { data: activityPlansData, isLoading: isActivityPlansLoading } = useGetAllActivityPlans({
+    page: 1,
+    size: 5000,
+    project: selectedProject && selectedProject !== "none" ? selectedProject : undefined,
+    is_unplanned: false, // WorkPlan activities only
+  });
+
+  // Fetch Unplanned Activities
+  const { data: unplannedActivitiesData, isLoading: isUnplannedActivitiesLoading } = useGetAllActivityPlans({
+    page: 1,
+    size: 5000,
+    project: selectedProject && selectedProject !== "none" ? selectedProject : undefined,
+    is_unplanned: true,
+    approval_status: "APPROVED", // Only approved unplanned activities
   });
 
   // Fetch users from user table only (not employee database)
@@ -136,6 +156,8 @@ const SiteVisitCreate = () => {
       approver: "",
       additional_comments: "",
       project: "none", // Default to "No Project"
+      workplan_activity: "",
+      unplanned_activity: "",
       travel_fees: {
         lodging: 0,
         meals: 0,
@@ -156,6 +178,9 @@ const SiteVisitCreate = () => {
   const startDate = watch("start_date");
   const endDate = watch("end_date");
   const teamMembers = watch("team_members");
+  const project = watch("project");
+  const workplanActivity = watch("workplan_activity");
+  const unplannedActivity = watch("unplanned_activity");
 
   // Clear plan selections when travel request type changes
   useEffect(() => {
@@ -211,6 +236,31 @@ const SiteVisitCreate = () => {
     }
   }, [facilityData, setValue]);
 
+  // Update selected project when form field changes
+  useEffect(() => {
+    if (project) {
+      setSelectedProject(project);
+      // Clear activity selections when project changes
+      setValue("workplan_activity", "");
+      setValue("unplanned_activity", "");
+    }
+  }, [project, setValue]);
+
+  // Handle mutual exclusion of activity selections
+  useEffect(() => {
+    if (workplanActivity && workplanActivity.trim().length > 0) {
+      // If WorkPlan Activity is selected, clear Unplanned Activity
+      setValue("unplanned_activity", "");
+    }
+  }, [workplanActivity, setValue]);
+
+  useEffect(() => {
+    if (unplannedActivity && unplannedActivity.trim().length > 0) {
+      // If Unplanned Activity is selected, clear WorkPlan Activity
+      setValue("workplan_activity", "");
+    }
+  }, [unplannedActivity, setValue]);
+
   // Handle travel fees updates from calculator
   const handleTravelFeesUpdate = useCallback((fees: TravelFees, totalCost: number) => {
     setTravelFees(fees);
@@ -238,6 +288,9 @@ const SiteVisitCreate = () => {
         end_date: formatDate(data.end_date),
         // Handle project field - convert "none" to null
         project: data.project === "none" ? null : data.project,
+        // Handle activity fields - convert empty strings to null
+        workplan_activity: data.workplan_activity && data.workplan_activity.trim() ? data.workplan_activity : null,
+        unplanned_activity: data.unplanned_activity && data.unplanned_activity.trim() ? data.unplanned_activity : null,
         // Set initial status for new travel requests
         status: SiteVisitStatus.DRAFT,
         // Add references to annual plan and planned visit
@@ -695,6 +748,83 @@ const SiteVisitCreate = () => {
                     )}
                   </SelectContent>
                 </FormSelect>
+
+                {/* Activity Selection - Required Field */}
+                <div className="space-y-4 border-l-4 border-purple-500 pl-4 bg-purple-50 p-4 rounded">
+                  <h4 className="font-medium text-purple-800">Activity Tracking (Required)</h4>
+                  <p className="text-sm text-purple-600">
+                    Select either a WorkPlan Activity OR an Unplanned Activity to link this site visit to your budget.
+                    {selectedProject && selectedProject !== "none"
+                      ? " Activities are filtered by the selected project."
+                      : " Please select a project first to see available activities."}
+                  </p>
+
+                  {(!selectedProject || selectedProject === "none") && (
+                    <div className="text-sm text-orange-600 bg-orange-50 p-2 rounded">
+                      ⚠️ Please select a project above to see available activities
+                    </div>
+                  )}
+
+                  <FormSelect
+                    name="workplan_activity"
+                    label="WorkPlan Activity"
+                    placeholder={selectedProject && selectedProject !== "none" ? "Select a workplan activity" : "Select project first"}
+                    disabled={!selectedProject || selectedProject === "none"}
+                  >
+                    <SelectContent>
+                      {isActivityPlansLoading ? (
+                        <div className="p-2">
+                          <LoadingSpinner />
+                        </div>
+                      ) : activityPlansData?.data?.results?.length > 0 ? (
+                        activityPlansData.data.results.map((activity: any) => (
+                          <SelectItem key={activity.id} value={activity.id}>
+                            {activity.activity_code} - {activity.activity_description}
+                            {activity.budget_line_display && ` (${activity.budget_line_display})`}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-activities" disabled>
+                          No workplan activities available for this project
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </FormSelect>
+
+                  <div className="text-center text-sm text-gray-500 font-medium">OR</div>
+
+                  <FormSelect
+                    name="unplanned_activity"
+                    label="Unplanned Activity (Approved)"
+                    placeholder={selectedProject && selectedProject !== "none" ? "Select an approved unplanned activity" : "Select project first"}
+                    disabled={!selectedProject || selectedProject === "none"}
+                  >
+                    <SelectContent>
+                      {isUnplannedActivitiesLoading ? (
+                        <div className="p-2">
+                          <LoadingSpinner />
+                        </div>
+                      ) : unplannedActivitiesData?.data?.results?.length > 0 ? (
+                        unplannedActivitiesData.data.results.map((activity: any) => (
+                          <SelectItem key={activity.id} value={activity.id}>
+                            {activity.activity_code} - {activity.activity_description}
+                            {activity.budget_allocated && ` (Budget: ₦${activity.budget_allocated})`}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-unplanned" disabled>
+                          No approved unplanned activities available for this project
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </FormSelect>
+
+                  {(workplanActivity || unplannedActivity) && (
+                    <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
+                      ✅ Activity selected - budget line and activity code will be auto-populated
+                    </div>
+                  )}
+                </div>
 
                 <FormField
                   control={form.control}

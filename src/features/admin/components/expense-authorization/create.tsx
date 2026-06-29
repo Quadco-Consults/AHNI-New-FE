@@ -17,8 +17,9 @@ import {
 } from "@/features/admin/types/expense-authorization";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetAllDepartmentsQuery } from "@/features/modules/controllers/config/departmentController";
+import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers/finance/fcoNumberController";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -32,6 +33,8 @@ import {
 import { toast } from "sonner";
 import { useGetAllUsersQuery, useGetCurrentUser } from "@/features/auth/controllers/userController";
 import FadedButton from "@/components/FadedButton";
+import { LoadingSpinner } from "@/components/Loading";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
@@ -48,7 +51,130 @@ const radioOptions = [
   { label: "No", value: false },
 ];
 
+// Activity Selection Component for each destination
+function ActivitySelectionFields({
+  destinationIndex,
+  selectedProject,
+  form,
+}: {
+  destinationIndex: number;
+  selectedProject: string;
+  form: any;
+}) {
+  // Fetch WorkPlan Activities
+  const { data: activityPlansData, isLoading: isActivityPlansLoading } = useGetAllActivityPlans({
+    page: 1,
+    size: 5000,
+    project: selectedProject || undefined,
+    is_unplanned: false,
+  });
+
+  // Fetch Unplanned Activities (approved only)
+  const { data: unplannedActivitiesData, isLoading: isUnplannedActivitiesLoading } = useGetAllActivityPlans({
+    page: 1,
+    size: 5000,
+    project: selectedProject || undefined,
+    is_unplanned: true,
+    approval_status: "APPROVED",
+  });
+
+  const workplanActivity = form.watch(`destinations.${destinationIndex}.workplan_activity`);
+  const unplannedActivity = form.watch(`destinations.${destinationIndex}.unplanned_activity`);
+
+  // Handle mutual exclusion
+  useEffect(() => {
+    if (workplanActivity && workplanActivity.trim().length > 0) {
+      form.setValue(`destinations.${destinationIndex}.unplanned_activity`, "");
+    }
+  }, [workplanActivity, destinationIndex, form]);
+
+  useEffect(() => {
+    if (unplannedActivity && unplannedActivity.trim().length > 0) {
+      form.setValue(`destinations.${destinationIndex}.workplan_activity`, "");
+    }
+  }, [unplannedActivity, destinationIndex, form]);
+
+  return (
+    <div className='space-y-4 border-l-4 border-purple-500 pl-4 bg-purple-50 p-4 rounded'>
+      <h4 className='font-medium text-purple-800'>Activity Tracking (Required)</h4>
+      <p className='text-sm text-purple-600'>
+        Select either a WorkPlan Activity OR an Unplanned Activity to link this destination to your budget.
+        {selectedProject ? " Activities are filtered by the selected project." : " Please select a project first."}
+      </p>
+
+      {!selectedProject && (
+        <div className='text-sm text-orange-600 bg-orange-50 p-2 rounded'>
+          ⚠️ Please select a project above to see available activities
+        </div>
+      )}
+
+      <FormSelect
+        label='WorkPlan Activity'
+        name={`destinations.${destinationIndex}.workplan_activity`}
+        placeholder={selectedProject ? "Select a workplan activity" : "Select project first"}
+        disabled={!selectedProject}
+      >
+        <SelectContent>
+          {isActivityPlansLoading ? (
+            <div className='p-2'>
+              <LoadingSpinner />
+            </div>
+          ) : activityPlansData?.data?.results?.length > 0 ? (
+            activityPlansData.data.results.map((activity: any) => (
+              <SelectItem key={activity.id} value={activity.id}>
+                {activity.activity_code} - {activity.activity_description}
+                {activity.budget_line_display && ` (${activity.budget_line_display})`}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value='no-activities' disabled>
+              No workplan activities available for this project
+            </SelectItem>
+          )}
+        </SelectContent>
+      </FormSelect>
+
+      <div className='text-center text-sm text-gray-500 font-medium'>OR</div>
+
+      <FormSelect
+        label='Unplanned Activity (Approved)'
+        name={`destinations.${destinationIndex}.unplanned_activity`}
+        placeholder={selectedProject ? "Select an approved unplanned activity" : "Select project first"}
+        disabled={!selectedProject}
+      >
+        <SelectContent>
+          {isUnplannedActivitiesLoading ? (
+            <div className='p-2'>
+              <LoadingSpinner />
+            </div>
+          ) : unplannedActivitiesData?.data?.results?.length > 0 ? (
+            unplannedActivitiesData.data.results.map((activity: any) => (
+              <SelectItem key={activity.id} value={activity.id}>
+                {activity.activity_code} - {activity.activity_description}
+                {activity.budget_allocated && ` (Budget: ₦${activity.budget_allocated})`}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value='no-unplanned' disabled>
+              No approved unplanned activities available for this project
+            </SelectItem>
+          )}
+        </SelectContent>
+      </FormSelect>
+
+      {(workplanActivity || unplannedActivity) && (
+        <div className='text-sm text-green-600 bg-green-50 p-2 rounded'>
+          ✅ Activity selected - budget line and activity code will be auto-populated
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CreateExpenseAuthorization() {
+  // Track selected project for each destination (for activity filtering)
+  const [destinationProjects, setDestinationProjects] = useState<{ [key: number]: string }>({});
+
   // Get current logged-in user
   const { data: currentUserResponse } = useGetCurrentUser();
   const currentUser = currentUserResponse?.data;
@@ -103,6 +229,8 @@ export default function CreateExpenseAuthorization() {
           purpose: "",
           accommodation_required: false,
           transport_required: false,
+          workplan_activity: "",
+          unplanned_activity: "",
           travel_fee: {
             lodging: 0,
             meals: 0,
@@ -305,6 +433,8 @@ export default function CreateExpenseAuthorization() {
             purpose: dest.purpose || "",
             accommodation_required: dest.accommodation_required || false,
             transport_required: dest.transport_required || false,
+            workplan_activity: typeof dest.workplan_activity === 'string' ? dest.workplan_activity : dest.workplan_activity?.id || "",
+            unplanned_activity: typeof dest.unplanned_activity === 'string' ? dest.unplanned_activity : dest.unplanned_activity?.id || "",
             travel_fee: {
               lodging: parseFloat(dest.travel_fee?.[0]?.lodging || "0"),
               meals: parseFloat(dest.travel_fee?.[0]?.meals || "0"),
@@ -324,6 +454,8 @@ export default function CreateExpenseAuthorization() {
               purpose: "",
               accommodation_required: false,
               transport_required: false,
+              workplan_activity: "",
+              unplanned_activity: "",
               travel_fee: {
                 lodging: 0,
                 meals: 0,
@@ -577,6 +709,17 @@ export default function CreateExpenseAuthorization() {
                           placeholder='Select Project'
                           required
                           options={projectoptions}
+                          onChange={(e: any) => {
+                            const projectId = e.target.value;
+                            // Track selected project for this destination
+                            setDestinationProjects(prev => ({
+                              ...prev,
+                              [index]: projectId
+                            }));
+                            // Clear activity selections when project changes
+                            form.setValue(`destinations.${index}.workplan_activity`, "");
+                            form.setValue(`destinations.${index}.unplanned_activity`, "");
+                          }}
                         />
 
                         <FormInput
@@ -614,6 +757,13 @@ export default function CreateExpenseAuthorization() {
                           required
                         />
                       </div>
+
+                      {/* Activity Selection - Required for budget tracking */}
+                      <ActivitySelectionFields
+                        destinationIndex={index}
+                        selectedProject={destinationProjects[index] || ""}
+                        form={form}
+                      />
 
                       <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
                         <FormCheckBox
@@ -700,6 +850,8 @@ export default function CreateExpenseAuthorization() {
                           purpose: "",
                           accommodation_required: false,
                           transport_required: false,
+                          workplan_activity: "",
+                          unplanned_activity: "",
                           travel_fee: {
                             lodging: 0,
                             meals: 0,

@@ -127,6 +127,14 @@ export interface ISiteVisit {
   project_title?: string;
   estimated_budget?: number;
 
+  // Activity Tracking
+  workplan_activity?: string;
+  workplan_activity_display?: string;
+  unplanned_activity?: string;
+  unplanned_activity_display?: string;
+  budget_line?: string;
+  activity_code?: string;
+
   // Status & Workflow
   status: SiteVisitStatus;
   submission_date?: string;
@@ -226,6 +234,10 @@ export interface ICreateSiteVisitRequest {
   special_requirements?: string;
   expected_outcomes?: string;
   comments?: string;
+
+  // Activity Tracking
+  workplan_activity?: string;
+  unplanned_activity?: string;
 
   // Travel Fees (calculated automatically)
   travel_fees?: {
@@ -327,6 +339,10 @@ export const SiteVisitApplicationSchema = z.object({
   expected_outcomes: z.string().optional(),
   comments: z.string().optional(),
 
+  // Activity Tracking (either WorkPlan Activity or Unplanned Activity required)
+  workplan_activity: z.string().optional(),
+  unplanned_activity: z.string().optional(),
+
   // Team Members (optional - creator is auto-added by backend)
   team_members: z.array(z.object({
     user: z.string().min(1, "User is required"),
@@ -386,6 +402,25 @@ export const SiteVisitApplicationSchema = z.object({
 }, {
   message: "End date must be after start date",
   path: ["end_date"]
+}).refine((data) => {
+  // Activity selection validation: either workplan_activity or unplanned_activity must be selected (but not both)
+  const hasWorkplanActivity = data.workplan_activity && data.workplan_activity.trim().length > 0;
+  const hasUnplannedActivity = data.unplanned_activity && data.unplanned_activity.trim().length > 0;
+
+  // At least one must be selected
+  if (!hasWorkplanActivity && !hasUnplannedActivity) {
+    return false;
+  }
+
+  // Both cannot be selected
+  if (hasWorkplanActivity && hasUnplannedActivity) {
+    return false;
+  }
+
+  return true;
+}, {
+  message: "Please select either a WorkPlan Activity or an Unplanned Activity (not both)",
+  path: ["workplan_activity"]
 });
 
 export type TSiteVisitApplicationFormValues = z.infer<typeof SiteVisitApplicationSchema>;

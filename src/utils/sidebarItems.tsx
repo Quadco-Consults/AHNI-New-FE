@@ -1432,6 +1432,16 @@ export const departmentalLinks: SidebarItem[] = [
           ]
           },
           {
+            name: "Approved Fund Requests",
+            path: "/dashboard/finance/approved-fund-requests",
+            permissions: [
+            {
+              module: "programs",
+              codenames: ["view_fundrequest"]
+            }
+          ]
+          },
+          {
             name: "Honour Certificates",
             path: "/dashboard/finance/honour-certificates",
             permissions: [

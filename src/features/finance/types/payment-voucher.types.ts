@@ -172,13 +172,16 @@ export interface PaymentVoucherDetails extends PaymentVoucher {
 }
 
 export interface CreatePaymentVoucher {
+  // Source (either payment_request OR fund_request)
+  payment_request_id?: string;
+  fund_request_id?: string;
+
   // Required fields
-  payment_request_id: string;
   payment_date: string;
   payment_method: PaymentMethod;
   bank_account_id: string;
-  payment_reference: string;
-  chart_account_id: string;
+  payment_reference?: string;
+  chart_account_id?: string;
 
   // Amount fields
   gross_amount: number;
@@ -208,6 +211,11 @@ export interface CreatePaymentVoucher {
     amount: number;
     is_deduction: boolean;
   }>;
+
+  // Approval workflow (select assigned approvers)
+  reviewer_id?: string;     // Finance Manager to review
+  authorizer_id?: string;   // Director of Finance to authorise
+  approver_id?: string;     // Managing Director to approve
 
   // Optional fields
   project_id?: string;
