@@ -41,8 +41,8 @@ export interface TWorkPlanTrackerData {
     amount_expended_ngn: string;
     implementation_usd_rate: string;
     amount_expended_usd: string;
-    expenditure_usd_rate: string;
-    expenditure_ngn_rate: string;
+    expenditure_usd_rate: string;  // Exchange rate used (NGN→USD) when expense was recorded
+    expenditure_ngn_rate: string;  // Reverse exchange rate (USD→NGN)
     variance_ngn: string;
     variance_usd: string;
     percentage_variance_ngn: string;

@@ -297,22 +297,31 @@ export const getWorkPlanTrackerDetailsColumns = (
   },
 
   {
-    header: "Exchange Rate",
-    accessorKey: "exchange_rate",
-    size: 150,
-    cell: () => {
-      // Display the system-configured exchange rate (NGN -> USD)
-      if (typeof exchangeRate !== 'number' || exchangeRate === null || exchangeRate === undefined) {
-        return <span className="text-gray-400">Not configured</span>;
+    header: "Exchange Rate Used",
+    accessorKey: "expenditure_usd_rate",
+    size: 180,
+    cell: ({ row }) => {
+      const data = row.original;
+      const rateUsed = data.expenditure_usd_rate;
+
+      // If exchange rate was stored (from actual payment), show it
+      if (rateUsed && parseFloat(rateUsed) > 0) {
+        return <span className="font-medium text-blue-600">₦{parseFloat(rateUsed).toFixed(4)} = $1</span>;
       }
-      return <span className="font-medium">₦{Number(exchangeRate).toFixed(2)} = $1</span>;
+
+      // Otherwise show current system rate as fallback
+      if (typeof exchangeRate === 'number' && exchangeRate > 0) {
+        return <span className="text-gray-500">₦{Number(exchangeRate).toFixed(4)} = $1 (current)</span>;
+      }
+
+      return <span className="text-gray-400">Not available</span>;
     },
   },
 
   {
-    header: "Expenditure Rate (NGN)",
-    accessorKey: "expenditure_ngn_rate",
-    size: 150,
+    header: "Budget Utilization (NGN)",
+    accessorKey: "budget_utilization_ngn",
+    size: 180,
     cell: ({ row }) => {
       const data = row.original;
       const expended = parseFloat(data.amount_expended_ngn || "0");
@@ -320,15 +329,17 @@ export const getWorkPlanTrackerDetailsColumns = (
 
       if (budget === 0) return "0%";
 
-      const rate = (expended / budget) * 100;
-      return `${rate.toFixed(2)}%`;
+      const utilizationRate = (expended / budget) * 100;
+      const color = utilizationRate > 100 ? "text-red-600" : utilizationRate > 80 ? "text-yellow-600" : "text-green-600";
+
+      return <span className={`font-medium ${color}`}>{utilizationRate.toFixed(2)}%</span>;
     },
   },
 
   {
-    header: "Expenditure Rate (USD)",
-    accessorKey: "expenditure_usd_rate",
-    size: 150,
+    header: "Budget Utilization (USD)",
+    accessorKey: "budget_utilization_usd",
+    size: 180,
     cell: ({ row }) => {
       const data = row.original;
       const expended = parseFloat(data.amount_expended_usd || "0");
@@ -336,8 +347,10 @@ export const getWorkPlanTrackerDetailsColumns = (
 
       if (budget === 0) return "0%";
 
-      const rate = (expended / budget) * 100;
-      return `${rate.toFixed(2)}%`;
+      const utilizationRate = (expended / budget) * 100;
+      const color = utilizationRate > 100 ? "text-red-600" : utilizationRate > 80 ? "text-yellow-600" : "text-green-600";
+
+      return <span className={`font-medium ${color}`}>{utilizationRate.toFixed(2)}%</span>;
     },
   },
 
