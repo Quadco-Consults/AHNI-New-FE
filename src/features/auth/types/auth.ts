@@ -152,12 +152,15 @@ export type TChangePasswordFormValues = z.infer<typeof ChangePasswordSchema>;
 export interface TBasePaginatedResponse<T> {
     data: {
         results: T[];
-        paginator: {
+        pagination: {
             count: number;
             page_size: number;
-            page?: number;
-            next?: string | null;
-            previous?: string | null;
+            page: number;
+            total_pages: number;
+            next: string | null;
+            previous: string | null;
+            next_page_number: number | null;
+            previous_page_number: number | null;
         };
     };
     status: boolean;

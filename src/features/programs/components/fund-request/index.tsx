@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import DataTable from "@/components/Table/DataTable";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { FundRequestPaginatedData } from "@/features/programs/types/fund-request";
 
 const breadcrumbs = [
@@ -184,20 +184,42 @@ const groupFundRequestsByProjectYearMonth = (fundRequests: FundRequestPaginatedD
 };
 
 export default function FundRequest() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const {
     data: fundRequestsResponse,
     isLoading,
     error,
     isError
   } = useGetAllFundRequests({
-    page: 1,
-    size: 50,
+    page: currentPage,
+    size: pageSize,
   });
 
   const projectsWithFundRequests = useMemo(() => {
     // If API call succeeded, use real data
     if (fundRequestsResponse?.data?.results && !isError) {
-      return groupFundRequestsByProjectYearMonth(fundRequestsResponse.data.results);
+      const allFundRequests = fundRequestsResponse.data.results;
+      const grouped = groupFundRequestsByProjectYearMonth(allFundRequests);
+
+      // Apply search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        return grouped.filter((group) => {
+          return (
+            group.projectTitle?.toLowerCase().includes(query) ||
+            group.projectId?.toLowerCase().includes(query) ||
+            group.state?.toLowerCase().includes(query) ||
+            group.month?.toLowerCase().includes(query) ||
+            group.year?.toLowerCase().includes(query) ||
+            `${group.month}/${group.year}`.toLowerCase().includes(query)
+          );
+        });
+      }
+
+      return grouped;
     }
 
     // If API failed, use sample data to keep development flowing
@@ -208,7 +230,7 @@ export default function FundRequest() {
 
     // Loading state - return empty array
     return [];
-  }, [fundRequestsResponse?.data?.results, isError]);
+  }, [fundRequestsResponse?.data?.results, isError, searchQuery]);
 
   return (
     <div className='space-y-5'>
@@ -224,18 +246,51 @@ export default function FundRequest() {
       </div>
 
       <Card className='space-y-5'>
-        <div className='flex items-center justify-start gap-2'>
-          <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
-            <SearchIcon />
-            <input
-              placeholder='Search'
-              type='text'
-              className='ml-2 h-6 w-[350px] border-none bg-none focus:outline-none outline-none'
-            />
-          </span>
-          <Button className='shadow-sm' variant='ghost'>
-            <FilterIcon />
-          </Button>
+        <div className='flex items-center justify-between gap-2'>
+          <div className='flex items-center gap-2'>
+            <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
+              <SearchIcon />
+              <input
+                placeholder='Search by project, ID, state, month, year...'
+                type='text'
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className='ml-2 h-6 w-[350px] border-none bg-none focus:outline-none outline-none'
+              />
+            </span>
+            {searchQuery && (
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => setSearchQuery('')}
+                className='text-xs'
+              >
+                Clear
+              </Button>
+            )}
+            <Button className='shadow-sm' variant='ghost'>
+              <FilterIcon />
+            </Button>
+          </div>
+
+          {/* Page Size Selector */}
+          <div className='flex items-center gap-2'>
+            <label className='text-sm text-gray-600'>Show:</label>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1); // Reset to first page when changing page size
+              }}
+              className='px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-darker'
+            >
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+            </select>
+            <span className='text-sm text-gray-600'>per page</span>
+          </div>
         </div>
 
         {/* Smart error display with specific error handling */}
@@ -298,12 +353,30 @@ export default function FundRequest() {
           </div>
         )}
 
+        {/* Search results info */}
+        {!isError && !isLoading && searchQuery && (
+          <div className="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              Found <span className="font-bold">{projectsWithFundRequests.length}</span> result(s) matching "{searchQuery}"
+              {fundRequestsResponse?.data?.pagination && (
+                <span className="ml-2 text-blue-600">
+                  (out of {fundRequestsResponse.data.pagination.count} total fund requests)
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+
         {/* Empty state */}
         {!isError && !isLoading && projectsWithFundRequests.length === 0 && (
           <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800 font-medium">No fund requests found</p>
+            <p className="text-blue-800 font-medium">
+              {searchQuery ? `No fund requests found matching "${searchQuery}"` : "No fund requests found"}
+            </p>
             <p className="text-blue-600 text-sm mt-1">
-              There are currently no fund requests in the system. Create your first fund request using the "New Fund Request" button above.
+              {searchQuery
+                ? "Try a different search term or clear the search to see all fund requests."
+                : "There are currently no fund requests in the system. Create your first fund request using the 'New Fund Request' button above."}
             </p>
           </div>
         )}
@@ -313,6 +386,102 @@ export default function FundRequest() {
           columns={projectColumns}
           isLoading={isLoading}
         />
+
+        {/* Pagination Controls */}
+        {!isError && fundRequestsResponse?.data?.pagination && (
+          <div className="flex items-center justify-between px-2 py-4 border-t">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-gray-700">
+                Showing{" "}
+                <span className="font-medium">
+                  {projectsWithFundRequests.length > 0
+                    ? (currentPage - 1) * pageSize + 1
+                    : 0}
+                </span>{" "}
+                to{" "}
+                <span className="font-medium">
+                  {Math.min(
+                    currentPage * pageSize,
+                    fundRequestsResponse.data.pagination.count
+                  )}
+                </span>{" "}
+                of{" "}
+                <span className="font-medium">
+                  {fundRequestsResponse.data.pagination.count}
+                </span>{" "}
+                fund requests
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Previous Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={!fundRequestsResponse.data.pagination.previous || isLoading}
+                className="text-sm"
+              >
+                Previous
+              </Button>
+
+              {/* Page Numbers */}
+              <div className="flex items-center gap-1">
+                {Array.from(
+                  {
+                    length: fundRequestsResponse.data.pagination.total_pages || 1,
+                  },
+                  (_, i) => i + 1
+                )
+                  .filter((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    const totalPages = fundRequestsResponse.data.pagination.total_pages || 1;
+                    return (
+                      page === 1 ||
+                      page === totalPages ||
+                      Math.abs(page - currentPage) <= 1
+                    );
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis when there's a gap
+                    const prevPage = array[index - 1];
+                    const showEllipsis = prevPage && page - prevPage > 1;
+
+                    return (
+                      <div key={page} className="flex items-center gap-1">
+                        {showEllipsis && (
+                          <span className="px-2 text-gray-500">...</span>
+                        )}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          disabled={isLoading}
+                          className={cn(
+                            "text-sm w-8 h-8 p-0",
+                            currentPage === page && "bg-yellow-darker"
+                          )}
+                        >
+                          {page}
+                        </Button>
+                      </div>
+                    );
+                  })}
+              </div>
+
+              {/* Next Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                disabled={!fundRequestsResponse.data.pagination.next || isLoading}
+                className="text-sm"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -21,10 +21,10 @@ const Summary = ({ data }: PropsType) => {
         const locationMap = new Map();
 
         fundRequests.forEach((request: any) => {
-            const locationName = typeof request.location === 'object'
+            const locationName = typeof request.location === 'object' && request.location !== null
                 ? request.location.name
                 : request.location;
-            const locationId = typeof request.location === 'object'
+            const locationId = typeof request.location === 'object' && request.location !== null
                 ? request.location.id
                 : request.location;
 
@@ -40,11 +40,11 @@ const Summary = ({ data }: PropsType) => {
     const firstFundRequest = fundRequestsData?.data?.results?.[0];
     const month = firstFundRequest?.month || 'N/A';
     const year = firstFundRequest?.year || '';
-    const state = typeof firstFundRequest?.location === 'object'
-        ? firstFundRequest.location.state || firstFundRequest.location.name
+    const state = typeof firstFundRequest?.location === 'object' && firstFundRequest.location !== null
+        ? firstFundRequest.location.state || firstFundRequest.location.name || 'N/A'
         : 'N/A';
     const currency = firstFundRequest?.currency || 'NGN';
-    const financialYear = typeof firstFundRequest?.financial_year === 'object'
+    const financialYear = typeof firstFundRequest?.financial_year === 'object' && firstFundRequest.financial_year !== null
         ? firstFundRequest.financial_year.year
         : firstFundRequest?.financial_year || 'N/A';
 
