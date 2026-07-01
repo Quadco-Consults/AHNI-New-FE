@@ -240,6 +240,12 @@ export const RouteEnum = {
   EDIT_PURCHASE_ORDER: "/dashboard/procurement/purchase-order/:id/edit",
   PURCHASE_ORDER_TERMS: "/dashboard/procurement/purchase-order/:id/terms-and-conditions",
 
+  //service order routes
+  SERVICE_ORDERS: "/dashboard/procurement/service-orders",
+  SERVICE_ORDER_DETAILS: "/dashboard/procurement/service-orders/:id",
+  CREATE_SERVICE_ORDER: "/dashboard/procurement/service-orders/create",
+  CREATE_SERVICE_ORDER_FORM: "/dashboard/procurement/service-orders/create/form",
+
   //procurement routes
   PROCUREMENT_PLAN: "/dashboard/procurement/procurement-plan",
   PROCUREMENT_PLAN_FINANCIAL_YEAR:

@@ -401,6 +401,16 @@ export const departmentalLinks: SidebarItem[] = [
         ]
       },
       {
+        name: "Service Orders",
+        path: "/dashboard/procurement/service-orders",
+        permissions: [
+          {
+            module: "procurements",
+            codenames: ["view_serviceorder"]
+          }
+        ]
+      },
+      {
         name: "Procurement Report",
         path: "/dashboard/procurement/procurement-report",
         permissions: [
