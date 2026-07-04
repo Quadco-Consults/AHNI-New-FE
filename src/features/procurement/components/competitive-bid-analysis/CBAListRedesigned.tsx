@@ -147,6 +147,7 @@ const CBAListRedesigned = () => {
   const { data, isLoading } = useGetAllCbas({
     page,
     size: 10,
+    job_category: "GOODS", // Procurement department handles goods only
   });
 
   // Calculate summary statistics

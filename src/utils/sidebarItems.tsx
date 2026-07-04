@@ -538,6 +538,16 @@ export const departmentalLinks: SidebarItem[] = [
                 codenames: ["view_itemrequisition"]
               }
             ]
+          },
+          {
+            name: "Competitive Bid Analysis",
+            path: "/dashboard/admin/solicitation-management/cba",
+            permissions: [
+              {
+                module: "procurements",
+                codenames: ["view_cba"]
+              }
+            ]
           }
         ]
       },

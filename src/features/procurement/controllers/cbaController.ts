@@ -26,14 +26,20 @@ export const useGetAllCbas = ({
   size = 20,
   search = "",
   status = "",
+  job_category,
   enabled = true,
-}: TRequest & { enabled?: boolean }) => {
+}: TRequest & { job_category?: string; enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<CbaData>>({
-    queryKey: ["cbas", page, size, search, status],
+    queryKey: ["cbas", page, size, search, status, job_category],
     queryFn: async () => {
       try {
+        const params: any = { page, size, search, status };
+        if (job_category) {
+          params.job_category = job_category;
+        }
+
         const response = await AxiosWithToken.get(BASE_URL, {
-          params: { page, size, search, status },
+          params,
         });
         return response.data;
       } catch (error) {
