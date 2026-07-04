@@ -284,6 +284,61 @@ export const PurchaseOrderListSchema = z.object({
   vendor_representative_name: z.string().optional(),
 });
 
+export const ServiceOrderSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.string().optional(),
+      item_id: z.string().min(1, "Field is required"),
+      fco: z.string().min(1, "Field is required"),
+      unit_cost: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+      quantity: z.union([
+        z.string().min(1, "Field is required"),
+        z.number().min(1, "Field is required"),
+      ]),
+    })
+  ),
+  purchase_request: z.string().min(1, "Field is required"),
+  vendor: z.string().min(1, "Field is required"),
+});
+
+export const ServiceOrderListSchema = z.object({
+  items: z.array(
+    z.object({
+      item_id: z.string().optional(),
+      unit_cost: z.union([
+        z.string(),
+        z.number(),
+      ]).optional(),
+      quantity: z.union([
+        z.string(),
+        z.number(),
+      ]).optional(),
+      description: z.string().optional(),
+      uom: z.string().optional(),
+      total: z.union([
+        z.string(),
+        z.number(),
+      ]).optional(),
+      name: z.string().optional(),
+      fco_number: z.array(z.string()).optional(),
+    })
+  ).min(1, "At least one item is required"),
+  purchase_request: z.string().optional(), // Made optional - not required when creating from CBA
+  vendor: z.string().min(1, "Field is required"),
+  payment_terms: z.string().optional(),
+  delivery_lead_time: z.string().optional(),
+  delivery_location: z.string().optional(),
+  transaction_type: z.enum(["SUPPLIES", "PROFESSIONAL_SERVICES", "SERVICES", "DIVIDENDS"]).default("SERVICES"),
+  // Approval workflow fields - optional because they may be inherited from CBA
+  reviewed_by: z.string().optional(),
+  authorized_by: z.string().optional(),
+  approved_by: z.string().optional(),
+  vendor_representative_name: z.string().optional(),
+});
+
 export const SolicitationItemsSchema = z.object({
   items: z.array(
     z.object({

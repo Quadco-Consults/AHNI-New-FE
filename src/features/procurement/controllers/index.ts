@@ -2,6 +2,7 @@
 export * from "./purchaseRequestController";
 export * from "./solicitationController";
 export * from "./purchaseOrderController";
+export * from "./serviceOrderController";
 
 // New TanStack Query Controllers
 export * from "./cbaController";
@@ -55,6 +56,10 @@ export {
   useGetAllPurchaseOrders,
   useGetAllPurchaseOrdersQuery,
 } from "./purchaseOrderController";
+export {
+  useGetAllServiceOrders,
+  useGetAllServiceOrdersQuery,
+} from "./serviceOrderController";
 
 // New controller defaults
 export { useGetAllCbas, useGetCbaListQuery } from "./cbaController";

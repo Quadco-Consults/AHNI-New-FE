@@ -1,6 +1,6 @@
 import { TItemData } from "definitions/modules/config/item";
 
-export type PurchaseOrderItems = {
+export type ServiceOrderItems = {
     id: string;
     item: {
         id: string;
@@ -20,15 +20,15 @@ export type PurchaseOrderItems = {
     unit_cost: number;
     quantity: number;
     sub_total_amount: number;
-    purchase_order: string;
+    service_order: string;
 };
 
-export interface IPurchaseOrderPaginatedData {
+export interface IServiceOrderPaginatedData {
     id: string;
     created_datetime: string;
     updated_datetime: string;
     vendor_name: string;
-    purchase_order_number: string;
+    service_order_number: string;
     purchase_date: string;
     request_dept: string;
     comment: string;
@@ -83,7 +83,7 @@ export interface IPurchaseOrderPaginatedData {
     rfq_id?: string;
 }
 
-export interface IPurchaseOrderSingleData {
+export interface IServiceOrderSingleData {
     id: string;
     reviewed_by_detail?: {
         user_id: string;
@@ -120,7 +120,7 @@ export interface IPurchaseOrderSingleData {
         status: string;
         created_datetime: string;
     } | null;
-    purchase_order_items: {
+    service_order_items: {
         id: number;
         item_detail: TItemData;
         description: null;
@@ -128,14 +128,14 @@ export interface IPurchaseOrderSingleData {
         uom: null;
         unit_price: string;
         total_price: string;
-        purchase_order: string;
+        service_order: string;
         item: string;
         fco_number: null;
     }[];
     created_datetime: string;
     updated_datetime: string;
     status_level: string;
-    purchase_order_number: string;
+    service_order_number: string;
     purchase_date: string;
     transaction_type?: string;
     comment: null;
@@ -155,4 +155,8 @@ export interface IPurchaseOrderSingleData {
     authorized_by: null;
     approved_by: null;
     agreed_by: null;
+    location_detail?: {
+        id: string;
+        name: string;
+    } | null;
 }

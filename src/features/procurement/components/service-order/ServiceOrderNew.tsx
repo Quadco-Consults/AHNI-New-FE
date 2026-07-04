@@ -18,11 +18,11 @@ import { useGetVendors } from "@/features/procurement/controllers/vendorControll
 import {
   useGetPurchaseRequest,
 } from "@/features/procurement/controllers/purchaseRequestController";
-import { useRFQEligiblePRs } from "@/hooks/usePRFiltering";
+import { useServiceOrderEligiblePRs } from "@/hooks/usePRFiltering";
 import { LoadingSpinner } from "@/components/Loading";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
-import { PurchaseOrderListSchema } from "@/features/procurement/types/procurement-validator";
+import { ServiceOrderListSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "@/components/FormInput";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
@@ -31,7 +31,7 @@ import LongArrowRight from "@/components/icons/LongArrowRight";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 // import { toast } from "sonner";
-import { useCreatePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
+import { useCreateServiceOrder } from "@/features/procurement/controllers/serviceOrderController";
 import { RouteEnum } from "@/constants/RouterConstants";
 // import { useGetAllGrades } from "@/features/modules/controllers/config/gradeController";
 import MultiSelectFormField from "@/components/ui/multiselect";
@@ -45,7 +45,7 @@ import { useGetSolicitationSubmission } from "@/features/procurement/controllers
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import { useGetAllLocationsManager } from "@/features/modules/controllers/config/locationController";
 
-const PurchaseOrderNew = () => {
+const ServiceOrderNew = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const cbaId = searchParams?.get('cba');
@@ -101,9 +101,9 @@ const PurchaseOrderNew = () => {
     page: 1,
     size: 2000000,
   });
-  // Use filtered PRs that only show RFQ eligible items (physical goods)
-  const { data: rfqPRs, isLoading: requestsIsLoading } =
-    useRFQEligiblePRs("Approved");
+  // Use filtered PRs that only show service order eligible items
+  const { data: serviceOrderPRs, isLoading: requestsIsLoading } =
+    useServiceOrderEligiblePRs("Approved");
   const { data: requestsDetails } = useGetPurchaseRequest(
     purchaseValue as string,
     !!purchaseValue
@@ -126,7 +126,7 @@ const PurchaseOrderNew = () => {
   console.log("🔍 FCO Results:", fco?.data?.results);
   console.log("🔍 FCO Data Keys:", Object.keys(fco?.data || {}));
 
-  // Fetch users for approval workflow (only needed for standalone PO creation)
+  // Fetch users for approval workflow (only needed for standalone SO creation)
   const { data: users, isLoading: usersIsLoading } = useGetAllUsers({
     page: 1,
     size: 2000000,
@@ -152,20 +152,20 @@ const PurchaseOrderNew = () => {
     useGetAllLocationsManager({ page: 1, size: 2000000, search: "" });
 
   const {
-    createPurchaseOrder: createPurchcaseOrderMutation,
+    createServiceOrder: createServiceOrderMutation,
     isLoading: creatingOrder,
-  } = useCreatePurchaseOrder();
+  } = useCreateServiceOrder();
 
-  const form = useForm<z.infer<typeof PurchaseOrderListSchema>>({
-    resolver: zodResolver(PurchaseOrderListSchema),
+  const form = useForm<z.infer<typeof ServiceOrderListSchema>>({
+    resolver: zodResolver(ServiceOrderListSchema),
     defaultValues: {
       vendor: "",
       purchase_request: "",
       payment_terms: "",
       delivery_lead_time: "",
-      transaction_type: "SUPPLIES", // Default to Supplies (WHT 2%)
+      transaction_type: "SERVICES", // Default to Services (WHT 5%)
       items: [],
-      // Approval workflow fields - only for standalone PO creation
+      // Approval workflow fields - only for standalone SO creation
       // When creating from CBA, these are inherited/pre-filled
       reviewed_by: "",
       authorized_by: "",
@@ -381,8 +381,8 @@ const PurchaseOrderNew = () => {
 
     // Wait for ALL required data before processing
     if (cbaData?.data && submissionData && fullSolicitation?.data && cbaId && !cbaItemsPopulated.current) {
-      console.log("🔍 CBA Data for PO:", cbaData.data);
-      console.log("🔍 Submission Data for PO:", submissionData);
+      console.log("🔍 CBA Data for SO:", cbaData.data);
+      console.log("🔍 Submission Data for SO:", submissionData);
 
       // Set vendor from URL parameter
       if (vendorIdFromUrl) {
@@ -462,7 +462,7 @@ const PurchaseOrderNew = () => {
         return;
       }
 
-      // Filter to only selected items and map to PO form format
+      // Filter to only selected items and map to SO form format
       const selectedBidItems = bidItems.filter((bidItem: any) =>
         selectedItemIds.includes(bidItem.id)
       );
@@ -522,7 +522,7 @@ const PurchaseOrderNew = () => {
           };
         });
 
-        console.log("🔍 Mapped items for PO form:", mappedItems);
+        console.log("🔍 Mapped items for SO form:", mappedItems);
 
         // Use form.reset for non-array fields, then use replace for items
         // This ensures React Hook Form and useFieldArray are properly synchronized
@@ -613,7 +613,7 @@ const PurchaseOrderNew = () => {
 
     const mostCommonType = Object.entries(typeCounts).reduce((max, [type, count]) => {
       return count > max.count ? { type, count } : max;
-    }, { type: "SUPPLIES", count: 0 }).type;
+    }, { type: "SERVICES", count: 0 }).type;
 
     // Only auto-set if different from current value
     const currentTransactionType = watch("transaction_type");
@@ -623,7 +623,7 @@ const PurchaseOrderNew = () => {
     }
   }, [watch("items"), item, setValue]);
 
-  const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
+  const onSubmit = async (data: z.infer<typeof ServiceOrderListSchema>) => {
     console.log("📝 Form submission started");
     console.log("📝 Form submission data:", data);
     console.log("📝 Form errors:", form.formState.errors);
@@ -638,18 +638,30 @@ const PurchaseOrderNew = () => {
 
     // Validate items exist
     if (!data?.items || data.items.length === 0) {
-      console.error("❌ Cannot submit: No items in the purchase order");
+      console.error("❌ Cannot submit: No items in the service order");
       return;
     }
 
-    // Transform data to match PurchaseOrderSchema format
+    // Auto-generate service_description from all item descriptions
+    const serviceDescriptions = data?.items
+      .map((formItem) => {
+        const itemName = formItem?.name || formItem?.description || "";
+        // Find the item details to get the actual name if description is an ID
+        const itemDetails = item?.data?.results?.find((i: any) => i.id === formItem?.description);
+        return itemDetails?.name || itemName;
+      })
+      .filter(Boolean)
+      .join("; ");
+
+    // Transform data to match ServiceOrderSchema format
     const formData = {
       purchase_request: data?.purchase_request,
       vendor: data?.vendor || vendorValue, // Prefer form data, fallback to state
-      transaction_type: data?.transaction_type || "SUPPLIES", // Default to SUPPLIES if not provided
+      transaction_type: data?.transaction_type || "SERVICES", // Default to SERVICES if not provided
+      service_description: serviceDescriptions || "Service Order", // Auto-generated from items
       ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
       ...(solicitationId && { solicitation: String(solicitationId) }), // Include Solicitation ID for RFQ link
-      // Approval workflow fields - include if provided (for standalone PO creation)
+      // Approval workflow fields - include if provided (for standalone SO creation)
       ...(data?.reviewed_by && { reviewed_by: data.reviewed_by }),
       ...(data?.authorized_by && { authorized_by: data.authorized_by }),
       ...(data?.approved_by && { approved_by: data.approved_by }),
@@ -659,7 +671,7 @@ const PurchaseOrderNew = () => {
       ...(data?.payment_terms && { payment_terms: data.payment_terms }),
       ...(data?.delivery_lead_time && { delivery_lead_time: data.delivery_lead_time }),
       ...(data?.delivery_location && { location: data.delivery_location }), // Include delivery location
-      purchase_order_items: data?.items.map((item) => {
+      items: data?.items.map((item) => {
         const unitPrice = parseFloat(String(item?.unit_cost || 0));
         const quantity = parseFloat(String(item?.quantity || 0));
         const totalPrice = unitPrice * quantity;
@@ -677,14 +689,14 @@ const PurchaseOrderNew = () => {
     };
 
     console.log("📤 Sending form data:", formData);
-    console.log("📤 NOTE: Approval workflow fields NOT included - PO will be created with status PENDING");
+    console.log("📤 NOTE: Approval workflow fields NOT included - SO will be created with status PENDING");
 
     try {
-      const res = await createPurchcaseOrderMutation(formData);
+      const res = await createServiceOrderMutation(formData);
       console.log("✅ API Response:", res);
 
       if (res?.data || res?.status === "success") {
-        router.push(RouteEnum.PURCHASE_ORDER);
+        router.push(RouteEnum.SERVICE_ORDERS);
       }
     } catch (error) {
       console.error("❌ Form submission error:", error);
@@ -693,7 +705,7 @@ const PurchaseOrderNew = () => {
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
-    { name: "Purchase Order", icon: true },
+    { name: "Service Orders", icon: true },
     { name: "Create", icon: false },
   ];
 
@@ -703,7 +715,7 @@ const PurchaseOrderNew = () => {
 
       <GoBack />
 
-      <p className="text-[24px] font-semibold">Purchase Order Form</p>
+      <p className="text-[24px] font-semibold">Service Order Form</p>
 
       {cbaId && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -715,7 +727,7 @@ const PurchaseOrderNew = () => {
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-blue-900 mb-1">
-                Creating PO from CBA
+                Creating SO from CBA
               </h3>
               <p className="text-sm text-blue-800">
                 The Vendor, Purchase Request, and Department fields have been automatically populated from the Competitive Bid Analysis.
@@ -877,7 +889,7 @@ const PurchaseOrderNew = () => {
                       disabled={!!cbaId}
                     >
                       {purchaseValue
-                        ? rfqPRs?.prs?.find(
+                        ? serviceOrderPRs?.prs?.find(
                             (vendor) => vendor?.id === purchaseValue
                           )?.ref_number
                         : "Select purchase request..."}
@@ -888,16 +900,16 @@ const PurchaseOrderNew = () => {
                     <PopoverContent className="w-full p-0">
                       <Command>
                         <CommandInput placeholder="Search purchase request..." />
-                        <CommandEmpty>No RFQ Eligible Purchase Requests found.</CommandEmpty>
+                        <CommandEmpty>No Service Order Eligible Purchase Requests found.</CommandEmpty>
                         <CommandGroup>
                           {requestsIsLoading && <LoadingSpinner />}
-                          {rfqPRs?.prs?.map((request) => {
+                          {serviceOrderPRs?.prs?.map((request) => {
                             return (
                               <CommandItem
                                 key={request?.id}
                                 value={request?.ref_number}
                                 onSelect={(currentValue) => {
-                                  const selectedRequest = rfqPRs?.prs?.find(
+                                  const selectedRequest = serviceOrderPRs?.prs?.find(
                                     (r) => r.ref_number.toLowerCase() === currentValue.toLowerCase()
                                   );
                                   if (selectedRequest) {
@@ -1300,7 +1312,7 @@ const PurchaseOrderNew = () => {
             </Button>
           </div>
 
-          {/* Approval Workflow Section - Only shown for standalone PO creation */}
+          {/* Approval Workflow Section - Only shown for standalone SO creation */}
           {!cbaId && (
           <div className="mt-8 border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Approval Workflow</h3>
@@ -1586,4 +1598,4 @@ const PurchaseOrderNew = () => {
   );
 };
 
-export default PurchaseOrderNew;
+export default ServiceOrderNew;

@@ -16,7 +16,8 @@ import {
   User,
   Bell,
   HelpCircle,
-  MessageSquare
+  MessageSquare,
+  Briefcase
 } from "lucide-react";
 import { VendorAuthUtils, useVendorLogout } from "@/features/vendor-portal/controllers/vendorAuthController";
 import { Button } from "./ui/button";
@@ -72,6 +73,11 @@ const vendorMenuItems: VendorSidebarItem[] = [
       { name: "Delivery Schedule", href: "/vendor-portal/purchase-orders/delivery", description: "Manage deliveries" },
       { name: "Order History", href: "/vendor-portal/purchase-orders/history", description: "Past orders" },
     ],
+  },
+  {
+    name: "Service Orders",
+    href: "/vendor-portal/service-orders",
+    icon: <Briefcase className="w-5 h-5" />,
   },
   {
     name: "Company Profile",

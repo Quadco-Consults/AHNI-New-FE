@@ -1,34 +1,47 @@
 "use client";
 
 import logoPng from "@/assets/svgs/logo-bg.svg";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatDate } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers";
+import {
+  useGetSingleServiceOrder,
+  useReviewServiceOrder,
+  useAuthorizeServiceOrder,
+  useApproveServiceOrder,
+  useAgreeServiceOrder
+} from "@/features/procurement/controllers/serviceOrderController";
 import Image from "next/image";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toWords } from "number-to-words";
-import { CheckCircle2, Download, ArrowLeft, User, FileText, List, File, Info } from 'lucide-react';
+import { CheckCircle2, Download, ArrowLeft, User, FileText, List, File, Info, Check } from 'lucide-react';
 import { Icon } from "@iconify/react";
 
 const Order = () => {
   const params = useParams();
+  const router = useRouter();
   const [grandTotal, setGrandTotal] = useState("");
-  const purchaseOrderId = params?.id as string;
-  const { data } = useGetSinglePurchaseOrder(purchaseOrderId);
+  const serviceOrderId = params?.id as string;
+  const { data, refetch } = useGetSingleServiceOrder(serviceOrderId);
+
+  // Approval hooks
+  const { reviewServiceOrder, isLoading: isReviewing } = useReviewServiceOrder(serviceOrderId);
+  const { authorizeServiceOrder, isLoading: isAuthorizing } = useAuthorizeServiceOrder(serviceOrderId);
+  const { approveServiceOrder, isLoading: isApproving } = useApproveServiceOrder(serviceOrderId);
+  const { agreeServiceOrder, isLoading: isAgreeing } = useAgreeServiceOrder(serviceOrderId);
 
   // Download PDF function - Client-side generation
   const handleDownloadPDF = async () => {
     try {
       toast.info('Generating PDF...');
 
-      const element = document.getElementById('purchase-order-content');
+      const element = document.getElementById('service-order-content');
       if (!element) {
-        toast.error('Purchase order content not found');
+        toast.error('Service order content not found');
         return;
       }
 
@@ -108,8 +121,8 @@ const Order = () => {
         }
       }
 
-      const poNumber = data?.data?.purchase_order_number || purchaseOrderId;
-      const fileName = `PO-${poNumber.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
+      const soNumber = data?.data?.service_order_number || serviceOrderId;
+      const fileName = `SO-${soNumber.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
 
       pdf.save(fileName);
 
@@ -120,14 +133,55 @@ const Order = () => {
     }
   };
 
-  const totalCost = data?.data?.purchase_order_items?.reduce(
+  // Approval handlers
+  const handleReview = async () => {
+    try {
+      await reviewServiceOrder();
+      toast.success('Service Order reviewed successfully');
+      refetch();
+    } catch (error) {
+      toast.error('Failed to review Service Order');
+    }
+  };
+
+  const handleAuthorize = async () => {
+    try {
+      await authorizeServiceOrder();
+      toast.success('Service Order authorized successfully');
+      refetch();
+    } catch (error) {
+      toast.error('Failed to authorize Service Order');
+    }
+  };
+
+  const handleApprove = async () => {
+    try {
+      await approveServiceOrder();
+      toast.success('Service Order approved successfully');
+      refetch();
+    } catch (error) {
+      toast.error('Failed to approve Service Order');
+    }
+  };
+
+  const handleAgree = async () => {
+    try {
+      await agreeServiceOrder();
+      toast.success('Service Order agreed successfully');
+      refetch();
+    } catch (error) {
+      toast.error('Failed to agree Service Order');
+    }
+  };
+
+  const totalCost = data?.data?.service_order_items?.reduce(
     (sum: number, item: any) => sum + parseFloat(item.total_price || '0'),
     0
   ) || 0;
 
   useEffect(() => {
-    if (data?.data?.purchase_order_items) {
-      const grandTotalNum = data?.data?.purchase_order_items?.reduce(
+    if (data?.data?.service_order_items) {
+      const grandTotalNum = data?.data?.service_order_items?.reduce(
         (sum: number, item: any) => sum + parseFloat(item.total_price || '0'),
         0
       ) || 0;
@@ -139,25 +193,68 @@ const Order = () => {
 
   return (
     <section className='min-h-screen bg-gray-50 p-4 max-w-7xl mx-auto print:p-0 print:max-w-full print:min-h-0 print:bg-white'>
-      {/* Back Button and Download Button - Hidden on Print */}
-      <div className='mb-4 flex items-center justify-between print:hidden'>
-        <Link href='/dashboard/procurement/purchase-order'>
+      {/* Back Button and Action Buttons - Hidden on Print */}
+      <div className='mb-4 flex items-center justify-between print:hidden action-buttons'>
+        <Link href='/dashboard/procurement/service-orders'>
           <Button variant='outline' className='flex items-center gap-2'>
             <ArrowLeft size={16} />
             Back to List
           </Button>
         </Link>
-        <Button
-          onClick={handleDownloadPDF}
-          className='flex items-center gap-2 bg-green-600 hover:bg-green-700'
-        >
-          <Download size={16} />
-          Download PDF
-        </Button>
+        <div className='flex items-center gap-2'>
+          {/* Approval Workflow Buttons */}
+          {data?.data?.status === 'PENDING' && (
+            <Button
+              onClick={handleReview}
+              disabled={isReviewing}
+              className='flex items-center gap-2 bg-blue-600 hover:bg-blue-700'
+            >
+              <Check size={16} />
+              {isReviewing ? 'Reviewing...' : 'Review'}
+            </Button>
+          )}
+          {data?.data?.status === 'REVIEWED' && (
+            <Button
+              onClick={handleAuthorize}
+              disabled={isAuthorizing}
+              className='flex items-center gap-2 bg-purple-600 hover:bg-purple-700'
+            >
+              <Check size={16} />
+              {isAuthorizing ? 'Authorizing...' : 'Authorize'}
+            </Button>
+          )}
+          {data?.data?.status === 'AUTHORIZED' && (
+            <Button
+              onClick={handleApprove}
+              disabled={isApproving}
+              className='flex items-center gap-2 bg-amber-600 hover:bg-amber-700'
+            >
+              <Check size={16} />
+              {isApproving ? 'Approving...' : 'Approve'}
+            </Button>
+          )}
+          {data?.data?.status === 'APPROVED' && (
+            <Button
+              onClick={handleAgree}
+              disabled={isAgreeing}
+              className='flex items-center gap-2 bg-teal-600 hover:bg-teal-700'
+            >
+              <Check size={16} />
+              {isAgreeing ? 'Agreeing...' : 'Agree & Accept'}
+            </Button>
+          )}
+          <Button
+            onClick={handleDownloadPDF}
+            className='flex items-center gap-2 bg-green-600 hover:bg-green-700'
+          >
+            <Download size={16} />
+            Download PDF
+          </Button>
+        </div>
       </div>
 
       {/* Printable Content */}
-      <div id='purchase-order-content' className='bg-white shadow-lg print:shadow-none'>
+      <div id='service-order-content' className='bg-white shadow-lg print:shadow-none'>
         {/* Header Section */}
         <div className='bg-white p-8 border-b-4 border-primary'>
           {/* Logo and Organization Details - Centered */}
@@ -184,24 +281,24 @@ const Order = () => {
             </div>
           </div>
 
-          {/* Purchase Order Title and Number */}
+          {/* Service Order Title and Number */}
           <div className='border-t-2 border-gray-300 pt-6 flex justify-between items-center'>
             <div className='flex-1'></div>
             <div className='text-center'>
               <div className='bg-primary text-white px-8 py-4 rounded-lg inline-block'>
-                <h2 className='text-4xl font-bold'>PURCHASE ORDER</h2>
+                <h2 className='text-4xl font-bold'>SERVICE ORDER</h2>
               </div>
             </div>
             <div className='flex-1 flex justify-end'>
               <div className='bg-primary text-white px-5 py-3 rounded-lg shadow-md'>
-                <p className='text-xs font-semibold uppercase opacity-90'>PO Number</p>
-                <p className='text-xl font-bold'>{data?.data?.purchase_order_number}</p>
+                <p className='text-xs font-semibold uppercase opacity-90'>SO Number</p>
+                <p className='text-xl font-bold'>{data?.data?.service_order_number}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* PO Details and Vendor Section */}
+        {/* SO Details and Vendor Section */}
         <div className='grid grid-cols-2 gap-6 p-6 border-b-2 border-gray-200'>
           {/* Vendor To */}
           <div>
@@ -231,7 +328,7 @@ const Order = () => {
             </div>
           </div>
 
-          {/* Purchase Order Details */}
+          {/* Service Order Details */}
           <div>
             <div className='bg-gray-50 border border-gray-300 p-4 rounded'>
               <h3 className='text-gray-800 font-bold text-lg mb-3 flex items-center gap-2'>
@@ -302,7 +399,7 @@ const Order = () => {
                 </tr>
               </thead>
               <tbody>
-                {data?.data?.purchase_order_items?.map((item: any, index: number) => (
+                {data?.data?.service_order_items?.map((item: any, index: number) => (
                   <tr
                     key={item.id}
                     className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
@@ -357,7 +454,7 @@ const Order = () => {
               <FileText size={16} />
               TERMS & CONDITIONS (Summary)
             </h3>
-            <Link href={`/dashboard/procurement/purchase-order/${purchaseOrderId}/terms-and-conditions`} target='_blank'>
+            <Link href={`/dashboard/procurement/service-orders/${serviceOrderId}/terms-and-conditions`} target='_blank'>
               <Button variant='outline' className='flex items-center gap-2 border-primary text-primary hover:bg-primary hover:text-white print:hidden'>
                 <File size={16} />
                 View Full Terms & Conditions
@@ -390,11 +487,11 @@ const Order = () => {
               </li>
               <li className='flex gap-2'>
                 <span className='font-bold min-w-[20px] text-primary'>5.</span>
-                <span>This Purchase Order once issued is valid only for a period of 60 days unless it is otherwise extended in writing by AHNI.</span>
+                <span>This Service Order once issued is valid only for a period of 60 days unless it is otherwise extended in writing by AHNI.</span>
               </li>
               <li className='flex gap-2'>
                 <span className='font-bold min-w-[20px] text-primary'>6.</span>
-                <span>All Items listed in the Purchase Order are subject to Final Inspection and Acceptance by AHNI before payment is made to the Vendor.</span>
+                <span>All Items listed in the Service Order are subject to Final Inspection and Acceptance by AHNI before payment is made to the Vendor.</span>
               </li>
               <li className='flex gap-2'>
                 <span className='font-bold min-w-[20px] text-primary'>7.</span>
@@ -402,7 +499,7 @@ const Order = () => {
               </li>
               <li className='flex gap-2'>
                 <span className='font-bold min-w-[20px] text-primary'>8.</span>
-                <span>The Vendor will carry out duties and functions as described in this Purchase Order and/or Scope of Work/Annex. The Scope of Work/Annex can be amended during the validity period of the Purchase Order with the Vendor's agreement. Such amendment must be done in writing with signatures of both parties.</span>
+                <span>The Vendor will carry out duties and functions as described in this Service Order and/or Scope of Work/Annex. The Scope of Work/Annex can be amended during the validity period of the Service Order with the Vendor's agreement. Such amendment must be done in writing with signatures of both parties.</span>
               </li>
               <li className='flex gap-2'>
                 <span className='font-bold min-w-[20px] text-primary'>9.</span>
@@ -412,9 +509,9 @@ const Order = () => {
 
             <div className='mt-4 pt-4 border-t border-gray-300'>
               <p className='text-xs text-gray-600 text-center'>
-                By accepting this Purchase Order, the Vendor agrees to be bound by all terms and conditions outlined in the complete
-                <Link href={`/dashboard/procurement/purchase-order/${purchaseOrderId}/terms-and-conditions`} target='_blank' className='text-primary font-semibold hover:underline ml-1'>
-                  Standard Purchase Order Terms and Conditions
+                By accepting this Service Order, the Vendor agrees to be bound by all terms and conditions outlined in the complete
+                <Link href={`/dashboard/procurement/service-orders/${serviceOrderId}/terms-and-conditions`} target='_blank' className='text-primary font-semibold hover:underline ml-1'>
+                  Standard Service Order Terms and Conditions
                 </Link>.
               </p>
             </div>
@@ -520,7 +617,7 @@ const Order = () => {
 
         {/* Footer */}
         <div className='bg-primary/10 border-t-2 border-primary p-4 text-center'>
-          <p className='text-sm text-gray-700 font-semibold'>This is a computer-generated purchase order and is valid without signature.</p>
+          <p className='text-sm text-gray-700 font-semibold'>This is a computer-generated service order and is valid without signature.</p>
           <p className='text-xs text-gray-600 mt-1'>For inquiries, please contact the procurement department at procurement@ahni.org</p>
         </div>
       </div> {/* End of printable content */}

@@ -105,6 +105,10 @@ export const useServiceOrders = (params?: {
       const response = await AxiosWithToken.get("/procurements/service-order/", {
         params,
       });
+      // Handle paginated response from Django REST Framework
+      if (response.data.results) {
+        return { data: response.data.results };
+      }
       return response.data;
     },
   });
@@ -118,6 +122,8 @@ export const useServiceOrder = (id: string) => {
     queryKey: ["service-order", id],
     queryFn: async () => {
       const response = await AxiosWithToken.get(`/procurements/service-order/${id}/`);
+      // The retrieve endpoint wraps data in { status, message, data }
+      // Return as-is since it already has the correct structure
       return response.data;
     },
     enabled: !!id,
