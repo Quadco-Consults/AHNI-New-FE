@@ -31,8 +31,10 @@ export const useGetPaymentDisbursements = (
 ) => {
   return useQuery<{
     status: string;
-    data: PaymentDisbursement[];
-    pagination?: { page: number; size: number; total: number; pages: number };
+    data: {
+      results: PaymentDisbursement[];
+      pagination?: { page: number; size: number; total: number; pages: number };
+    };
   }>({
     queryKey: ["payment-disbursements", filters],
     queryFn: async () => {

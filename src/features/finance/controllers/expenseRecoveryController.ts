@@ -38,8 +38,10 @@ export const expenseRecoveryKeys = {
 export const useGetVendorBills = (filters?: VendorBillFilters) => {
   return useQuery<{
     status: string;
-    data: VendorBill[];
-    pagination?: { page: number; size: number; total: number; pages: number };
+    data: {
+      results: VendorBill[];
+      pagination?: { page: number; size: number; total: number; pages: number };
+    };
   }>({
     queryKey: expenseRecoveryKeys.vendorBillsList(filters),
     queryFn: async () => {

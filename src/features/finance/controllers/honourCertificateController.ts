@@ -23,7 +23,7 @@ const BASE_URL = "/finance/honour-certificates/";
  * Get all honour certificates with filtering
  */
 export const useGetHonourCertificates = (filters?: HonourCertificateFilters & { page?: number; size?: number }) => {
-  return useQuery<HonourCertificateApiResponse<HonourCertificate[]>>({
+  return useQuery<HonourCertificateApiResponse<{ results: HonourCertificate[]; pagination?: any }>>({
     queryKey: ["honour-certificates", filters],
     queryFn: async () => {
       try {

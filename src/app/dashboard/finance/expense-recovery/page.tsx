@@ -32,7 +32,7 @@ export default function ExpenseRecoveryPage() {
 
   // Fetch vendor bills
   const { data: billsData, isLoading, refetch } = useGetVendorBills();
-  const vendorBills = billsData?.data || [];
+  const vendorBills = billsData?.data?.results || [];
 
   // Fetch statistics
   const { data: statsData } = useGetExpenseRecoveryStats();

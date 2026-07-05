@@ -56,6 +56,23 @@ export const useGetChartOfAccounts = (filters?: {
         // Debug logging
         console.log("Chart of Accounts API Response:", response.data);
 
+        // Map backend account types to frontend expected types
+        const mapAccountType = (backendType: string): AccountType => {
+          const typeMap: Record<string, AccountType> = {
+            'ASSET': 'ASSETS',
+            'ASSETS': 'ASSETS',
+            'LIABILITY': 'LIABILITIES',
+            'LIABILITIES': 'LIABILITIES',
+            'EQUITY': 'EQUITY',
+            'INCOME': 'REVENUE',
+            'REVENUE': 'REVENUE',
+            'EXPENSE': 'EXPENSES',
+            'EXPENSES': 'EXPENSES',
+          };
+          const normalizedType = (backendType || 'ASSETS').toUpperCase();
+          return typeMap[normalizedType] || 'ASSETS' as AccountType;
+        };
+
         // Transform the response data - backend returns data under 'results' with different field names
         if (response.data && response.data.data && response.data.data.results && Array.isArray(response.data.data.results)) {
           const transformedData = {
@@ -65,8 +82,8 @@ export const useGetChartOfAccounts = (filters?: {
               // Map backend fields to frontend expected fields
               account_name: account.name || account.account_name || '',
               account_code: account.code || account.account_code || '',
-              // Add missing required fields with defaults
-              account_type: account.account_type || 'ASSETS',
+              // Add missing required fields with defaults - map account_type to frontend format
+              account_type: mapAccountType(account.account_type),
               is_active: account.is_active !== undefined ? account.is_active : true,
               is_header: account.is_header !== undefined ? account.is_header : false,
               balance: account.balance || 0,

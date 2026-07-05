@@ -46,7 +46,7 @@ export default function UploadStatementDialog({
   // Fetch bank accounts
   const { data: accountsData, isLoading: accountsLoading } =
     useGetBankAccounts();
-  const accounts = accountsData?.data || [];
+  const accounts = accountsData?.data?.results || [];
 
   // Fetch bank statements for selected account
   const { data: statementsData, isLoading: statementsLoading } =
@@ -54,7 +54,7 @@ export default function UploadStatementDialog({
       selectedAccount ? { bank_account_id: selectedAccount } : undefined,
       !!selectedAccount // Only fetch when account is selected
     );
-  const statements = statementsData?.data || [];
+  const statements = statementsData?.data?.results || [];
 
   // Import transactions mutation
   const {

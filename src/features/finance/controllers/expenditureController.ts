@@ -25,7 +25,7 @@ const BASE_URL = "/finance/expenditures/";
  * Get all expenditures with filtering
  */
 export const useGetExpenditures = (filters?: ExpenditureFilters & { page?: number; size?: number }) => {
-  return useQuery<ExpenditureApiResponse<Expenditure[]>>({
+  return useQuery<ExpenditureApiResponse<{ results: Expenditure[]; pagination?: any }>>({
     queryKey: ["expenditures", filters],
     queryFn: async () => {
       try {

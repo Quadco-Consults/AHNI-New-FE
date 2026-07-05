@@ -24,7 +24,7 @@ const BASE_URL = "/finance/obligations/";
  * Get all obligations with filtering
  */
 export const useGetObligations = (filters?: ObligationFilters & { page?: number; size?: number }) => {
-  return useQuery<ObligationApiResponse<Obligation[]>>({
+  return useQuery<ObligationApiResponse<{ results: Obligation[]; pagination?: any }>>({
     queryKey: ["obligations", filters],
     queryFn: async () => {
       try {
@@ -301,7 +301,7 @@ export const useCancelObligation = (id: string) => {
  * Get obligations pending my approval
  */
 export const useGetMyPendingObligationApprovals = (enabled: boolean = true) => {
-  return useQuery<ObligationApiResponse<Obligation[]>>({
+  return useQuery<ObligationApiResponse<{ results: Obligation[]; pagination?: any }>>({
     queryKey: ["my-pending-obligation-approvals"],
     queryFn: async () => {
       try {

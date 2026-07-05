@@ -20,7 +20,7 @@ const BASE_URL = "/finance/petty-cash/";
 
 // Get All Petty Cash Requests
 export const useGetPettyCashRequests = (filters?: PettyCashFilters & { page?: number; size?: number }) => {
-  return useQuery<PettyCashApiResponse<PettyCashRequest[]>>({
+  return useQuery<PettyCashApiResponse<{ results: PettyCashRequest[]; pagination?: any }>>({
     queryKey: ["petty-cash-requests", filters],
     queryFn: async () => {
       try {

@@ -38,7 +38,7 @@ const BASE_URL = "/finance/";
  * Get all bank accounts
  */
 export const useGetBankAccounts = (filters?: BankAccountFilters) => {
-  return useQuery<{ status: string; data: BankAccount[] }>({
+  return useQuery<{ status: string; data: { results: BankAccount[]; pagination?: any } }>({
     queryKey: ["bank-accounts", filters],
     queryFn: async () => {
       try {
@@ -157,7 +157,7 @@ export const useSetDefaultBankAccount = () => {
  * Get all bank statements
  */
 export const useGetBankStatements = (filters?: BankStatementFilters, enabled: boolean = true) => {
-  return useQuery<{ status: string; data: BankStatement[] }>({
+  return useQuery<{ status: string; data: { results: BankStatement[]; pagination?: any } }>({
     queryKey: ["bank-statements", filters],
     queryFn: async () => {
       try {
@@ -293,7 +293,7 @@ export const useImportBankStatementTransactions = () => {
  * Get all bank transactions
  */
 export const useGetBankTransactions = (filters?: BankTransactionFilters) => {
-  return useQuery<{ status: string; data: BankTransaction[] }>({
+  return useQuery<{ status: string; data: { results: BankTransaction[]; pagination?: any } }>({
     queryKey: ["bank-transactions", filters],
     queryFn: async () => {
       try {
@@ -456,7 +456,7 @@ export const useClearTransaction = () => {
 export const useGetBankReconciliations = (
   filters?: BankReconciliationFilters
 ) => {
-  return useQuery<{ status: string; data: BankReconciliation[] }>({
+  return useQuery<{ status: string; data: { results: BankReconciliation[]; pagination?: any } }>({
     queryKey: ["bank-reconciliations", filters],
     queryFn: async () => {
       try {
@@ -620,7 +620,7 @@ export const useRecalculateReconciliation = () => {
  * Get all outstanding checks
  */
 export const useGetOutstandingChecks = (filters?: OutstandingCheckFilters) => {
-  return useQuery<{ status: string; data: OutstandingCheck[] }>({
+  return useQuery<{ status: string; data: { results: OutstandingCheck[]; pagination?: any } }>({
     queryKey: ["outstanding-checks", filters],
     queryFn: async () => {
       try {

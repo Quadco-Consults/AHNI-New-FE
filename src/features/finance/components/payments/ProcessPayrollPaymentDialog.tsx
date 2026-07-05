@@ -50,13 +50,7 @@ import {
   validatePaymentData,
 } from "@/features/finance/controllers/payrollPaymentController";
 import type { PendingPayroll, ProcessPayrollPaymentRequest } from "@/features/finance/types/payroll-payment.types";
-
-// TODO: Replace with actual bank accounts fetch
-const mockBankAccounts = [
-  { id: "1", bank_name: "GTBank", account_number: "0123456789", current_balance: 5000000 },
-  { id: "2", bank_name: "Access Bank", account_number: "9876543210", current_balance: 3000000 },
-  { id: "3", bank_name: "Zenith Bank", account_number: "1122334455", current_balance: 10000000 },
-];
+import { useGetBankAccounts } from "@/features/finance/controllers/bankReconciliationController";
 
 const formSchema = z.object({
   payment_date: z.string().min(1, "Payment date is required"),
@@ -80,6 +74,10 @@ export default function ProcessPayrollPaymentDialog({
   onSuccess,
 }: ProcessPayrollPaymentDialogProps) {
   const { processPayment, isLoading, isSuccess } = useProcessPayrollPayment();
+
+  // Fetch bank accounts
+  const { data: accountsData, isLoading: accountsLoading } = useGetBankAccounts();
+  const bankAccounts = accountsData?.data?.results || [];
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -125,8 +123,8 @@ export default function ProcessPayrollPaymentDialog({
   };
 
   // Get selected bank account
-  const selectedBankAccount = mockBankAccounts.find(
-    (acc) => acc.id === form.watch("bank_account_id")
+  const selectedBankAccount = bankAccounts.find(
+    (acc: any) => acc.id === form.watch("bank_account_id")
   );
 
   return (
@@ -262,18 +260,21 @@ export default function ProcessPayrollPaymentDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockBankAccounts.map((account) => (
-                          <SelectItem key={account.id} value={account.id}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">
-                                {account.bank_name} - {account.account_number}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                Balance: {formatCurrency(account.current_balance)}
-                              </span>
-                            </div>
+                        {accountsLoading ? (
+                          <SelectItem value="loading" disabled>
+                            Loading accounts...
                           </SelectItem>
-                        ))}
+                        ) : bankAccounts.length === 0 ? (
+                          <SelectItem value="empty" disabled>
+                            No bank accounts found
+                          </SelectItem>
+                        ) : (
+                          bankAccounts.map((account: any) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              {account.account_name} - {account.bank_name} ({account.account_number})
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormDescription>
@@ -284,7 +285,7 @@ export default function ProcessPayrollPaymentDialog({
                 )}
               />
 
-              {selectedBankAccount && selectedBankAccount.current_balance < payroll.total_net_payment && (
+              {selectedBankAccount && selectedBankAccount.current_balance !== undefined && selectedBankAccount.current_balance < payroll.total_net_payment && (
                 <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
                   <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
                   <div className="flex-1">
@@ -332,6 +333,7 @@ export default function ProcessPayrollPaymentDialog({
                   disabled={
                     isLoading ||
                     (selectedBankAccount &&
+                      selectedBankAccount.current_balance !== undefined &&
                       selectedBankAccount.current_balance < payroll.total_net_payment)
                   }
                 >

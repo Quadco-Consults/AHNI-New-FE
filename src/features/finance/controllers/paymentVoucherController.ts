@@ -31,8 +31,10 @@ export const useGetPaymentVouchers = (
 ) => {
   return useQuery<{
     status: string;
-    data: PaymentVoucher[];
-    pagination?: { page: number; size: number; total: number; pages: number };
+    data: {
+      results: PaymentVoucher[];
+      pagination?: { page: number; size: number; total: number; pages: number };
+    };
   }>({
     queryKey: ["payment-vouchers", filters],
     queryFn: async () => {
