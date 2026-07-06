@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calculator, DollarSign, TrendingUp, TrendingDown, Equal, AlertCircle, CheckCircle, Clock, Banknote } from "lucide-react";
+import { Calculator, DollarSign, TrendingUp, TrendingDown, Equal, AlertCircle, CheckCircle, Clock, Banknote, Upload, Send } from "lucide-react";
 
 // Custom Components
 import ReconciliationDocuments from "./ReconciliationDocuments";
@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -42,9 +45,10 @@ import {
 
 interface ReconciliationViewProps {
   expenses: any[];
+  refetch?: () => void;
 }
 
-const ReconciliationView: React.FC<ReconciliationViewProps> = ({ expenses }) => {
+const ReconciliationView: React.FC<ReconciliationViewProps> = ({ expenses, refetch }) => {
   const [selectedExpense, setSelectedExpense] = useState<any>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
@@ -305,6 +309,7 @@ const ReconciliationView: React.FC<ReconciliationViewProps> = ({ expenses }) => 
                               <ReconciliationDetails
                                 expense={selectedExpense}
                                 reconciliationData={calculateReconciliationData(selectedExpense)}
+                                refetch={refetch}
                               />
                             )}
                           </DialogContent>
@@ -334,8 +339,82 @@ const ReconciliationView: React.FC<ReconciliationViewProps> = ({ expenses }) => 
 const ReconciliationDetails: React.FC<{
   expense: any;
   reconciliationData: any;
-}> = ({ expense, reconciliationData }) => {
+  refetch?: () => void;
+}> = ({ expense, reconciliationData, refetch }) => {
   const differenceDisplay = getDifferenceDisplay(reconciliationData.difference);
+  const { processReconciliation, isLoading } = useProcessReconciliation();
+
+  // State for action forms
+  const [reimbursementInvoice, setReimbursementInvoice] = useState<File | null>(null);
+  const [retirementReceipt, setRetirementReceipt] = useState<File | null>(null);
+  const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle reimbursement request
+  const handleRequestReimbursement = async () => {
+    if (!reimbursementInvoice) {
+      toast.error("Please upload an invoice to request reimbursement");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await processReconciliation({
+        travelExpenseId: expense.id,
+        action: "request_reimbursement",
+        notes: notes || undefined,
+        reimbursementInvoice,
+      });
+      toast.success("Reimbursement request submitted successfully! Finance team will review and process your payment.");
+
+      // Reset form
+      setReimbursementInvoice(null);
+      setNotes("");
+
+      // Refetch data
+      if (refetch) {
+        refetch();
+      }
+    } catch (error: any) {
+      console.error("Failed to request reimbursement:", error);
+      toast.error(error?.response?.data?.message || "Failed to submit reimbursement request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle retirement submission
+  const handleSubmitRetirement = async () => {
+    if (!retirementReceipt) {
+      toast.error("Please upload a receipt showing fund return");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await processReconciliation({
+        travelExpenseId: expense.id,
+        action: "request_retirement",
+        notes: notes || undefined,
+        retirementReceipt,
+      });
+      toast.success("Fund retirement submitted successfully! Finance team has been notified.");
+
+      // Reset form
+      setRetirementReceipt(null);
+      setNotes("");
+
+      // Refetch data
+      if (refetch) {
+        refetch();
+      }
+    } catch (error: any) {
+      console.error("Failed to submit retirement:", error);
+      toast.error(error?.response?.data?.message || "Failed to submit fund retirement. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -467,32 +546,186 @@ const ReconciliationDetails: React.FC<{
         </div>
       )}
 
-      {/* Next Steps */}
+      {/* Next Steps - Action Required */}
       <div>
-        <h4 className="font-semibold mb-3">Next Steps</h4>
-        <div className="space-y-3">
+        <h4 className="font-semibold mb-3">Take Action</h4>
+        <div className="space-y-4">
           {reconciliationData.reconciliationType === "REIMBURSEMENT" ? (
-            <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <Banknote className="h-5 w-5 text-blue-600 mt-0.5" />
-              <div>
-                <div className="font-medium text-blue-900">Reimbursement Process</div>
-                <div className="text-sm text-blue-700">
-                  Contact the finance team with this reconciliation report. They will review and process your reimbursement payment.
+            <Card className="border-blue-200 bg-blue-50/50">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Banknote className="h-5 w-5 text-blue-600" />
+                  Request Reimbursement Payment
+                </CardTitle>
+                <CardDescription>
+                  You overspent by ₦{reconciliationData.reconciliationAmount.toLocaleString()}.
+                  Upload your invoice to request reimbursement from the finance team.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Invoice Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="reimbursement-invoice">
+                    Invoice/Receipt <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="reimbursement-invoice"
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          // Check file size (max 10MB)
+                          if (file.size > 10 * 1024 * 1024) {
+                            toast.error("File size must be less than 10MB");
+                            return;
+                          }
+                          setReimbursementInvoice(file);
+                          toast.success(`File "${file.name}" selected`);
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className="flex-1"
+                    />
+                    {reimbursementInvoice && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setReimbursementInvoice(null)}
+                        disabled={isSubmitting}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Upload invoice/receipt (PDF, JPG, PNG - Max 10MB)
+                  </p>
                 </div>
-              </div>
-            </div>
+
+                {/* Notes */}
+                <div className="space-y-2">
+                  <Label htmlFor="reimbursement-notes">Additional Notes (Optional)</Label>
+                  <Textarea
+                    id="reimbursement-notes"
+                    placeholder="Add any additional information for the finance team..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    disabled={isSubmitting}
+                    rows={3}
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <Button
+                  onClick={handleRequestReimbursement}
+                  disabled={!reimbursementInvoice || isSubmitting}
+                  className="w-full"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Clock className="h-4 w-4 mr-2 animate-spin" />
+                      Submitting Request...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Submit Reimbursement Request
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
           ) : reconciliationData.reconciliationType === "RETIREMENT" ? (
-            <div className="flex items-start gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <TrendingDown className="h-5 w-5 text-orange-600 mt-0.5" />
-              <div>
-                <div className="font-medium text-orange-900">Fund Retirement Required</div>
-                <div className="text-sm text-orange-700">
-                  You need to return the unspent funds to AHNI. Please coordinate with the finance team for the return process.
+            <Card className="border-orange-200 bg-orange-50/50">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <TrendingDown className="h-5 w-5 text-orange-600" />
+                  Submit Fund Return
+                </CardTitle>
+                <CardDescription>
+                  You need to return ₦{reconciliationData.reconciliationAmount.toLocaleString()} to AHNI.
+                  Upload proof of bank transfer to complete the retirement process.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Receipt Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="retirement-receipt">
+                    Bank Transfer Receipt <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="retirement-receipt"
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          // Check file size (max 10MB)
+                          if (file.size > 10 * 1024 * 1024) {
+                            toast.error("File size must be less than 10MB");
+                            return;
+                          }
+                          setRetirementReceipt(file);
+                          toast.success(`File "${file.name}" selected`);
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className="flex-1"
+                    />
+                    {retirementReceipt && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setRetirementReceipt(null)}
+                        disabled={isSubmitting}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Upload bank transfer receipt (PDF, JPG, PNG - Max 10MB)
+                  </p>
                 </div>
-              </div>
-            </div>
+
+                {/* Notes */}
+                <div className="space-y-2">
+                  <Label htmlFor="retirement-notes">Additional Notes (Optional)</Label>
+                  <Textarea
+                    id="retirement-notes"
+                    placeholder="Add any additional information for the finance team..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    disabled={isSubmitting}
+                    rows={3}
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <Button
+                  onClick={handleSubmitRetirement}
+                  disabled={!retirementReceipt || isSubmitting}
+                  className="w-full"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Clock className="h-4 w-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Submit Fund Retirement
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
               <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
               <div>
                 <div className="font-medium text-green-900">Perfect Balance</div>

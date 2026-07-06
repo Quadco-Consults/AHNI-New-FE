@@ -2062,6 +2062,18 @@ export const globalHubLinks: GlobalHubItem[] = [
       }
     ]
   },
+  {
+    label: "Travel Reconciliation",
+    path: "/dashboard/hr/travel-expenses",
+    icon: <CheckSquare className="w-4 h-4" />,
+    category: "financial",
+    permissions: [
+      {
+        module: "adminapp",
+        codenames: ["view_travelexpensereport"]
+      }
+    ]
+  },
 
   // Contracts & Reports
   {

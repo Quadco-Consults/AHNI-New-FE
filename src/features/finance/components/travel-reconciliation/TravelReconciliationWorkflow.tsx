@@ -14,7 +14,8 @@ import {
   Banknote,
   CreditCard,
   Search,
-  Filter
+  Filter,
+  Upload
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -91,9 +92,27 @@ const TravelReconciliationWorkflow: React.FC<TravelReconciliationWorkflowProps> 
 
   const expenses = expensesData?.data?.results || [];
 
-  // Calculate reconciliation data for each expense
+  // Use reconciliation data from API (already calculated on backend)
   const expensesWithReconciliation = React.useMemo(() => {
     return expenses.map((expense: any) => {
+      // Use reconciliation data from the API response
+      if (expense.reconciliation) {
+        const recon = expense.reconciliation;
+        return {
+          ...expense,
+          actualTotal: parseFloat(recon.actual_total || 0),
+          budgetedTotal: parseFloat(recon.budgeted_total || 0),
+          difference: parseFloat(recon.difference || 0),
+          reconciliationType: recon.reconciliation_type || "BALANCED",
+          reconciliationAmount: parseFloat(recon.reconciliation_amount || 0),
+          reconciliationStatus: recon.reconciliation_status || "PENDING",
+          paymentRequested: recon.payment_requested || false,
+          paymentStatus: recon.payment_status || "NOT_REQUESTED",
+          needsAction: parseFloat(recon.reconciliation_amount || 0) > 0,
+        };
+      }
+
+      // Fallback: calculate if reconciliation data is missing (shouldn't happen with new backend filter)
       const actualTotal = (expense.activities || []).reduce((total: number, activity: any) => {
         return total +
           parseFloat(activity.visa_fee || 0) +
@@ -122,6 +141,7 @@ const TravelReconciliationWorkflow: React.FC<TravelReconciliationWorkflowProps> 
         difference,
         reconciliationType,
         reconciliationAmount,
+        reconciliationStatus: "PENDING_CALCULATION",
         needsAction: reconciliationAmount > 0,
       };
     });
@@ -257,8 +277,8 @@ const TravelReconciliationWorkflow: React.FC<TravelReconciliationWorkflowProps> 
   };
 
   // Get reconciliation status badge
-  const getStatusBadge = (reconciliation: any) => {
-    if (!reconciliation) {
+  const getStatusBadge = (status: string) => {
+    if (!status || status === "PENDING_CALCULATION") {
       return <Badge variant="outline">Pending Calculation</Badge>;
     }
 
@@ -266,11 +286,12 @@ const TravelReconciliationWorkflow: React.FC<TravelReconciliationWorkflowProps> 
       PENDING: "bg-yellow-100 text-yellow-800",
       PROCESSED: "bg-blue-100 text-blue-800",
       COMPLETED: "bg-green-100 text-green-800",
+      NOT_REQUESTED: "bg-gray-100 text-gray-800",
     };
 
     return (
-      <Badge className={statusColors[reconciliation.reconciliation_status as keyof typeof statusColors]}>
-        {reconciliation.reconciliation_status}
+      <Badge className={statusColors[status as keyof typeof statusColors] || "bg-gray-100 text-gray-800"}>
+        {status.replace(/_/g, ' ')}
       </Badge>
     );
   };
@@ -432,7 +453,7 @@ const TravelReconciliationWorkflow: React.FC<TravelReconciliationWorkflowProps> 
                             ₦{expense.reconciliationAmount.toLocaleString()}
                           </span>
                         </TableCell>
-                        <TableCell>{getStatusBadge(expense.reconciliation)}</TableCell>
+                        <TableCell>{getStatusBadge(expense.reconciliationStatus)}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
                             <Button

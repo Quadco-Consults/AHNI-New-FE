@@ -297,7 +297,10 @@ export default function TravelExpenses() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ReconciliationView expenses={expenses.filter((e: any) => e.status === "APPROVED")} />
+              <ReconciliationView
+                expenses={expenses.filter((e: any) => e.status === "APPROVED")}
+                refetch={refetch}
+              />
             </CardContent>
           </Card>
         </TabsContent>
