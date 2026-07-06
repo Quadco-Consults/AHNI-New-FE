@@ -41,21 +41,87 @@ export default function PayslipViewer({
             <head>
               <title>Payslip - ${payslip?.employee_name || ""}</title>
               <style>
+                * {
+                  box-sizing: border-box;
+                  margin: 0;
+                  padding: 0;
+                }
                 body {
                   font-family: Arial, sans-serif;
                   margin: 0;
-                  padding: 20px;
-                  font-size: 12px;
+                  padding: 8px 12px;
+                  font-size: 8px;
+                  line-height: 1.1;
+                }
+                .border-b-2 {
+                  border-bottom: 2px solid #000;
+                  padding-bottom: 4px;
+                  margin-bottom: 4px;
+                }
+                .mb-1 {
+                  margin-bottom: 2px;
+                }
+                .mb-2 {
+                  margin-bottom: 3px;
+                }
+                .mb-3 {
+                  margin-bottom: 4px;
+                }
+                .mb-4 {
+                  margin-bottom: 5px;
+                }
+                .mt-1, .mt-2, .mt-3 {
+                  margin-top: 2px;
+                }
+                .mt-6 {
+                  margin-top: 5px;
+                }
+                .pt-4 {
+                  padding-top: 4px;
+                }
+                .p-1 {
+                  padding: 1px;
+                }
+                .p-2 {
+                  padding: 2px;
+                }
+                .p-3 {
+                  padding: 3px;
+                }
+                .p-4 {
+                  padding: 4px;
+                }
+                .space-y-0 > * + * {
+                  margin-top: 1px;
+                }
+                .space-y-1 > * + * {
+                  margin-top: 2px;
+                }
+                .space-y-2 > * + * {
+                  margin-top: 2px;
+                }
+                .space-y-4 > * + * {
+                  margin-top: 4px;
+                }
+                .gap-1 {
+                  gap: 2px;
+                }
+                .gap-2 {
+                  gap: 3px;
+                }
+                .gap-4 {
+                  gap: 4px;
                 }
                 table {
                   width: 100%;
                   border-collapse: collapse;
-                  margin-bottom: 10px;
+                  margin-bottom: 4px;
                 }
                 th, td {
                   border: 1px solid #000;
-                  padding: 6px;
+                  padding: 1px 3px;
                   text-align: left;
+                  font-size: 7px;
                 }
                 th {
                   background-color: #f5f5f5;
@@ -67,42 +133,90 @@ export default function PayslipViewer({
                 .text-center {
                   text-align: center;
                 }
-                .font-bold {
+                .font-bold, .font-semibold {
                   font-weight: bold;
                 }
-                .header {
-                  text-align: center;
-                  margin-bottom: 20px;
-                }
-                .company-name {
-                  font-size: 18px;
-                  font-weight: bold;
-                  margin-bottom: 5px;
-                }
-                .section-title {
-                  font-weight: bold;
-                  background-color: #e5e7eb;
-                  padding: 8px;
-                  margin-top: 15px;
-                  margin-bottom: 10px;
-                }
-                .info-grid {
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 10px;
-                  margin-bottom: 15px;
-                }
-                .info-item {
+                .flex {
                   display: flex;
-                  gap: 10px;
                 }
-                .info-label {
+                .flex-col {
+                  flex-direction: column;
+                }
+                .items-center {
+                  align-items: center;
+                }
+                .grid {
+                  display: grid;
+                }
+                .grid-cols-2 {
+                  grid-template-columns: 1fr 1fr;
+                }
+                .grid-cols-3 {
+                  grid-template-columns: 1fr 1fr 1fr;
+                }
+                .grid-cols-4 {
+                  grid-template-columns: 1fr 1fr 1fr 1fr;
+                }
+                .w-40 {
+                  width: 100px;
+                }
+                img {
+                  height: 35px;
+                  width: 35px;
+                  object-fit: contain;
+                }
+                .text-2xl {
+                  font-size: 10px;
                   font-weight: bold;
-                  min-width: 150px;
+                }
+                .text-lg {
+                  font-size: 9px;
+                  font-weight: 600;
+                }
+                .text-xl {
+                  font-size: 9px;
+                  font-weight: bold;
+                }
+                .text-sm {
+                  font-size: 7px;
+                }
+                .text-xs {
+                  font-size: 6px;
+                }
+                .bg-gray-50, .bg-gray-100, .bg-gray-200 {
+                  background-color: #f5f5f5;
+                }
+                .bg-green-50 {
+                  background-color: #f0fdf4;
+                }
+                .border {
+                  border: 1px solid #d1d5db;
+                }
+                .border-t {
+                  border-top: 1px solid #d1d5db;
+                }
+                .border-2 {
+                  border-width: 2px;
+                }
+                .border-green-600 {
+                  border-color: #16a34a;
+                }
+                .rounded {
+                  border-radius: 3px;
+                }
+                .text-gray-600, .text-gray-900 {
+                  color: #000;
+                }
+                .text-green-700 {
+                  color: #15803d;
                 }
                 @media print {
                   body {
-                    padding: 0;
+                    padding: 6px 10px;
+                  }
+                  @page {
+                    size: A4;
+                    margin: 8mm;
                   }
                 }
               </style>
@@ -173,17 +287,40 @@ export default function PayslipViewer({
             </div>
           </div>
         ) : payslip ? (
-          <div ref={printRef} className="space-y-4 p-4 bg-white">
+          <div ref={printRef} className="space-y-1 p-1 bg-white text-xs">
             {/* Header */}
-            <div className="text-center border-b-2 border-gray-800 pb-4 mb-4">
-              <h1 className="text-2xl font-bold">{payslip.company_name}</h1>
-              <p className="text-lg font-semibold mt-2">PAYSLIP</p>
-              <p className="text-sm text-gray-600">Period: {payslip.payroll_period}</p>
+            <div className="border-b-2 border-gray-800 pb-1 mb-1">
+              <div className="flex flex-col items-center">
+                {/* Logo */}
+                <div className="mb-1">
+                  <img
+                    src="/imgs/logo.png"
+                    alt="AHNI Logo"
+                    className="h-12 w-12 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+
+                {/* Company Details */}
+                <div className="text-center">
+                  <h1 className="text-sm font-bold text-gray-900">{payslip.company_name}</h1>
+                  <p className="text-xs text-gray-600">
+                    No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng
+                  </p>
+                  <p className="text-xs font-semibold text-gray-900">EMPLOYEE PAYSLIP</p>
+                  <p className="text-xs text-gray-600">Period: {payslip.payroll_period}</p>
+                </div>
+              </div>
             </div>
 
             {/* Employee Information */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-1 mb-1 text-xs">
+              <div className="space-y-0">
                 <div className="flex">
                   <span className="font-semibold w-40">Employee Name:</span>
                   <span>{payslip.employee_name}</span>
@@ -197,7 +334,7 @@ export default function PayslipViewer({
                   <span>{payslip.position}</span>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-0">
                 <div className="flex">
                   <span className="font-semibold w-40">Pay Group:</span>
                   <span>{payslip.paygroup}</span>
@@ -215,9 +352,9 @@ export default function PayslipViewer({
 
             {/* Bank Details */}
             {payslip.bank_details && (
-              <div className="bg-gray-50 p-3 rounded border">
-                <h3 className="font-bold text-sm mb-2">BANK ACCOUNT DETAILS</h3>
-                <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="bg-gray-50 p-1 rounded border">
+                <h3 className="font-bold text-xs mb-1">BANK ACCOUNT DETAILS</h3>
+                <div className="grid grid-cols-3 gap-2 text-xs">
                   <div>
                     <span className="font-semibold">Bank: </span>
                     {payslip.bank_details.bank_name}
@@ -236,9 +373,9 @@ export default function PayslipViewer({
 
             {/* Pension Details */}
             {payslip.pension_details && (
-              <div className="bg-gray-50 p-3 rounded border">
-                <h3 className="font-bold text-sm mb-2">PENSION FUND DETAILS</h3>
-                <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="bg-gray-50 p-1 rounded border">
+                <h3 className="font-bold text-xs mb-1">PENSION FUND DETAILS</h3>
+                <div className="grid grid-cols-3 gap-2 text-xs">
                   <div>
                     <span className="font-semibold">PFA: </span>
                     {payslip.pension_details.pfa_name}
@@ -257,7 +394,7 @@ export default function PayslipViewer({
 
             {/* Pay Items */}
             <div>
-              <h3 className="font-bold text-sm bg-gray-200 p-2 mb-2">PAY ITEMS</h3>
+              <h3 className="font-bold text-xs bg-gray-200 p-1 mb-1">PAY ITEMS</h3>
               <table className="w-full border-collapse border border-gray-300 text-sm">
                 <thead>
                   <tr className="bg-gray-100">
@@ -311,7 +448,7 @@ export default function PayslipViewer({
 
             {/* Deductions */}
             <div>
-              <h3 className="font-bold text-sm bg-gray-200 p-2 mb-2">DEDUCTIONS</h3>
+              <h3 className="font-bold text-xs bg-gray-200 p-1 mb-1">DEDUCTIONS</h3>
               <table className="w-full border-collapse border border-gray-300 text-sm">
                 <thead>
                   <tr className="bg-gray-100">
@@ -364,39 +501,39 @@ export default function PayslipViewer({
             </div>
 
             {/* Net Pay */}
-            <div className="bg-green-50 border-2 border-green-600 p-4 rounded">
-              <div className="grid grid-cols-4 gap-4 text-center">
+            <div className="bg-green-50 border-2 border-green-600 p-2 rounded">
+              <div className="grid grid-cols-4 gap-2 text-center">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Amount</p>
-                  <p className="text-xl font-bold text-green-700">
+                  <p className="text-xs text-gray-600">Total Amount</p>
+                  <p className="text-sm font-bold text-green-700">
                     {formatCurrency(payslip.net_pay.total_amount)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Arrears</p>
-                  <p className="text-xl font-bold text-green-700">
+                  <p className="text-xs text-gray-600">Arrears</p>
+                  <p className="text-sm font-bold text-green-700">
                     {formatCurrency(payslip.net_pay.arrears)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Current</p>
-                  <p className="text-xl font-bold text-green-700">
+                  <p className="text-xs text-gray-600">Current</p>
+                  <p className="text-sm font-bold text-green-700">
                     {formatCurrency(payslip.net_pay.current)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Year to Date</p>
-                  <p className="text-xl font-bold text-green-700">
+                  <p className="text-xs text-gray-600">Year to Date</p>
+                  <p className="text-sm font-bold text-green-700">
                     {formatCurrency(payslip.net_pay.year_to_date)}
                   </p>
                 </div>
               </div>
-              <p className="text-center mt-2 font-bold text-lg">NET PAY</p>
+              <p className="text-center mt-1 font-bold text-sm">NET PAY</p>
             </div>
 
             {/* Employer and Statutory Remittances */}
             <div>
-              <h3 className="font-bold text-sm bg-gray-200 p-2 mb-2">
+              <h3 className="font-bold text-xs bg-gray-200 p-1 mb-1">
                 EMPLOYER AND STATUTORY REMITTANCES
               </h3>
               <table className="w-full border-collapse border border-gray-300 text-sm">
@@ -459,7 +596,7 @@ export default function PayslipViewer({
             </div>
 
             {/* Footer */}
-            <div className="text-center text-xs text-gray-600 mt-6 pt-4 border-t">
+            <div className="text-center text-xs text-gray-600 mt-2 pt-2 border-t">
               <p>
                 This is a computer-generated payslip and does not require a signature
               </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -30,14 +31,12 @@ import {
 
 // Import dialogs
 import ProcessPayrollPaymentDialog from "@/features/finance/components/payments/ProcessPayrollPaymentDialog";
-import ViewPayrollDetailsDialog from "@/features/finance/components/payments/ViewPayrollDetailsDialog";
 
 export default function PendingPaymentsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
   const [showPayrollDialog, setShowPayrollDialog] = useState(false);
-  const [viewPayrollId, setViewPayrollId] = useState<string>("");
-  const [showViewDialog, setShowViewDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string>("all");
   const [selectedFund, setSelectedFund] = useState<string>("all");
 
@@ -81,10 +80,9 @@ export default function PendingPaymentsPage() {
     0
   );
 
-  // Handle view payroll
+  // Handle view payroll - navigate to details page
   const handleViewPayroll = (payroll: any) => {
-    setViewPayrollId(payroll.id);
-    setShowViewDialog(true);
+    router.push(`/dashboard/finance/payroll-details/${payroll.id}`);
   };
 
   // Handle process payroll
@@ -352,18 +350,6 @@ export default function PendingPaymentsPage() {
           )}
         </div>
       </Card>
-
-      {/* View Payroll Dialog */}
-      {viewPayrollId && (
-        <ViewPayrollDetailsDialog
-          open={showViewDialog}
-          onClose={() => {
-            setShowViewDialog(false);
-            setViewPayrollId("");
-          }}
-          payrollId={viewPayrollId}
-        />
-      )}
 
       {/* Process Payment Dialog */}
       {selectedPayroll && (

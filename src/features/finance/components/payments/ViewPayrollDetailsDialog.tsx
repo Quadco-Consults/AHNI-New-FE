@@ -120,48 +120,6 @@ export default function ViewPayrollDetailsDialog({
               </CardContent>
             </Card>
 
-            {/* Project Allocations */}
-            {payroll.project_breakdown && payroll.project_breakdown.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Project Allocations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Project</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead className="text-right">Percentage</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {payroll.project_breakdown.map((allocation: any) => (
-                        <TableRow key={allocation.project_id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{allocation.project_code}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {allocation.project_name}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right font-medium">
-                            {formatCurrency(allocation.allocated_amount)}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Badge variant="outline">
-                              {allocation.percentage.toFixed(1)}%
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            )}
-
             {/* Employee Records */}
             <Card>
               <CardHeader>
@@ -210,13 +168,13 @@ export default function ViewPayrollDetailsDialog({
                             </TableCell>
                             <TableCell>
                               {record.project_allocations &&
-                               typeof record.project_allocations === 'object' &&
-                               Object.keys(record.project_allocations).length > 0 ? (
+                               Array.isArray(record.project_allocations) &&
+                               record.project_allocations.length > 0 ? (
                                 <div className="flex flex-wrap gap-1">
-                                  {Object.entries(record.project_allocations).map(
-                                    ([projectId, percentage]: [string, any]) => (
-                                      <Badge key={projectId} variant="secondary" className="text-xs">
-                                        {percentage}%
+                                  {record.project_allocations.map(
+                                    (allocation: any) => (
+                                      <Badge key={allocation.project_id} variant="secondary" className="text-xs">
+                                        {allocation.project_code}: {allocation.percentage}%
                                       </Badge>
                                     )
                                   )}
