@@ -86,7 +86,7 @@ export default function ProcessFundRequestDialog({
 
   // Reset form when dialog opens
   useEffect(() => {
-    if (open) {
+    if (open && fundRequest) {
       form.reset({
         bank_account_id: "",
         reviewer_id: "",
@@ -95,7 +95,8 @@ export default function ProcessFundRequestDialog({
         notes: `Fund transfer for ${fundRequest?.project?.title || 'project'} - ${fundRequest?.location?.name || 'location'} (${fundRequest?.month} ${fundRequest?.year})`,
       });
     }
-  }, [open, form, fundRequest]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, fundRequest?.id]);
 
   // Handle success
   useEffect(() => {
@@ -109,7 +110,7 @@ export default function ProcessFundRequestDialog({
   const onSubmit = async (data: FormValues) => {
     try {
       // Get fund request details
-      const totalAmount = parseFloat(fundRequest.total_amount || "0");
+      const totalAmount = parseFloat(fundRequest.total_disbursement_amount || "0");
       const locationName = typeof fundRequest.location === 'string'
         ? fundRequest.location
         : fundRequest.location?.name || "Unknown Location";
@@ -162,7 +163,7 @@ export default function ProcessFundRequestDialog({
   const projectName = typeof fundRequest?.project === 'string'
     ? fundRequest.project
     : fundRequest?.project?.title || fundRequest?.project?.project_id || "N/A";
-  const totalAmount = parseFloat(fundRequest?.total_amount || "0");
+  const totalAmount = parseFloat(fundRequest?.total_disbursement_amount || "0");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -222,7 +223,10 @@ export default function ProcessFundRequestDialog({
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-5 w-5 text-green-600" />
                     <p className="text-2xl font-bold text-green-600">
-                      {formatCurrency(totalAmount)}
+                      {fundRequest?.currency_display?.symbol || "₦"} {new Intl.NumberFormat('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }).format(totalAmount)}
                     </p>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
@@ -242,13 +246,13 @@ export default function ProcessFundRequestDialog({
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select bank account for this location" />
+                        <SelectValue placeholder="Select destination bank account for transfer" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {bankAccounts.length === 0 ? (
                         <div className="p-4 text-center text-sm text-gray-500">
-                          No bank accounts found
+                          No bank accounts found. Please create a bank account first.
                         </div>
                       ) : (
                         bankAccounts.map((account: any) => (
@@ -260,6 +264,11 @@ export default function ProcessFundRequestDialog({
                     </SelectContent>
                   </Select>
                   <FormMessage />
+                  {field.value && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Funds will be transferred to: {bankAccounts.find((a: any) => a.id === field.value)?.account_name || 'N/A'}
+                    </p>
+                  )}
                 </FormItem>
               )}
             />
@@ -371,11 +380,17 @@ export default function ProcessFundRequestDialog({
             <div className="flex items-start gap-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-blue-800">
-                <p className="font-semibold">Fund Transfer</p>
+                <p className="font-semibold">Fund Transfer to Location</p>
                 <p className="mt-1">
                   This will create a Payment Voucher to transfer{" "}
-                  <span className="font-semibold">{formatCurrency(totalAmount)}</span> to{" "}
-                  <span className="font-semibold">{locationName}</span> for project implementation.
+                  <span className="font-semibold">
+                    {fundRequest?.currency_display?.symbol || "₦"}{" "}
+                    {new Intl.NumberFormat('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(totalAmount)}
+                  </span> to{" "}
+                  <span className="font-semibold">{locationName}</span> for project implementation. Please select the appropriate bank account where funds should be transferred.
                 </p>
               </div>
             </div>

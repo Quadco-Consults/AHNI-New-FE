@@ -46,12 +46,23 @@ import {
   XCircle,
   FileSpreadsheet,
   Printer,
-  Settings
+  Settings,
+  ArrowRightLeft,
+  Send,
+  Network,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { useGetBankAccounts, useDeleteBankAccount } from "@/features/finance/controllers/accountingController";
 import { BankAccount } from "@/features/finance/types/accounting.types";
 import BankAccountForm from "@/features/finance/components/banking/BankAccountForm";
+import CurrencyConversionDialog from "@/features/finance/components/banking/CurrencyConversionDialog";
+import FundTransferDialog from "@/features/finance/components/banking/FundTransferDialog";
+import FundDistributionDialog from "@/features/finance/components/banking/FundDistributionDialog";
+import TransactionHistoryDialog from "@/features/finance/components/banking/TransactionHistoryDialog";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useGetAllGrants } from "@/features/contracts-grants/controllers/grantController";
+import { useGetLocationsDropdown } from "@/features/modules/controllers/config/allConfigController";
 
 // AHNI Nigerian Banks List
 const nigerianBanks = [
@@ -139,18 +150,39 @@ const sampleBankAccounts: BankAccount[] = [
 ];
 
 export default function BankAccountsPage() {
-  const [bankAccounts] = useState<BankAccount[]>(sampleBankAccounts);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBank, setFilterBank] = useState("all");
   const [filterCurrency, setFilterCurrency] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterLocation, setFilterLocation] = useState("all");
+  const [filterProject, setFilterProject] = useState("all");
+  const [filterGrant, setFilterGrant] = useState("all");
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(null);
   const [editingAccount, setEditingAccount] = useState<BankAccount | undefined>();
 
-  // API hooks (uncomment when backend is ready)
-  // const { data: bankAccountsData, isLoading } = useGetBankAccounts();
+  // New dialogs for fund management
+  const [showConversionDialog, setShowConversionDialog] = useState(false);
+  const [showTransferDialog, setShowTransferDialog] = useState(false);
+  const [showDistributionDialog, setShowDistributionDialog] = useState(false);
+  const [showTransactionHistory, setShowTransactionHistory] = useState(false);
+  const [actionAccount, setActionAccount] = useState<BankAccount | undefined>();
+  const [historyAccount, setHistoryAccount] = useState<BankAccount | undefined>();
+
+  // API hooks
+  const { data: bankAccountsData, isLoading } = useGetBankAccounts({ is_active: undefined });
   const deleteBankAccount = useDeleteBankAccount();
+
+  // Dropdown data for filters
+  const { data: projectsData } = useGetAllProjects({ page: 1, size: 100, search: "", enabled: true });
+  const { data: grantsData } = useGetAllGrants({ page: 1, size: 100, search: "", enabled: true });
+  const { data: locationsData } = useGetLocationsDropdown();
+
+  // Get bank accounts from API or use empty array
+  const bankAccounts = Array.isArray(bankAccountsData?.data?.results) ? bankAccountsData.data.results : [];
+  const projects = projectsData?.data?.results || [];
+  const grants = grantsData?.data?.results || [];
+  const locations = locationsData || [];
 
   // Filter bank accounts
   const filteredAccounts = bankAccounts.filter((account: any) => {
@@ -163,12 +195,34 @@ export default function BankAccountsPage() {
       if (filterStatus === "active" && !account.is_active) return false;
       if (filterStatus === "inactive" && account.is_active) return false;
     }
+
+    // Location filter
+    if (filterLocation !== "all" && account.location !== filterLocation) return false;
+
+    // Project filter (based on account name containing project name)
+    if (filterProject !== "all") {
+      const selectedProject = projects.find((p: any) => p.id === filterProject);
+      const projectName = selectedProject?.name || selectedProject?.project_name || "";
+      if (projectName && !account.account_name.toLowerCase().includes(projectName.toLowerCase())) return false;
+    }
+
+    // Grant/Donor filter (based on account name containing grant title)
+    if (filterGrant !== "all") {
+      const selectedGrant = grants.find((g: any) => g.id === filterGrant);
+      const grantTitle = selectedGrant?.title || selectedGrant?.grant_name || "";
+      if (grantTitle && !account.account_name.toLowerCase().includes(grantTitle.toLowerCase())) return false;
+    }
+
     return true;
   });
 
   const formatCurrency = (amount: number, currency: string = "NGN") => {
     const symbol = currency === "NGN" ? "₦" : "$";
-    return `${symbol}${amount.toLocaleString()}`;
+    const formattedAmount = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+    return `${symbol}${formattedAmount}`;
   };
 
   const handleAddAccount = () => {
@@ -198,6 +252,32 @@ export default function BankAccountsPage() {
     // This will be handled automatically by React Query when backend is ready
   };
 
+  // New action handlers
+  const handleConvertCurrency = (account: BankAccount) => {
+    setActionAccount(account);
+    setShowConversionDialog(true);
+  };
+
+  const handleTransferFunds = (account: BankAccount) => {
+    setActionAccount(account);
+    setShowTransferDialog(true);
+  };
+
+  const handleDistributeFunds = (account: BankAccount) => {
+    setActionAccount(account);
+    setShowDistributionDialog(true);
+  };
+
+  const handleDialogSuccess = () => {
+    // Refresh will happen automatically via React Query
+    setActionAccount(undefined);
+  };
+
+  const handleViewTransactions = (account: BankAccount) => {
+    setHistoryAccount(account);
+    setShowTransactionHistory(true);
+  };
+
   const exportToExcel = () => {
     toast.success("Bank accounts exported to Excel");
   };
@@ -208,8 +288,9 @@ export default function BankAccountsPage() {
 
   // Statistics
   const totalBalance = bankAccounts.reduce((sum, account) => {
-    if (account.currency === "NGN") return sum + account.current_balance;
-    return sum + (account.current_balance * 1600); // Convert USD to NGN at approx rate
+    const balance = parseFloat(account.current_balance || "0");
+    if (account.currency === "NGN") return sum + balance;
+    return sum + (balance * 1600); // Convert USD to NGN at approx rate
   }, 0);
 
   const activeAccounts = bankAccounts.filter((a: any) => a.is_active).length;
@@ -272,7 +353,7 @@ export default function BankAccountsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-xl font-bold text-purple-600 break-words">
               {formatCurrency(totalBalance, "NGN")}
             </div>
             <p className="text-xs text-muted-foreground">Combined balances</p>
@@ -304,7 +385,7 @@ export default function BankAccountsPage() {
         </div>
 
         <Select value={filterBank} onValueChange={setFilterBank}>
-          <SelectTrigger className="w-64">
+          <SelectTrigger className="w-52">
             <SelectValue placeholder="Select Bank" />
           </SelectTrigger>
           <SelectContent>
@@ -325,6 +406,48 @@ export default function BankAccountsPage() {
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="NGN">NGN</SelectItem>
             <SelectItem value="USD">USD</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={filterLocation} onValueChange={setFilterLocation}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Locations" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Locations</SelectItem>
+            {locations.map((location: any) => (
+              <SelectItem key={location.id} value={location.id}>
+                {location.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterProject} onValueChange={setFilterProject}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Projects" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Projects</SelectItem>
+            {projects.map((project: any) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.name || project.project_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterGrant} onValueChange={setFilterGrant}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Grants/Donors" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Grants/Donors</SelectItem>
+            {grants.map((grant: any) => (
+              <SelectItem key={grant.id} value={grant.id}>
+                {grant.title || grant.grant_name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -353,20 +476,44 @@ export default function BankAccountsPage() {
           <CardTitle>Bank Accounts</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Account Details</TableHead>
-                <TableHead>Bank</TableHead>
-                <TableHead>Account Type</TableHead>
-                <TableHead>Currency</TableHead>
-                <TableHead>Current Balance</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAccounts.map((account) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading bank accounts...</p>
+              </div>
+            </div>
+          ) : filteredAccounts.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Landmark className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 font-medium">No bank accounts found</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  {bankAccounts.length === 0 ? "Get started by adding your first bank account" : "Try adjusting your filters"}
+                </p>
+                {bankAccounts.length === 0 && (
+                  <Button onClick={handleAddAccount} className="mt-4">
+                    <Plus size={16} className="mr-2" />
+                    Add Bank Account
+                  </Button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Account Details</TableHead>
+                  <TableHead>Bank</TableHead>
+                  <TableHead>Account Type</TableHead>
+                  <TableHead>Currency</TableHead>
+                  <TableHead>Current Balance</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAccounts.map((account) => (
                 <TableRow key={account.id}>
                   <TableCell>
                     <div>
@@ -412,21 +559,73 @@ export default function BankAccountsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setSelectedAccount(account)}
+                        title="View Details"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleViewTransactions(account)}
+                        title="View Transactions"
+                        className="text-indigo-600 hover:text-indigo-700"
+                      >
+                        <FileText className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleEditAccount(account)}
+                        title="Edit Account"
                       >
                         <Edit2 className="w-4 h-4" />
                       </Button>
+
+                      {/* Fund Management Actions */}
+                      {account.currency === "USD" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-blue-600 hover:text-blue-700"
+                          onClick={() => handleConvertCurrency(account)}
+                          title="Convert to NGN"
+                        >
+                          <ArrowRightLeft className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {account.currency === "NGN" && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-green-600 hover:text-green-700"
+                            onClick={() => handleTransferFunds(account)}
+                            title="Transfer Funds"
+                          >
+                            <Send className="w-4 h-4" />
+                          </Button>
+                          {(account.account_name.toLowerCase().includes("main") ||
+                            account.account_name.toLowerCase().includes("central")) && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-purple-600 hover:text-purple-700"
+                              onClick={() => handleDistributeFunds(account)}
+                              title="Distribute to Locations"
+                            >
+                              <Network className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </>
+                      )}
+
                       <Button
                         variant="ghost"
                         size="sm"
                         className="text-red-600"
                         onClick={() => handleDeleteAccount(account)}
+                        title="Delete Account"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -434,8 +633,9 @@ export default function BankAccountsPage() {
                   </TableCell>
                 </TableRow>
               ))}
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
@@ -445,6 +645,37 @@ export default function BankAccountsPage() {
         onOpenChange={setShowFormDialog}
         account={editingAccount}
         onSuccess={handleFormSuccess}
+      />
+
+      {/* Currency Conversion Dialog */}
+      <CurrencyConversionDialog
+        open={showConversionDialog}
+        onOpenChange={setShowConversionDialog}
+        sourceAccount={actionAccount}
+        onSuccess={handleDialogSuccess}
+      />
+
+      {/* Fund Transfer Dialog */}
+      <FundTransferDialog
+        open={showTransferDialog}
+        onOpenChange={setShowTransferDialog}
+        fromAccount={actionAccount}
+        onSuccess={handleDialogSuccess}
+      />
+
+      {/* Fund Distribution Dialog */}
+      <FundDistributionDialog
+        open={showDistributionDialog}
+        onOpenChange={setShowDistributionDialog}
+        mainAccount={actionAccount}
+        onSuccess={handleDialogSuccess}
+      />
+
+      {/* Transaction History Dialog */}
+      <TransactionHistoryDialog
+        open={showTransactionHistory}
+        onOpenChange={setShowTransactionHistory}
+        account={historyAccount}
       />
 
       {/* Account Details Dialog */}
