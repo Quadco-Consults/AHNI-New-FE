@@ -59,17 +59,20 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface ProcessPaymentRequestDialogProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
   paymentRequest: PendingPaymentRequest;
   onSuccess?: () => void;
 }
 
 export default function ProcessPaymentRequestDialog({
   open,
-  onClose,
+  onOpenChange,
   paymentRequest,
   onSuccess,
 }: ProcessPaymentRequestDialogProps) {
+  const handleClose = () => {
+    onOpenChange(false);
+  };
   const { createPaymentVoucher, isLoading, isSuccess } = useCreatePaymentVoucher();
 
   // Fetch real bank accounts
@@ -107,15 +110,17 @@ export default function ProcessPaymentRequestDialog({
   useEffect(() => {
     if (isSuccess) {
       onSuccess?.();
-      onClose();
+      handleClose();
     }
-  }, [isSuccess, onSuccess, onClose]);
+  }, [isSuccess, onSuccess]);
 
   const onSubmit = async (data: FormValues) => {
     try {
-      // Use net_amount if available (after tax deductions), otherwise use total_amount
-      const grossAmount = paymentRequest.gross_amount || paymentRequest.total_amount;
-      const netAmount = paymentRequest.net_amount || paymentRequest.total_amount;
+      // Use gross_amount for payment requests without payment items, otherwise use total_amount
+      const grossAmount = paymentRequest.gross_amount || paymentRequest.total_amount || 0;
+      const netAmount = paymentRequest.net_amount ||
+                       ((paymentRequest.total_amount && paymentRequest.total_amount > 0) ? paymentRequest.total_amount : paymentRequest.gross_amount) ||
+                       0;
 
       // Determine payee name based on payment type
       let payeeName = paymentRequest.requested_by || "Unknown";
@@ -168,7 +173,7 @@ export default function ProcessPaymentRequestDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Payment Voucher</DialogTitle>
@@ -230,7 +235,7 @@ export default function ProcessPaymentRequestDialog({
               <div className="flex justify-between font-semibold text-lg pt-2 border-t">
                 <span>Total Amount:</span>
                 <span className="text-green-600">
-                  ₦{paymentRequest.total_amount.toLocaleString()}
+                  ₦{((paymentRequest.total_amount && paymentRequest.total_amount > 0) ? paymentRequest.total_amount : (paymentRequest.gross_amount || 0)).toLocaleString()}
                 </span>
               </div>
             </CardContent>
@@ -284,7 +289,7 @@ export default function ProcessPaymentRequestDialog({
                   <div className="flex justify-between font-semibold text-base pt-2 border-t-2 border-blue-300">
                     <span className="text-blue-700">Net Amount to Pay:</span>
                     <span className="text-blue-700">
-                      ₦{(paymentRequest.net_amount || paymentRequest.total_amount || 0).toLocaleString()}
+                      ₦{(paymentRequest.net_amount || ((paymentRequest.total_amount && paymentRequest.total_amount > 0) ? paymentRequest.total_amount : paymentRequest.gross_amount) || 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -481,7 +486,7 @@ export default function ProcessPaymentRequestDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={onClose}
+                  onClick={handleClose}
                   disabled={isLoading}
                 >
                   Cancel

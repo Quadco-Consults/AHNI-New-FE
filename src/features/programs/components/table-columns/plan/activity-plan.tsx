@@ -190,6 +190,7 @@ const TableAction = ({
   id,
   status,
   workPlanId,
+  work_plan_activity,
 }: TActivityPlanData & { workPlanId?: string }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -224,7 +225,9 @@ const TableAction = ({
                   workPlanId
                     ? {
                         pathname: RouteEnum.PROGRAM_CREATE_ACTIVITY_PLAN,
-                        search: `?plan=${workPlanId}&id=${id}`,
+                        search: work_plan_activity
+                          ? `?plan=${workPlanId}&activity=${work_plan_activity}`
+                          : `?plan=${workPlanId}&id=${id}`,
                       }
                     : `/dashboard/programs/plan/activity-plan/create?id=${id}`
                 }
@@ -234,7 +237,7 @@ const TableAction = ({
                   variant='ghost'
                 >
                   <EditIcon />
-                  Edit
+                  {work_plan_activity ? 'Record Monthly Activity' : 'Edit'}
                 </Button>
               </Link>
 

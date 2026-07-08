@@ -1,525 +1,553 @@
+/**
+ * Accounts Receivable Controller
+ * React Query hooks for AR operations, customer management, invoicing, and collections
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import {
+import axiosInstance from "@/constants/api_management/MyHttpHelperWithToken";
+import { toast } from "sonner";
+import type {
   AccountsReceivable,
-  ARSummary,
   ARFilters,
-  ARPayment,
-  PaymentFormData,
+  ARListResponse,
+  ARDetailResponse,
+  ARSummaryResponse,
+  CustomerPayment,
+  PaymentListResponse,
+  PaymentDetailResponse,
   CollectionActivity,
-  CollectionActivityFormData,
-  WriteOffData,
+  CollectionActivityListResponse,
+  DunningLetter,
+  DunningLetterListResponse,
   CreditMemo,
-  ARStatement,
+  CreditMemoListResponse,
   PaymentPlan,
-  DunningLetter
+  PaymentPlanListResponse,
+  RecordPaymentInput,
+  UpdateCollectionStatusInput,
+  WriteOffInput,
+  SendReminderInput,
+  CreateCollectionActivityInput,
+  CreateCreditMemoInput,
+  CreatePaymentPlanInput,
+  PaymentFilters,
 } from "../types/accounts-receivable.types";
 
-// API endpoints
-const AR_ENDPOINT = "/accounts-receivable";
+// ==================== API URLs ====================
 
-// Query keys
-export const arKeys = {
+const ACCOUNTS_RECEIVABLE_URL = "/finance/accounts-receivable";
+const CUSTOMER_PAYMENTS_URL = "/finance/customer-payments";
+const COLLECTION_ACTIVITIES_URL = "/finance/collection-activities";
+const DUNNING_LETTERS_URL = "/finance/dunning-letters";
+const CREDIT_MEMOS_URL = "/finance/credit-memos";
+const PAYMENT_PLANS_URL = "/finance/payment-plans";
+
+// ==================== Query Keys ====================
+
+export const accountsReceivableKeys = {
   all: ["accounts-receivable"] as const,
-  lists: () => [...arKeys.all, "list"] as const,
-  list: (filters: any) => [...arKeys.lists(), { filters }] as const,
-  details: () => [...arKeys.all, "detail"] as const,
-  detail: (id: string) => [...arKeys.details(), id] as const,
-  summary: () => [...arKeys.all, "summary"] as const,
-  payments: (id: string) => [...arKeys.all, "payments", id] as const,
-  collections: () => [...arKeys.all, "collections"] as const,
-  statements: () => [...arKeys.all, "statements"] as const,
-  aging: () => [...arKeys.all, "aging"] as const,
-  creditMemos: () => [...arKeys.all, "credit-memos"] as const,
-  paymentPlans: () => [...arKeys.all, "payment-plans"] as const,
-  dunningLetters: () => [...arKeys.all, "dunning-letters"] as const,
+  lists: () => [...accountsReceivableKeys.all, "list"] as const,
+  list: (filters: ARFilters) =>
+    [...accountsReceivableKeys.lists(), filters] as const,
+  details: () => [...accountsReceivableKeys.all, "detail"] as const,
+  detail: (id: string) => [...accountsReceivableKeys.details(), id] as const,
+  summary: () => [...accountsReceivableKeys.all, "summary"] as const,
 };
 
-// Types for API responses
-interface ARResponse {
-  data: AccountsReceivable[];
-  meta: {
-    total: number;
-    page: number;
-    page_size: number;
-    total_pages: number;
-  };
-}
+export const customerPaymentKeys = {
+  all: ["customer-payments"] as const,
+  lists: () => [...customerPaymentKeys.all, "list"] as const,
+  list: (filters: PaymentFilters) =>
+    [...customerPaymentKeys.lists(), filters] as const,
+  details: () => [...customerPaymentKeys.all, "detail"] as const,
+  detail: (id: string) => [...customerPaymentKeys.details(), id] as const,
+};
 
-interface ARSummaryResponse {
-  data: ARSummary;
-}
+export const collectionActivityKeys = {
+  all: ["collection-activities"] as const,
+  lists: () => [...collectionActivityKeys.all, "list"] as const,
+  list: (arId?: string) => [...collectionActivityKeys.lists(), arId] as const,
+};
 
-interface ARPaymentResponse {
-  data: ARPayment[];
-}
+export const dunningLetterKeys = {
+  all: ["dunning-letters"] as const,
+  lists: () => [...dunningLetterKeys.all, "list"] as const,
+  list: (arId?: string) => [...dunningLetterKeys.lists(), arId] as const,
+};
 
-interface CollectionActivitiesResponse {
-  data: CollectionActivity[];
-}
+export const creditMemoKeys = {
+  all: ["credit-memos"] as const,
+  lists: () => [...creditMemoKeys.all, "list"] as const,
+  list: (customerId?: string) => [...creditMemoKeys.lists(), customerId] as const,
+};
 
-interface ARStatementsResponse {
-  data: ARStatement[];
-}
+export const paymentPlanKeys = {
+  all: ["payment-plans"] as const,
+  lists: () => [...paymentPlanKeys.all, "list"] as const,
+  list: (arId?: string) => [...paymentPlanKeys.lists(), arId] as const,
+};
 
-interface CreditMemoResponse {
-  data: CreditMemo[];
-}
+// ==================== Accounts Receivable Hooks ====================
 
-interface PaymentPlansResponse {
-  data: PaymentPlan[];
-}
-
-interface DunningLettersResponse {
-  data: DunningLetter[];
-}
-
-// Fetch accounts receivable with filters
-export const useGetAccountsReceivable = (filters?: ARFilters) => {
-  return useQuery({
-    queryKey: arKeys.list(filters),
-    queryFn: async (): Promise<ARResponse> => {
+/**
+ * Get list of accounts receivable with filters
+ */
+export const useGetAccountsReceivable = (filters: ARFilters = {}) => {
+  return useQuery<ARListResponse>({
+    queryKey: accountsReceivableKeys.list(filters),
+    queryFn: async () => {
       const params = new URLSearchParams();
 
-      if (filters?.customer_id) params.append("customer_id", filters.customer_id);
-      if (filters?.status?.length) params.append("status", filters.status.join(","));
-      if (filters?.aging_bucket?.length) params.append("aging_bucket", filters.aging_bucket.join(","));
-      if (filters?.collection_status?.length) params.append("collection_status", filters.collection_status.join(","));
-      if (filters?.date_from) params.append("date_from", filters.date_from);
-      if (filters?.date_to) params.append("date_to", filters.date_to);
-      if (filters?.amount_min) params.append("amount_min", filters.amount_min.toString());
-      if (filters?.amount_max) params.append("amount_max", filters.amount_max.toString());
-      if (filters?.overdue_only) params.append("overdue_only", filters.overdue_only.toString());
-      if (filters?.assigned_collector) params.append("assigned_collector", filters.assigned_collector);
-      if (filters?.search) params.append("search", filters.search);
-      if (filters?.page) params.append("page", filters.page.toString());
-      if (filters?.page_size) params.append("page_size", filters.page_size.toString());
-      if (filters?.sort_by) params.append("sort_by", filters.sort_by);
-      if (filters?.sort_order) params.append("sort_order", filters.sort_order);
+      if (filters.customer_id) params.append("customer_id", filters.customer_id);
+      if (filters.status && filters.status !== "all")
+        params.append("status", filters.status);
+      if (filters.aging_bucket && filters.aging_bucket !== "all")
+        params.append("aging_bucket", filters.aging_bucket);
+      if (filters.collection_status && filters.collection_status !== "all")
+        params.append("collection_status", filters.collection_status);
+      if (filters.date_from) params.append("date_from", filters.date_from);
+      if (filters.date_to) params.append("date_to", filters.date_to);
+      if (filters.amount_min) params.append("amount_min", filters.amount_min);
+      if (filters.amount_max) params.append("amount_max", filters.amount_max);
+      if (filters.overdue_only) params.append("overdue_only", "true");
+      if (filters.assigned_collector)
+        params.append("assigned_collector", filters.assigned_collector);
+      if (filters.search) params.append("search", filters.search);
+      if (filters.sort_by) params.append("sort_by", filters.sort_by);
+      if (filters.sort_order) params.append("sort_order", filters.sort_order);
+      if (filters.page) params.append("page", filters.page.toString());
+      if (filters.page_size)
+        params.append("page_size", filters.page_size.toString());
 
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}?${params.toString()}`);
+      const response = await axiosInstance.get(
+        `${ACCOUNTS_RECEIVABLE_URL}/?${params}`
+      );
       return response.data;
     },
   });
 };
 
-// Fetch single AR record
-export const useGetARRecord = (id: string) => {
-  return useQuery({
-    queryKey: arKeys.detail(id),
-    queryFn: async (): Promise<{ data: AccountsReceivable }> => {
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/${id}`);
+/**
+ * Get single AR record by ID
+ */
+export const useGetAccountsReceivableById = (id: string) => {
+  return useQuery<ARDetailResponse>({
+    queryKey: accountsReceivableKeys.detail(id),
+    queryFn: async () => {
+      const response = await axiosInstance.get(
+        `${ACCOUNTS_RECEIVABLE_URL}/${id}/`
+      );
       return response.data;
     },
     enabled: !!id,
   });
 };
 
-// Fetch AR summary statistics
-export const useGetARSummary = () => {
-  return useQuery({
-    queryKey: arKeys.summary(),
-    queryFn: async (): Promise<ARSummaryResponse> => {
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/summary`);
+/**
+ * Get AR summary statistics
+ */
+export const useGetARSummary = (filters: ARFilters = {}) => {
+  return useQuery<ARSummaryResponse>({
+    queryKey: accountsReceivableKeys.summary(),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+
+      if (filters.customer_id) params.append("customer_id", filters.customer_id);
+      if (filters.status && filters.status !== "all")
+        params.append("status", filters.status);
+      if (filters.date_from) params.append("date_from", filters.date_from);
+      if (filters.date_to) params.append("date_to", filters.date_to);
+
+      const response = await axiosInstance.get(
+        `${ACCOUNTS_RECEIVABLE_URL}/summary/?${params}`
+      );
       return response.data;
     },
   });
 };
 
-// Fetch payments for an AR record
-export const useGetARPayments = (arId: string) => {
-  return useQuery({
-    queryKey: arKeys.payments(arId),
-    queryFn: async (): Promise<ARPaymentResponse> => {
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/${arId}/payments`);
-      return response.data;
-    },
-    enabled: !!arId,
-  });
-};
-
-// Fetch collection activities
-export const useGetCollectionActivities = (customerId?: string) => {
-  return useQuery({
-    queryKey: [...arKeys.collections(), customerId],
-    queryFn: async (): Promise<CollectionActivitiesResponse> => {
-      const params = customerId ? `?customer_id=${customerId}` : '';
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/collection-activities${params}`);
-      return response.data;
-    },
-  });
-};
-
-// Fetch AR statements
-export const useGetARStatements = (customerId?: string) => {
-  return useQuery({
-    queryKey: [...arKeys.statements(), customerId],
-    queryFn: async (): Promise<ARStatementsResponse> => {
-      const params = customerId ? `?customer_id=${customerId}` : '';
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/statements${params}`);
-      return response.data;
-    },
-  });
-};
-
-// Fetch aging report
-export const useGetAgingReport = () => {
-  return useQuery({
-    queryKey: arKeys.aging(),
-    queryFn: async (): Promise<any> => {
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/aging-report`);
-      return response.data;
-    },
-  });
-};
-
-// Fetch credit memos
-export const useGetCreditMemos = (customerId?: string) => {
-  return useQuery({
-    queryKey: [...arKeys.creditMemos(), customerId],
-    queryFn: async (): Promise<CreditMemoResponse> => {
-      const params = customerId ? `?customer_id=${customerId}` : '';
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/credit-memos${params}`);
-      return response.data;
-    },
-  });
-};
-
-// Fetch payment plans
-export const useGetPaymentPlans = (customerId?: string) => {
-  return useQuery({
-    queryKey: [...arKeys.paymentPlans(), customerId],
-    queryFn: async (): Promise<PaymentPlansResponse> => {
-      const params = customerId ? `?customer_id=${customerId}` : '';
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/payment-plans${params}`);
-      return response.data;
-    },
-  });
-};
-
-// Fetch dunning letters
-export const useGetDunningLetters = (customerId?: string) => {
-  return useQuery({
-    queryKey: [...arKeys.dunningLetters(), customerId],
-    queryFn: async (): Promise<DunningLettersResponse> => {
-      const params = customerId ? `?customer_id=${customerId}` : '';
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/dunning-letters${params}`);
-      return response.data;
-    },
-  });
-};
-
-// Record payment
+/**
+ * Record payment against AR
+ */
 export const useRecordPayment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: PaymentFormData): Promise<{ data: ARPayment }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/payments`, data);
+    mutationFn: async ({
+      arId,
+      data,
+    }: {
+      arId: string;
+      data: RecordPaymentInput;
+    }) => {
+      const response = await axiosInstance.post(
+        `${ACCOUNTS_RECEIVABLE_URL}/${arId}/record_payment/`,
+        data
+      );
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate and refetch relevant queries
-      queryClient.invalidateQueries({ queryKey: arKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: arKeys.summary() });
-      queryClient.invalidateQueries({ queryKey: arKeys.aging() });
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.summary(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: customerPaymentKeys.lists(),
+      });
+      toast.success("Payment recorded successfully");
+    },
+    onError: () => {
+      toast.error("Failed to record payment");
     },
   });
 };
 
-// Add collection activity
-export const useAddCollectionActivity = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: CollectionActivityFormData): Promise<{ data: CollectionActivity }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/collection-activities`, data);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: arKeys.collections() });
-      queryClient.invalidateQueries({ queryKey: arKeys.lists() });
-    },
-  });
-};
-
-// Update collection status
+/**
+ * Update collection status
+ */
 export const useUpdateCollectionStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       arId,
-      status,
-      notes
+      data,
     }: {
       arId: string;
-      status: string;
-      notes?: string;
-    }): Promise<{ data: AccountsReceivable }> => {
-      const response = await AxiosWithToken.patch(`${AR_ENDPOINT}/${arId}/collection-status`, {
-        collection_status: status,
-        collection_notes: notes,
-      });
+      data: UpdateCollectionStatusInput;
+    }) => {
+      const response = await axiosInstance.patch(
+        `${ACCOUNTS_RECEIVABLE_URL}/${arId}/update_collection_status/`,
+        data
+      );
       return response.data;
     },
-    onSuccess: (_, { arId }) => {
-      queryClient.invalidateQueries({ queryKey: arKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: arKeys.detail(arId) });
-      queryClient.invalidateQueries({ queryKey: arKeys.summary() });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.detail(variables.arId),
+      });
+      toast.success("Collection status updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update collection status");
     },
   });
 };
 
-// Write off AR
+/**
+ * Write off AR
+ */
 export const useWriteOffAR = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: WriteOffData): Promise<{ data: AccountsReceivable }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/${data.ar_id}/write-off`, data);
+    mutationFn: async ({ arId, data }: { arId: string; data: WriteOffInput }) => {
+      const response = await axiosInstance.post(
+        `${ACCOUNTS_RECEIVABLE_URL}/${arId}/write_off/`,
+        data
+      );
       return response.data;
     },
-    onSuccess: (_, data) => {
-      queryClient.invalidateQueries({ queryKey: arKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: arKeys.detail(data.ar_id) });
-      queryClient.invalidateQueries({ queryKey: arKeys.summary() });
-      queryClient.invalidateQueries({ queryKey: arKeys.aging() });
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.summary(),
+      });
+      toast.success("AR written off successfully");
+    },
+    onError: () => {
+      toast.error("Failed to write off AR");
     },
   });
 };
 
-// Send reminder/dunning letter
+/**
+ * Send payment reminder
+ */
 export const useSendReminder = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       arId,
-      template,
-      method,
-      customMessage
+      data,
     }: {
       arId: string;
-      template: string;
-      method: 'EMAIL' | 'MAIL' | 'FAX';
-      customMessage?: string;
-    }): Promise<{ data: DunningLetter }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/${arId}/send-reminder`, {
-        template_type: template,
-        delivery_method: method,
-        custom_message: customMessage,
-      });
+      data: SendReminderInput;
+    }) => {
+      const response = await axiosInstance.post(
+        `${ACCOUNTS_RECEIVABLE_URL}/${arId}/send_reminder/`,
+        data
+      );
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: arKeys.dunningLetters() });
-      queryClient.invalidateQueries({ queryKey: arKeys.collections() });
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: dunningLetterKeys.lists(),
+      });
+      toast.success("Payment reminder sent successfully");
+    },
+    onError: () => {
+      toast.error("Failed to send payment reminder");
     },
   });
 };
 
-// Create credit memo
+// ==================== Customer Payment Hooks ====================
+
+/**
+ * Get list of customer payments
+ */
+export const useGetCustomerPayments = (filters: PaymentFilters = {}) => {
+  return useQuery<PaymentListResponse>({
+    queryKey: customerPaymentKeys.list(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+
+      if (filters.customer_id)
+        params.append("customer_id", filters.customer_id);
+      if (filters.invoice_id) params.append("invoice_id", filters.invoice_id);
+      if (filters.payment_method && filters.payment_method !== "all")
+        params.append("payment_method", filters.payment_method);
+      if (filters.date_from) params.append("date_from", filters.date_from);
+      if (filters.date_to) params.append("date_to", filters.date_to);
+      if (filters.page) params.append("page", filters.page.toString());
+      if (filters.page_size)
+        params.append("page_size", filters.page_size.toString());
+
+      const response = await axiosInstance.get(
+        `${CUSTOMER_PAYMENTS_URL}/?${params}`
+      );
+      return response.data;
+    },
+  });
+};
+
+/**
+ * Get single customer payment by ID
+ */
+export const useGetCustomerPaymentById = (id: string) => {
+  return useQuery<PaymentDetailResponse>({
+    queryKey: customerPaymentKeys.detail(id),
+    queryFn: async () => {
+      const response = await axiosInstance.get(
+        `${CUSTOMER_PAYMENTS_URL}/${id}/`
+      );
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+// ==================== Collection Activity Hooks ====================
+
+/**
+ * Get collection activities
+ */
+export const useGetCollectionActivities = (arId?: string) => {
+  return useQuery<CollectionActivityListResponse>({
+    queryKey: collectionActivityKeys.list(arId),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (arId) params.append("ar_id", arId);
+
+      const response = await axiosInstance.get(
+        `${COLLECTION_ACTIVITIES_URL}/?${params}`
+      );
+      return response.data;
+    },
+  });
+};
+
+/**
+ * Create collection activity
+ */
+export const useCreateCollectionActivity = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CreateCollectionActivityInput) => {
+      const response = await axiosInstance.post(
+        `${COLLECTION_ACTIVITIES_URL}/`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: collectionActivityKeys.lists(),
+      });
+      toast.success("Collection activity recorded successfully");
+    },
+    onError: () => {
+      toast.error("Failed to record collection activity");
+    },
+  });
+};
+
+// ==================== Dunning Letter Hooks ====================
+
+/**
+ * Get dunning letters
+ */
+export const useGetDunningLetters = (arId?: string) => {
+  return useQuery<DunningLetterListResponse>({
+    queryKey: dunningLetterKeys.list(arId),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (arId) params.append("ar_id", arId);
+
+      const response = await axiosInstance.get(
+        `${DUNNING_LETTERS_URL}/?${params}`
+      );
+      return response.data;
+    },
+  });
+};
+
+// ==================== Credit Memo Hooks ====================
+
+/**
+ * Get credit memos
+ */
+export const useGetCreditMemos = (customerId?: string) => {
+  return useQuery<CreditMemoListResponse>({
+    queryKey: creditMemoKeys.list(customerId),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (customerId) params.append("customer_id", customerId);
+
+      const response = await axiosInstance.get(
+        `${CREDIT_MEMOS_URL}/?${params}`
+      );
+      return response.data;
+    },
+  });
+};
+
+/**
+ * Create credit memo
+ */
 export const useCreateCreditMemo = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      customer_id: string;
-      invoice_id?: string;
-      credit_amount: number;
-      reason: string;
-      description: string;
-      line_items: Array<{
-        description: string;
-        quantity: number;
-        unit_price: number;
-        line_total: number;
-        reason?: string;
-      }>;
-    }): Promise<{ data: CreditMemo }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/credit-memos`, data);
+    mutationFn: async (data: CreateCreditMemoInput) => {
+      const response = await axiosInstance.post(`${CREDIT_MEMOS_URL}/`, data);
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: arKeys.creditMemos() });
-      queryClient.invalidateQueries({ queryKey: arKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: arKeys.summary() });
-    },
-  });
-};
-
-// Apply credit memo
-export const useApplyCreditMemo = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      creditMemoId,
-      arId,
-      amount
-    }: {
-      creditMemoId: string;
-      arId: string;
-      amount: number;
-    }): Promise<{ data: CreditMemo }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/credit-memos/${creditMemoId}/apply`, {
-        ar_id: arId,
-        amount,
+      queryClient.invalidateQueries({ queryKey: creditMemoKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.lists(),
       });
-      return response.data;
+      toast.success("Credit memo created successfully");
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: arKeys.creditMemos() });
-      queryClient.invalidateQueries({ queryKey: arKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: arKeys.summary() });
+    onError: () => {
+      toast.error("Failed to create credit memo");
     },
   });
 };
 
-// Create payment plan
+// ==================== Payment Plan Hooks ====================
+
+/**
+ * Get payment plans
+ */
+export const useGetPaymentPlans = (arId?: string) => {
+  return useQuery<PaymentPlanListResponse>({
+    queryKey: paymentPlanKeys.list(arId),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (arId) params.append("ar_id", arId);
+
+      const response = await axiosInstance.get(`${PAYMENT_PLANS_URL}/?${params}`);
+      return response.data;
+    },
+  });
+};
+
+/**
+ * Create payment plan
+ */
 export const useCreatePaymentPlan = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      customer_id: string;
-      ar_id: string;
-      total_amount: number;
-      down_payment?: number;
-      installment_amount: number;
-      number_of_installments: number;
-      frequency: string;
-      start_date: string;
-      interest_rate?: number;
-      late_fee_amount?: number;
-      grace_period_days?: number;
-    }): Promise<{ data: PaymentPlan }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/payment-plans`, data);
+    mutationFn: async (data: CreatePaymentPlanInput) => {
+      const response = await axiosInstance.post(`${PAYMENT_PLANS_URL}/`, data);
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: arKeys.paymentPlans() });
-      queryClient.invalidateQueries({ queryKey: arKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: paymentPlanKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: accountsReceivableKeys.lists(),
+      });
+      toast.success("Payment plan created successfully");
+    },
+    onError: () => {
+      toast.error("Failed to create payment plan");
     },
   });
 };
 
-// Generate AR statement
-export const useGenerateStatement = () => {
+/**
+ * Update payment plan
+ */
+export const useUpdatePaymentPlan = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
-      customerId,
-      statementDate,
-      periodStart,
-      periodEnd,
-      emailToCustomer,
-      includeDetails
+      id,
+      data,
     }: {
-      customerId: string;
-      statementDate: string;
-      periodStart: string;
-      periodEnd: string;
-      emailToCustomer: boolean;
-      includeDetails: boolean;
-    }): Promise<{ data: ARStatement }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/statements`, {
-        customer_id: customerId,
-        statement_date: statementDate,
-        statement_period_start: periodStart,
-        statement_period_end: periodEnd,
-        email_to_customer: emailToCustomer,
-        include_details: includeDetails,
-      });
+      id: string;
+      data: Partial<CreatePaymentPlanInput>;
+    }) => {
+      const response = await axiosInstance.patch(
+        `${PAYMENT_PLANS_URL}/${id}/`,
+        data
+      );
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: arKeys.statements() });
+      queryClient.invalidateQueries({ queryKey: paymentPlanKeys.lists() });
+      toast.success("Payment plan updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update payment plan");
     },
   });
 };
 
-// Bulk operations
-export const useBulkAROperations = () => {
+/**
+ * Delete payment plan
+ */
+export const useDeletePaymentPlan = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      action,
-      arIds,
-      data
-    }: {
-      action: 'send_reminder' | 'update_status' | 'assign_collector' | 'write_off';
-      arIds: string[];
-      data?: any;
-    }): Promise<{ success: number; errors: string[] }> => {
-      const response = await AxiosWithToken.post(`${AR_ENDPOINT}/bulk-operations`, {
-        action,
-        ar_ids: arIds,
-        data,
-      });
+    mutationFn: async (id: string) => {
+      const response = await axiosInstance.delete(`${PAYMENT_PLANS_URL}/${id}/`);
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: arKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: arKeys.summary() });
+      queryClient.invalidateQueries({ queryKey: paymentPlanKeys.lists() });
+      toast.success("Payment plan deleted successfully");
     },
-  });
-};
-
-// Export AR data
-export const useExportARData = () => {
-  return useMutation({
-    mutationFn: async (params: {
-      format: "csv" | "xlsx";
-      filters?: ARFilters;
-      includePayments?: boolean;
-      includeActivities?: boolean;
-    }): Promise<Blob> => {
-      const queryParams = new URLSearchParams();
-      queryParams.append("format", params.format);
-
-      if (params.includePayments) queryParams.append("include_payments", "true");
-      if (params.includeActivities) queryParams.append("include_activities", "true");
-
-      if (params.filters?.customer_id) {
-        queryParams.append("customer_id", params.filters.customer_id);
-      }
-      if (params.filters?.status?.length) {
-        queryParams.append("status", params.filters.status.join(","));
-      }
-      if (params.filters?.date_from) {
-        queryParams.append("date_from", params.filters.date_from);
-      }
-      if (params.filters?.date_to) {
-        queryParams.append("date_to", params.filters.date_to);
-      }
-
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/export?${queryParams.toString()}`, {
-        responseType: "blob",
-      });
-
-      return response.data;
+    onError: () => {
+      toast.error("Failed to delete payment plan");
     },
-  });
-};
-
-// Search AR records (for autocomplete)
-export const useSearchARRecords = (query: string) => {
-  return useQuery({
-    queryKey: [...arKeys.all, "search", query],
-    queryFn: async (): Promise<{ data: AccountsReceivable[] }> => {
-      if (!query || query.length < 2) {
-        return { data: [] };
-      }
-
-      const response = await AxiosWithToken.get(`${AR_ENDPOINT}/search`, {
-        params: { q: query, limit: 10 },
-      });
-      return response.data;
-    },
-    enabled: query.length >= 2,
   });
 };

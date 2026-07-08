@@ -1,418 +1,480 @@
+/**
+ * Accounts Receivable Types
+ * TypeScript interfaces for AR models, customers, invoices, payments, and collection management
+ */
+
+// ==================== Customer Types ====================
+
+export type CustomerType = "individual" | "organization" | "government" | "ngo";
+
+export interface Customer {
+  id: string;
+  customer_code: string;
+  customer_name: string;
+  customer_type: CustomerType;
+  contact_person: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code: string;
+  payment_terms: number;
+  credit_limit: string;
+  tax_id: string;
+  is_active: boolean;
+  total_outstanding?: string;
+  overdue_amount?: string;
+  created_datetime: string;
+  updated_datetime: string;
+}
+
+export interface CreateCustomerInput {
+  customer_name: string;
+  customer_type: CustomerType;
+  contact_person?: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postal_code?: string;
+  payment_terms?: number;
+  credit_limit?: string;
+  tax_id?: string;
+  is_active?: boolean;
+}
+
+// ==================== Invoice Types ====================
+
+export type InvoiceType = "project_invoice" | "adhoc_invoice" | "expense_recovery";
+export type InvoiceStatus = "draft" | "sent" | "partially_paid" | "paid" | "overdue" | "cancelled";
+
+export interface InvoiceLine {
+  id: string;
+  line_number: number;
+  description: string;
+  quantity: string;
+  unit_price: string;
+  line_total: string;
+  item?: string;
+}
+
+export interface Invoice {
+  id: string;
+  invoice_number: string;
+  customer: string;
+  customer_name?: string;
+  project?: string;
+  invoice_type: InvoiceType;
+  invoice_date: string;
+  due_date: string;
+  description: string;
+  subtotal: string;
+  tax_rate: string;
+  tax_amount: string;
+  total_amount: string;
+  paid_amount: string;
+  outstanding_amount: string;
+  status: InvoiceStatus;
+  payment_terms: number;
+  notes: string;
+  is_overdue?: boolean;
+  days_overdue?: number;
+  lines?: InvoiceLine[];
+  created_datetime: string;
+  updated_datetime: string;
+}
+
+export interface CreateInvoiceInput {
+  customer: string;
+  project?: string;
+  invoice_type: InvoiceType;
+  invoice_date: string;
+  due_date: string;
+  description?: string;
+  tax_rate?: string;
+  payment_terms?: number;
+  notes?: string;
+  lines: {
+    line_number: number;
+    description: string;
+    quantity: string;
+    unit_price: string;
+    item?: string;
+  }[];
+}
+
+// ==================== Accounts Receivable Types ====================
+
+export type ARStatus = "current" | "overdue" | "paid" | "partially_paid" | "written_off" | "disputed";
+export type AgingBucket = "current" | "past_due_30" | "past_due_60" | "past_due_90" | "past_due_120";
+export type CollectionStatus =
+  | "not_started"
+  | "first_notice_sent"
+  | "second_notice_sent"
+  | "final_notice_sent"
+  | "in_negotiation"
+  | "payment_plan_active"
+  | "legal_action"
+  | "resolved";
+
 export interface AccountsReceivable {
   id: string;
-  customer_id: string;
-  customer_name: string;
-  invoice_id?: string;
+  customer: string;
+  customer_name?: string;
+  invoice: string;
   invoice_number?: string;
-  transaction_type: ARTransactionType;
+  transaction_type: string;
   transaction_date: string;
   due_date: string;
-
-  // Financial Information
-  original_amount: number;
-  current_balance: number;
-  amount_paid: number;
-  amount_due: number;
-
-  // Aging Information
+  original_amount: string;
+  current_balance: string;
+  amount_paid: string;
+  amount_due: string;
   aging_bucket: AgingBucket;
   days_outstanding: number;
-
-  // Status and Terms
   status: ARStatus;
-  payment_terms: string;
+  payment_terms: number;
   currency: string;
-
-  // Collection Information
   collection_status: CollectionStatus;
+  collection_notes: string;
   last_contact_date?: string;
   next_follow_up_date?: string;
-  collection_notes?: string;
   assigned_collector?: string;
-
-  // Metadata
-  created_at: string;
-  updated_at: string;
-  created_by: string;
+  assigned_collector_name?: string;
+  is_overdue?: boolean;
+  created_datetime: string;
+  updated_datetime: string;
 }
 
-export type ARTransactionType =
-  | 'INVOICE'
-  | 'CREDIT_MEMO'
-  | 'PAYMENT'
-  | 'ADJUSTMENT'
-  | 'REFUND'
-  | 'WRITE_OFF';
-
-export type ARStatus =
-  | 'OPEN'
-  | 'PAID'
-  | 'PARTIAL'
-  | 'OVERDUE'
-  | 'DISPUTED'
-  | 'WRITTEN_OFF'
-  | 'CANCELLED';
-
-export type AgingBucket =
-  | 'CURRENT'      // 0-30 days
-  | 'PAST_DUE_30'  // 31-60 days
-  | 'PAST_DUE_60'  // 61-90 days
-  | 'PAST_DUE_90'  // 91-120 days
-  | 'PAST_DUE_120'; // 120+ days
-
-export type CollectionStatus =
-  | 'NOT_STARTED'
-  | 'IN_PROGRESS'
-  | 'FIRST_NOTICE_SENT'
-  | 'SECOND_NOTICE_SENT'
-  | 'FINAL_NOTICE_SENT'
-  | 'PAYMENT_PLAN'
-  | 'LEGAL_ACTION'
-  | 'COLLECTION_AGENCY'
-  | 'RESOLVED';
-
-export interface ARPayment {
-  id: string;
-  ar_id: string;
-  customer_id: string;
-  payment_date: string;
-  amount: number;
-  payment_method: PaymentMethod;
-  reference_number?: string;
-  check_number?: string;
-  deposit_date?: string;
-  bank_account?: string;
-  notes?: string;
-
-  // Allocation to invoices
-  allocations: PaymentAllocation[];
-
-  // Status
-  status: PaymentStatus;
-  created_at: string;
-  created_by: string;
+export interface ARSummary {
+  total_outstanding: string;
+  total_overdue: string;
+  current: string;
+  past_due_30: string;
+  past_due_60: string;
+  past_due_90: string;
+  past_due_120: string;
+  total_customers: number;
+  average_days_outstanding: number;
+  total_receivables: number;
 }
 
-export interface PaymentAllocation {
-  invoice_id: string;
-  invoice_number: string;
-  allocated_amount: number;
-  original_invoice_amount: number;
-  remaining_balance: number;
-}
+// ==================== Payment Types ====================
 
 export type PaymentMethod =
-  | 'CASH'
-  | 'CHECK'
-  | 'CREDIT_CARD'
-  | 'ACH'
-  | 'WIRE_TRANSFER'
-  | 'PAYPAL'
-  | 'STRIPE'
-  | 'OTHER';
+  | "cash"
+  | "check"
+  | "bank_transfer"
+  | "credit_card"
+  | "mobile_money"
+  | "other";
 
-export type PaymentStatus =
-  | 'PENDING'
-  | 'CLEARED'
-  | 'BOUNCED'
-  | 'REVERSED'
-  | 'CANCELLED';
-
-export interface ARStatement {
+export interface CustomerPayment {
   id: string;
-  customer_id: string;
-  customer_name: string;
-  statement_date: string;
-  statement_period_start: string;
-  statement_period_end: string;
-
-  // Balance Information
-  beginning_balance: number;
-  ending_balance: number;
-  total_charges: number;
-  total_payments: number;
-  total_adjustments: number;
-
-  // Aging Summary
-  current_amount: number;
-  past_due_30: number;
-  past_due_60: number;
-  past_due_90: number;
-  past_due_120: number;
-
-  // Statement Details
-  line_items: ARStatementLineItem[];
-
-  // Delivery Information
-  email_sent: boolean;
-  email_sent_date?: string;
-  print_sent: boolean;
-  print_sent_date?: string;
-
-  created_at: string;
-  created_by: string;
+  payment_number: string;
+  customer: string;
+  customer_name?: string;
+  invoice: string;
+  invoice_number?: string;
+  payment_date: string;
+  amount: string;
+  payment_method: PaymentMethod;
+  reference_number: string;
+  notes: string;
+  journal_entry?: string;
+  recorded_by: string;
+  recorded_by_name?: string;
+  created_datetime: string;
 }
 
-export interface ARStatementLineItem {
-  transaction_date: string;
-  transaction_type: ARTransactionType;
-  description: string;
+export interface RecordPaymentInput {
+  accounts_receivable_id: string;
+  payment_date: string;
+  amount: string;
+  payment_method: PaymentMethod;
   reference_number?: string;
-  charges: number;
-  payments: number;
-  balance: number;
+  notes?: string;
 }
+
+// ==================== Collection Activity Types ====================
+
+export type ActivityType =
+  | "phone_call"
+  | "email"
+  | "letter"
+  | "visit"
+  | "promise_to_pay"
+  | "dispute_resolution"
+  | "legal_notice";
 
 export interface CollectionActivity {
   id: string;
-  customer_id: string;
-  ar_id?: string;
-  activity_type: CollectionActivityType;
+  accounts_receivable: string;
   activity_date: string;
-  description: string;
-  notes?: string;
-  next_follow_up_date?: string;
-  assigned_to: string;
-  status: CollectionActivityStatus;
-
-  // Contact Information
-  contact_method?: ContactMethod;
-  contact_person?: string;
-  phone_number?: string;
-  email_address?: string;
-
-  created_at: string;
-  created_by: string;
+  activity_type: ActivityType;
+  notes: string;
+  promise_to_pay_date?: string;
+  promise_amount?: string;
+  performed_by: string;
+  performed_by_name?: string;
+  created_datetime: string;
 }
 
-export type CollectionActivityType =
-  | 'PHONE_CALL'
-  | 'EMAIL'
-  | 'LETTER'
-  | 'IN_PERSON'
-  | 'LEGAL_NOTICE'
-  | 'PAYMENT_PLAN'
-  | 'SETTLEMENT'
-  | 'WRITE_OFF';
-
-export type CollectionActivityStatus =
-  | 'PLANNED'
-  | 'COMPLETED'
-  | 'CANCELLED'
-  | 'RESCHEDULED';
-
-export type ContactMethod =
-  | 'PHONE'
-  | 'EMAIL'
-  | 'MAIL'
-  | 'FAX'
-  | 'IN_PERSON'
-  | 'TEXT_MESSAGE';
-
-export interface ARSummary {
-  total_outstanding: number;
-  total_overdue: number;
-
-  // Aging Summary
-  current: number;
-  past_due_30: number;
-  past_due_60: number;
-  past_due_90: number;
-  past_due_120: number;
-
-  // Statistics
-  total_customers_with_balance: number;
-  average_days_to_pay: number;
-  collection_effectiveness: number; // Percentage
-
-  // Top customers by outstanding amount
-  top_customers: {
-    customer_id: string;
-    customer_name: string;
-    outstanding_amount: number;
-    days_outstanding: number;
-  }[];
-
-  // Collection metrics
-  collection_metrics: {
-    calls_made: number;
-    emails_sent: number;
-    payments_received: number;
-    promises_to_pay: number;
-    disputes_resolved: number;
-  };
-}
-
-export interface CreditMemo {
-  id: string;
-  credit_memo_number: string;
-  customer_id: string;
-  customer_name: string;
-  invoice_id?: string;
-  invoice_number?: string;
-
-  // Financial Information
-  credit_amount: number;
-  applied_amount: number;
-  unapplied_amount: number;
-
-  // Details
-  credit_date: string;
-  reason: CreditReason;
-  description: string;
-  line_items: CreditMemoLineItem[];
-
-  // Status
-  status: CreditMemoStatus;
-  approved_by?: string;
-  approval_date?: string;
-
-  created_at: string;
-  created_by: string;
-}
-
-export interface CreditMemoLineItem {
-  description: string;
-  quantity: number;
-  unit_price: number;
-  line_total: number;
-  reason?: string;
-}
-
-export type CreditReason =
-  | 'DEFECTIVE_PRODUCT'
-  | 'BILLING_ERROR'
-  | 'RETURN'
-  | 'DISCOUNT'
-  | 'PROMOTIONAL'
-  | 'GOODWILL'
-  | 'OTHER';
-
-export type CreditMemoStatus =
-  | 'DRAFT'
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'APPLIED'
-  | 'CANCELLED';
-
-export interface ARFilters {
-  customer_id?: string;
-  status?: ARStatus[];
-  aging_bucket?: AgingBucket[];
-  collection_status?: CollectionStatus[];
-  date_from?: string;
-  date_to?: string;
-  amount_min?: number;
-  amount_max?: number;
-  overdue_only?: boolean;
-  assigned_collector?: string;
-  search?: string;
-  page?: number;
-  page_size?: number;
-  sort_by?: 'due_date' | 'amount_due' | 'days_outstanding' | 'customer_name';
-  sort_order?: 'asc' | 'desc';
-}
-
-export interface PaymentFormData {
-  customer_id: string;
-  payment_date: string;
-  amount: number;
-  payment_method: PaymentMethod;
-  reference_number?: string;
-  check_number?: string;
-  bank_account?: string;
-  notes?: string;
-  allocations: {
-    invoice_id: string;
-    allocated_amount: number;
-  }[];
-}
-
-export interface CollectionActivityFormData {
-  customer_id: string;
-  ar_id?: string;
-  activity_type: CollectionActivityType;
+export interface CreateCollectionActivityInput {
+  accounts_receivable: string;
   activity_date: string;
-  description: string;
-  notes?: string;
-  next_follow_up_date?: string;
-  contact_method?: ContactMethod;
-  contact_person?: string;
-  phone_number?: string;
-  email_address?: string;
+  activity_type: ActivityType;
+  notes: string;
+  promise_to_pay_date?: string;
+  promise_amount?: string;
 }
 
-export interface WriteOffData {
-  ar_id: string;
-  write_off_amount: number;
-  reason: string;
-  approval_required: boolean;
-  approved_by?: string;
-  notes?: string;
-}
+// ==================== Dunning Letter Types ====================
 
-export interface PaymentPlan {
-  id: string;
-  customer_id: string;
-  ar_id: string;
-  total_amount: number;
-  down_payment?: number;
-  installment_amount: number;
-  number_of_installments: number;
-  frequency: PaymentFrequency;
-  start_date: string;
-
-  // Status
-  status: PaymentPlanStatus;
-  installments_completed: number;
-  remaining_balance: number;
-
-  // Terms
-  interest_rate?: number;
-  late_fee_amount?: number;
-  grace_period_days?: number;
-
-  created_at: string;
-  created_by: string;
-}
-
-export type PaymentFrequency =
-  | 'WEEKLY'
-  | 'BIWEEKLY'
-  | 'MONTHLY'
-  | 'QUARTERLY';
-
-export type PaymentPlanStatus =
-  | 'ACTIVE'
-  | 'COMPLETED'
-  | 'DEFAULTED'
-  | 'CANCELLED';
+export type LetterType = "first_notice" | "second_notice" | "final_notice" | "legal_notice";
+export type DeliveryMethod = "email" | "mail" | "both";
 
 export interface DunningLetter {
   id: string;
-  customer_id: string;
-  template_type: DunningLetterType;
+  accounts_receivable: string;
+  letter_type: LetterType;
   sent_date: string;
-  delivery_method: 'EMAIL' | 'MAIL' | 'FAX';
-
-  // Content
-  subject: string;
-  body: string;
-  amount_due: number;
-  due_date: string;
-
-  // Status
-  delivery_status: 'SENT' | 'DELIVERED' | 'FAILED' | 'BOUNCED';
-  opened?: boolean;
-  opened_date?: string;
-
-  created_at: string;
-  created_by: string;
+  delivery_method: DeliveryMethod;
+  recipient_email: string;
+  recipient_address: string;
+  content: string;
+  sent_by: string;
+  sent_by_name?: string;
+  created_datetime: string;
 }
 
-export type DunningLetterType =
-  | 'FIRST_NOTICE'
-  | 'SECOND_NOTICE'
-  | 'FINAL_NOTICE'
-  | 'DEMAND_LETTER'
-  | 'LEGAL_NOTICE';
+export interface SendReminderInput {
+  template_type: LetterType;
+  delivery_method: DeliveryMethod;
+  custom_message?: string;
+}
+
+// ==================== Credit Memo Types ====================
+
+export type CreditMemoStatus = "open" | "applied" | "closed";
+
+export interface CreditMemo {
+  id: string;
+  memo_number: string;
+  customer: string;
+  customer_name?: string;
+  invoice?: string;
+  invoice_number?: string;
+  memo_date: string;
+  credit_amount: string;
+  amount_applied: string;
+  amount_remaining: string;
+  reason: string;
+  description: string;
+  status: CreditMemoStatus;
+  journal_entry?: string;
+  created_by: string;
+  created_by_name?: string;
+  created_datetime: string;
+}
+
+export interface CreateCreditMemoInput {
+  customer: string;
+  invoice?: string;
+  memo_date: string;
+  credit_amount: string;
+  reason: string;
+  description?: string;
+}
+
+// ==================== Payment Plan Types ====================
+
+export type PaymentPlanStatus = "active" | "completed" | "defaulted" | "cancelled";
+export type InstallmentFrequency = "weekly" | "bi_weekly" | "monthly" | "quarterly";
+
+export interface PaymentPlan {
+  id: string;
+  accounts_receivable: string;
+  plan_number: string;
+  start_date: string;
+  total_amount: string;
+  down_payment: string;
+  installment_amount: string;
+  number_of_installments: number;
+  frequency: InstallmentFrequency;
+  interest_rate: string;
+  late_fee_amount: string;
+  grace_period_days: number;
+  status: PaymentPlanStatus;
+  notes: string;
+  created_by: string;
+  created_by_name?: string;
+  created_datetime: string;
+}
+
+export interface CreatePaymentPlanInput {
+  accounts_receivable: string;
+  start_date: string;
+  total_amount: string;
+  down_payment?: string;
+  installment_amount: string;
+  number_of_installments: number;
+  frequency: InstallmentFrequency;
+  interest_rate?: string;
+  late_fee_amount?: string;
+  grace_period_days?: number;
+  notes?: string;
+}
+
+// ==================== Action Input Types ====================
+
+export interface UpdateCollectionStatusInput {
+  collection_status: CollectionStatus;
+  collection_notes?: string;
+  next_follow_up_date?: string;
+}
+
+export interface WriteOffInput {
+  ar_id: string;
+  write_off_amount: string;
+  write_off_reason: string;
+  write_off_date: string;
+}
+
+// ==================== Filter Types ====================
+
+export interface ARFilters {
+  customer_id?: string;
+  status?: ARStatus | "all";
+  aging_bucket?: AgingBucket | "all";
+  collection_status?: CollectionStatus | "all";
+  date_from?: string;
+  date_to?: string;
+  amount_min?: string;
+  amount_max?: string;
+  overdue_only?: boolean;
+  assigned_collector?: string;
+  search?: string;
+  sort_by?: string;
+  sort_order?: "asc" | "desc";
+  page?: number;
+  page_size?: number;
+}
+
+export interface CustomerFilters {
+  customer_type?: CustomerType | "all";
+  is_active?: boolean;
+  has_overdue?: boolean;
+  search?: string;
+  page?: number;
+  page_size?: number;
+}
+
+export interface InvoiceFilters {
+  customer_id?: string;
+  project_id?: string;
+  invoice_type?: InvoiceType | "all";
+  status?: InvoiceStatus | "all";
+  overdue_only?: boolean;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+  page?: number;
+  page_size?: number;
+}
+
+export interface PaymentFilters {
+  customer_id?: string;
+  invoice_id?: string;
+  payment_method?: PaymentMethod | "all";
+  date_from?: string;
+  date_to?: string;
+  page?: number;
+  page_size?: number;
+}
+
+// ==================== Response Types ====================
+
+export interface PaginationMeta {
+  page: number;
+  page_size: number;
+  total: number;
+  pages: number;
+}
+
+export interface ARListResponse {
+  data: AccountsReceivable[];
+  message: string;
+  pagination: PaginationMeta;
+}
+
+export interface ARDetailResponse {
+  data: AccountsReceivable;
+  message: string;
+}
+
+export interface ARSummaryResponse {
+  data: ARSummary;
+  message: string;
+}
+
+export interface CustomerListResponse {
+  data: Customer[];
+  message: string;
+  pagination: PaginationMeta;
+}
+
+export interface CustomerDetailResponse {
+  data: Customer;
+  message: string;
+}
+
+export interface InvoiceListResponse {
+  data: Invoice[];
+  message: string;
+  pagination: PaginationMeta;
+}
+
+export interface InvoiceDetailResponse {
+  data: Invoice;
+  message: string;
+}
+
+export interface PaymentListResponse {
+  data: CustomerPayment[];
+  message: string;
+  pagination: PaginationMeta;
+}
+
+export interface PaymentDetailResponse {
+  data: CustomerPayment;
+  message: string;
+}
+
+export interface CollectionActivityListResponse {
+  data: CollectionActivity[];
+  message: string;
+  pagination?: PaginationMeta;
+}
+
+export interface DunningLetterListResponse {
+  data: DunningLetter[];
+  message: string;
+  pagination?: PaginationMeta;
+}
+
+export interface CreditMemoListResponse {
+  data: CreditMemo[];
+  message: string;
+  pagination?: PaginationMeta;
+}
+
+export interface PaymentPlanListResponse {
+  data: PaymentPlan[];
+  message: string;
+  pagination?: PaginationMeta;
+}

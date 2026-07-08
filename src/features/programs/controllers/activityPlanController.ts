@@ -404,6 +404,45 @@ export const useDownloadActivities = () => {
   return { downloadActivityPlans, data, isLoading, isSuccess, error };
 };
 
+// ===== MONTHLY ACTIVITY PLANS HOOKS =====
+
+/**
+ * Fetch all monthly activity plans for a specific work plan activity
+ * This hook returns the monthly execution records created for a planned activity
+ * @param workPlanActivityId - The ID of the work plan activity
+ * @param enabled - Whether the query should be enabled
+ */
+export const useMonthlyActivityPlansByActivity = (
+  workPlanActivityId: string,
+  enabled = true
+) => {
+  return useQuery<TPaginatedResponse<TActivityPlanData>>({
+    queryKey: ["monthly-activity-plans", workPlanActivityId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get("/programs/plans/activity/", {
+          params: {
+            work_plan_activity: workPlanActivityId,
+            is_unplanned: false,
+            page: 1,
+            size: 100, // Get all monthly records (12 per activity typically)
+          },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
+      }
+    },
+    enabled: enabled && !!workPlanActivityId,
+    refetchOnWindowFocus: false,
+    staleTime: 30000, // 30 seconds
+    cacheTime: 300000, // 5 minutes
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllActivityPlansQuery = useGetAllActivityPlans;
 export const useGetSingleActivityPlanQuery = useGetSingleActivityPlan;

@@ -57,9 +57,11 @@ export default function CreateActivityPlan() {
     const query = useQuery();
     const id = query.get("id");
     const planId = query.get("plan");
+    const activityId = query.get("activity"); // work_plan_activity ID for creating monthly records
     const activityType = query.get("type"); // "unplanned" for unplanned activities
 
     const isUnplanned = activityType === "unplanned";
+    const isCreatingMonthlyRecord = !!activityId && !id; // Creating new monthly record
 
     const { data: activityPlan } = useGetSingleActivityPlan(
         id || "", { enabled: !!id }
@@ -108,25 +110,33 @@ export default function CreateActivityPlan() {
         },
     });
 
-    // Get expected result from work plan activity
-    const expectedResult = useMemo(() => {
-        if (!workPlan?.data?.activities) return "";
+    // Get the work plan activity data for pre-populating form
+    const workPlanActivity = useMemo(() => {
+        if (!workPlan?.data?.activities) return null;
+
+        // If creating monthly record, find activity by activityId
+        if (isCreatingMonthlyRecord && activityId) {
+            return workPlan.data.activities.find(a => a.id === activityId);
+        }
 
         // If editing, find the activity by the activity plan's work_plan_activity
         if (activityPlan?.data?.work_plan_activity) {
-            const activity = workPlan.data.activities.find(
+            return workPlan.data.activities.find(
                 a => a.id === activityPlan.data.work_plan_activity
             );
-            return activity?.expected_result || "";
         }
 
-        return "";
-    }, [workPlan, activityPlan]);
+        return null;
+    }, [workPlan, activityPlan, activityId, isCreatingMonthlyRecord]);
+
+    // Get expected result from work plan activity
+    const expectedResult = workPlanActivity?.expected_result || "";
 
     const { handleSubmit, reset } = form;
 
     useEffect(() => {
         if (activityPlan && workPlan) {
+            // Editing existing activity plan
             const prevFields = activityPlan.data;
 
             reset({
@@ -144,8 +154,27 @@ export default function CreateActivityPlan() {
                 follow_up_action: prevFields.follow_up_actions || "",
                 comments: prevFields.comments || "",
             });
+        } else if (workPlan && !id && workPlanActivity) {
+            // Creating new monthly record - pre-populate from work plan activity
+            reset({
+                project: workPlan.data.project?.id || "",
+                ir: workPlanActivity.ir || "",
+                activity_code: workPlanActivity.activity_number || "",
+                activity_description: workPlanActivity.activity || workPlanActivity.activity_justification || "",
+                start_date: "",
+                end_date: "",
+                responsible_person: workPlanActivity.lead_person || "",
+                is_resources_requied: "false",
+                is_memo_required: "false",
+                is_ea_required: "false",
+                is_results_achieved: "",
+                follow_up_action: "",
+                comments: "",
+                objectives_sub_objectives: workPlanActivity.objectives_sub_objectives || "",
+                budget_line: workPlanActivity.budget_line?.name || workPlanActivity.budget_line || "",
+            });
         } else if (workPlan && !id) {
-            // Pre-populate from work plan when creating new activity
+            // Pre-populate from work plan when creating new activity (no work plan activity)
             const workPlanData = workPlan.data;
 
             reset({
@@ -164,7 +193,7 @@ export default function CreateActivityPlan() {
                 comments: "",
             });
         }
-    }, [activityPlan, workPlan, id, reset]);
+    }, [activityPlan, workPlan, workPlanActivity, id, reset]);
 
     const goBack = () => {
         router.back();
@@ -210,6 +239,11 @@ export default function CreateActivityPlan() {
                 if (workPlanId) {
                     submitData.work_plan = workPlanId;
                     submitData.activity_type = "PLANNED";
+
+                    // Link to work_plan_activity if creating monthly record
+                    if (activityId) {
+                        submitData.work_plan_activity = activityId;
+                    }
                 }
             }
 
@@ -264,14 +298,21 @@ export default function CreateActivityPlan() {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Card className="space-y-10 p-10">
                         {/* Activity Type Header */}
-                        <div className={`py-5 px-2.5 rounded-md ${isUnplanned ? 'bg-orange-100' : 'bg-blue-100'}`}>
-                            <h2 className={`text-lg font-bold ${isUnplanned ? 'text-orange-600' : 'text-blue-600'}`}>
-                                {isUnplanned ? 'Create Unplanned Activity' : 'Create Planned Activity'}
+                        <div className={`py-5 px-2.5 rounded-md ${isUnplanned ? 'bg-orange-100' : isCreatingMonthlyRecord ? 'bg-green-100' : 'bg-blue-100'}`}>
+                            <h2 className={`text-lg font-bold ${isUnplanned ? 'text-orange-600' : isCreatingMonthlyRecord ? 'text-green-600' : 'text-blue-600'}`}>
+                                {isUnplanned
+                                    ? 'Create Unplanned Activity'
+                                    : isCreatingMonthlyRecord
+                                        ? `Record Monthly Activity Execution - ${workPlanActivity?.activity_number || 'Activity'}`
+                                        : id ? 'Edit Activity Plan' : 'Create Planned Activity'
+                                }
                             </h2>
                             <p className="text-sm text-gray-600 mt-1">
                                 {isUnplanned
                                     ? 'This activity is not part of the original work plan and will be marked as unplanned.'
-                                    : 'This activity is linked to the work plan.'
+                                    : isCreatingMonthlyRecord
+                                        ? 'Record the execution details for this activity for a specific month. Fill in the dates, resources used, and results achieved.'
+                                        : 'This activity is linked to the work plan.'
                                 }
                             </p>
                         </div>

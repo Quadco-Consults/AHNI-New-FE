@@ -63,7 +63,7 @@ export default function DisbursementsPage() {
   // Calculate summary statistics
   const totalDisbursements = disbursements.length;
   const totalValue = disbursements.reduce(
-    (sum: number, d: any) => sum + d.total_amount,
+    (sum: number, d: any) => sum + parseFloat(d.total_amount || 0),
     0
   );
 
@@ -72,14 +72,14 @@ export default function DisbursementsPage() {
   ).length;
   const completedValue = disbursements
     .filter((d: any) => d.status === "COMPLETED")
-    .reduce((sum: number, d: any) => sum + d.total_amount, 0);
+    .reduce((sum: number, d: any) => sum + parseFloat(d.total_amount || 0), 0);
 
   const processingCount = disbursements.filter(
     (d: any) => d.status === "PROCESSING"
   ).length;
   const processingValue = disbursements
     .filter((d: any) => d.status === "PROCESSING")
-    .reduce((sum: number, d: any) => sum + d.total_amount, 0);
+    .reduce((sum: number, d: any) => sum + parseFloat(d.total_amount || 0), 0);
 
   const failedCount = disbursements.filter(
     (d: any) => d.status === "FAILED" || d.status === "CANCELLED" || d.status === "REVERSED"
@@ -135,25 +135,57 @@ export default function DisbursementsPage() {
     {
       header: "Bank Account",
       accessorKey: "bank_account",
-      cell: ({ row }: any) => (
-        <span className="text-sm">{row.original.bank_account || "N/A"}</span>
-      ),
+      cell: ({ row }: any) => {
+        const bankName = row.original.bank_account_name;
+        const accountNumber = row.original.bank_account_number;
+
+        if (bankName || accountNumber) {
+          return (
+            <div className="text-sm">
+              <div className="font-medium">{bankName || "N/A"}</div>
+              {accountNumber && (
+                <div className="text-xs text-muted-foreground">{accountNumber}</div>
+              )}
+            </div>
+          );
+        }
+        return <span className="text-sm text-muted-foreground">N/A</span>;
+      },
     },
     {
       header: "Reference",
       accessorKey: "payment_reference",
-      cell: ({ row }: any) => (
-        <span className="text-sm font-mono">{row.original.payment_reference}</span>
-      ),
+      cell: ({ row }: any) => {
+        const ref = row.original.payment_reference;
+        // Shorten long references for better display
+        if (ref && ref.length > 25) {
+          return (
+            <span className="text-xs font-mono text-muted-foreground" title={ref}>
+              {ref.substring(0, 22)}...
+            </span>
+          );
+        }
+        return <span className="text-sm font-mono">{ref || "N/A"}</span>;
+      },
     },
     {
       header: "Status",
       accessorKey: "status",
-      cell: ({ row }: any) => (
-        <Badge variant={getDisbursementStatusColor(row.original.status)}>
-          {row.original.status}
-        </Badge>
-      ),
+      cell: ({ row }: any) => {
+        const status = row.original.status;
+        if (!status) {
+          return (
+            <Badge variant="outline" className="text-muted-foreground">
+              PENDING
+            </Badge>
+          );
+        }
+        return (
+          <Badge variant={getDisbursementStatusColor(status)}>
+            {status}
+          </Badge>
+        );
+      },
     },
     {
       header: "Actions",

@@ -1361,7 +1361,7 @@ export const departmentalLinks: SidebarItem[] = [
           ]
           },
           {
-            name: "Cash Flow",
+            name: "Cash Flow Analysis",
             path: "/dashboard/finance/dashboards/cash-flow",
             permissions: [
             {
@@ -1379,41 +1379,41 @@ export const departmentalLinks: SidebarItem[] = [
               codenames: ["view_financialdashboard"]
             }
           ]
+          },
+          {
+            name: "Financial Analysis",
+            path: "/dashboard/finance/analysis",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
           }
         ]
       },
       {
-        name: "Grant Operations",
+        name: "Payments & Disbursements",
         permissions: [
         {
           module: "finance",
-          codenames: ["view_financeobligation"]
+          codenames: ["view_paymentdisbursement"]
         }
       ],
         children: [
           {
-            name: "Obligations",
-            path: "/dashboard/finance/obligations",
+            name: "Approved Payment Requests",
+            path: "/dashboard/finance/approved-payment-requests",
             permissions: [
             {
-              module: "finance",
-              codenames: ["view_financeobligation"]
+              module: "adminapp",
+              codenames: ["view_paymentrequest"]
             }
           ]
           },
           {
-            name: "Recorded Expenses",
-            path: "/dashboard/finance/expenditures",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_financeexpenditure"]
-            }
-          ]
-          },
-          {
-            name: "Payment Disbursements",
-            path: "/dashboard/finance/disbursements",
+            name: "Pending Payroll Payments",
+            path: "/dashboard/finance/pending-payments",
             permissions: [
             {
               module: "finance",
@@ -1432,32 +1432,12 @@ export const departmentalLinks: SidebarItem[] = [
           ]
           },
           {
-            name: "Expense Recovery",
-            path: "/dashboard/finance/expense-recovery",
+            name: "Payment Disbursements",
+            path: "/dashboard/finance/disbursements",
             permissions: [
             {
               module: "finance",
-              codenames: ["view_vendorbill"]
-            }
-          ]
-          },
-          {
-            name: "Approved Payment Requests",
-            path: "/dashboard/finance/approved-payment-requests",
-            permissions: [
-            {
-              module: "adminapp",
-              codenames: ["view_paymentrequest"]
-            }
-          ]
-          },
-          {
-            name: "Approved Fund Requests",
-            path: "/dashboard/finance/approved-fund-requests",
-            permissions: [
-            {
-              module: "programs",
-              codenames: ["view_fundrequest"]
+              codenames: ["view_paymentdisbursement"]
             }
           ]
           },
@@ -1484,112 +1464,41 @@ export const departmentalLinks: SidebarItem[] = [
         ]
       },
       {
-        name: "Tax Management",
+        name: "Grant Operations",
         permissions: [
         {
           module: "finance",
-          codenames: ["view_taxtype"]
+          codenames: ["view_financeobligation"]
         }
       ],
         children: [
           {
-            name: "Tax Types",
-            path: "/dashboard/finance/tax-types",
+            name: "Obligations",
+            path: "/dashboard/finance/obligations",
             permissions: [
             {
               module: "finance",
-              codenames: ["view_taxtype"]
+              codenames: ["view_financeobligation"]
             }
           ]
           },
           {
-            name: "Tax Authorities",
-            path: "/dashboard/finance/tax-authorities",
+            name: "Recorded Expenditures",
+            path: "/dashboard/finance/expenditures",
             permissions: [
             {
               module: "finance",
-              codenames: ["view_taxauthority"]
+              codenames: ["view_financeexpenditure"]
             }
           ]
           },
           {
-            name: "Tax Remittance",
-            path: "/dashboard/finance/tax-remittance",
+            name: "Approved Fund Requests",
+            path: "/dashboard/finance/approved-fund-requests",
             permissions: [
             {
-              module: "finance",
-              codenames: ["view_taxremittance"]
-            }
-          ]
-          }
-        ]
-      },
-      {
-        name: "Accounting",
-        permissions: [
-        {
-          module: "finance",
-          codenames: ["view_chartofaccounts"]
-        }
-      ],
-        children: [
-          {
-            name: "Chart of Accounts",
-            path: "/dashboard/finance/chart-of-accounts",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_chartofaccounts"]
-            }
-          ]
-          },
-          {
-            name: "Journal Entries",
-            path: "/dashboard/finance/journal-entries",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_journalentry"]
-            }
-          ]
-          },
-          {
-            name: "Financial Classifications",
-            path: "/dashboard/finance/classifications",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_chartofaccounts"]
-            }
-          ]
-          },
-          {
-            name: "Accounts Receivable",
-            path: "/dashboard/finance/accounts-receivable",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_chartofaccounts"]
-            }
-          ]
-          },
-          {
-            name: "Accounts Payable",
-            path: "/dashboard/finance/accounts-payable",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_chartofaccounts"]
-            }
-          ]
-          },
-          {
-            name: "Fixed Assets",
-            path: "/dashboard/finance/fixed-assets",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_chartofaccounts"]
+              module: "programs",
+              codenames: ["view_fundrequest"]
             }
           ]
           }
@@ -1633,6 +1542,78 @@ export const departmentalLinks: SidebarItem[] = [
               codenames: ["view_chartofaccounts"]
             }
           ]
+          },
+          {
+            name: "Expense Recovery",
+            path: "/dashboard/finance/expense-recovery",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_vendorbill"]
+            }
+          ]
+          }
+        ]
+      },
+      {
+        name: "Accounts Payable",
+        permissions: [
+        {
+          module: "finance",
+          codenames: ["view_chartofaccounts"]
+        }
+      ],
+        children: [
+          {
+            name: "Vendor Bills",
+            path: "/dashboard/finance/accounts-payable",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "AP Aging Report",
+            path: "/dashboard/finance/reports/ap-aging",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          }
+        ]
+      },
+      {
+        name: "Accounts Receivable",
+        permissions: [
+        {
+          module: "finance",
+          codenames: ["view_chartofaccounts"]
+        }
+      ],
+        children: [
+          {
+            name: "Customer Invoicing",
+            path: "/dashboard/finance/accounts-receivable",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "AR Aging Report",
+            path: "/dashboard/finance/reports/ar-aging",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
           }
         ]
       },
@@ -1674,16 +1655,6 @@ export const departmentalLinks: SidebarItem[] = [
               codenames: ["view_chartofaccounts"]
             }
           ]
-          },
-          {
-            name: "Pending Payments",
-            path: "/dashboard/finance/pending-payments",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_chartofaccounts"]
-            }
-          ]
           }
         ]
       },
@@ -1719,6 +1690,108 @@ export const departmentalLinks: SidebarItem[] = [
         ]
       },
       {
+        name: "Accounting Core",
+        permissions: [
+        {
+          module: "finance",
+          codenames: ["view_chartofaccounts"]
+        }
+      ],
+        children: [
+          {
+            name: "Chart of Accounts",
+            path: "/dashboard/finance/chart-of-accounts",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Journal Entries",
+            path: "/dashboard/finance/journal-entries",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_journalentry"]
+            }
+          ]
+          },
+          {
+            name: "Financial Classifications",
+            path: "/dashboard/finance/classifications",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Fixed Assets & Depreciation",
+            path: "/dashboard/finance/fixed-assets",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          }
+        ]
+      },
+      {
+        name: "Tax Management",
+        permissions: [
+        {
+          module: "finance",
+          codenames: ["view_taxtype"]
+        }
+      ],
+        children: [
+          {
+            name: "Tax Types",
+            path: "/dashboard/finance/tax-types",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_taxtype"]
+            }
+          ]
+          },
+          {
+            name: "Tax Authorities",
+            path: "/dashboard/finance/tax-authorities",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_taxauthority"]
+            }
+          ]
+          },
+          {
+            name: "Tax Remittance",
+            path: "/dashboard/finance/tax-remittance",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_taxremittance"]
+            }
+          ]
+          },
+          {
+            name: "Tax Withholdings",
+            path: "/dashboard/finance/tax-withholdings",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_taxtype"]
+            }
+          ]
+          }
+        ]
+      },
+      {
         name: "Integrations",
         permissions: [
         {
@@ -1740,16 +1813,6 @@ export const departmentalLinks: SidebarItem[] = [
           {
             name: "Integration Dashboard",
             path: "/dashboard/finance/integration-dashboard",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_chartofaccounts"]
-            }
-          ]
-          },
-          {
-            name: "Financial Analysis",
-            path: "/dashboard/finance/analysis",
             permissions: [
             {
               module: "finance",
@@ -1819,6 +1882,16 @@ export const departmentalLinks: SidebarItem[] = [
           ]
           },
           {
+            name: "Donor Financial Report",
+            path: "/dashboard/finance/reports/donor-report",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
+          {
             name: "Cash Flow Statement",
             path: "/dashboard/finance/reports/cash-flow",
             permissions: [
@@ -1839,27 +1912,7 @@ export const departmentalLinks: SidebarItem[] = [
           ]
           },
           {
-            name: "Accounts Receivable Aging",
-            path: "/dashboard/finance/reports/ar-aging",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_financialreport"]
-            }
-          ]
-          },
-          {
-            name: "Accounts Payable Aging",
-            path: "/dashboard/finance/reports/ap-aging",
-            permissions: [
-            {
-              module: "finance",
-              codenames: ["view_financialreport"]
-            }
-          ]
-          },
-          {
-            name: "Grant Budget vs Actuals",
+            name: "Budget Variance",
             path: "/dashboard/finance/reports/budget-variance",
             permissions: [
             {

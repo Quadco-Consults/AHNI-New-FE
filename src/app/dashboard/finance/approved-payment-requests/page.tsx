@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import DataTable from "@/components/Table/DataTable";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useGetAllPaymentRequestsQuery } from "@/features/admin/controllers/paymentRequestController";
 import ProcessPaymentRequestDialog from "@/features/finance/components/payments/ProcessPaymentRequestDialog";
-import { CheckCircle2, CreditCard, FileText } from "lucide-react";
+import { CheckCircle2, CreditCard, FileText, Eye } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 export default function ApprovedPaymentRequestsPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [selectedPaymentRequest, setSelectedPaymentRequest] = useState<any>(null);
   const [processDialogOpen, setProcessDialogOpen] = useState(false);
@@ -28,8 +30,30 @@ export default function ApprovedPaymentRequestsPage() {
     setProcessDialogOpen(true);
   };
 
+  const handleCloseDialog = (open: boolean) => {
+    setProcessDialogOpen(open);
+    if (!open) {
+      setSelectedPaymentRequest(null);
+    }
+  };
+
   // Column definitions
   const columns = [
+    {
+      header: "Payment Date",
+      id: "payment_date",
+      accessorKey: "payment_date",
+      cell: ({ row }: any) => {
+        const date = row.getValue("payment_date");
+        return date ? (
+          <span className="text-sm font-medium text-gray-700">
+            {new Date(date).toLocaleDateString()}
+          </span>
+        ) : (
+          <span className="text-sm text-gray-400">—</span>
+        );
+      },
+    },
     {
       header: "Request Type",
       id: "payment_type",
@@ -59,6 +83,9 @@ export default function ApprovedPaymentRequestsPage() {
       id: "beneficiary",
       cell: ({ row }: any) => {
         const payment_items = row.original.payment_items;
+        const payment_reason = row.original.payment_reason || "";
+
+        // Check payment items first
         if (payment_items && payment_items.length > 0) {
           const firstItem = payment_items[0];
           if (payment_items.length === 1) {
@@ -67,6 +94,20 @@ export default function ApprovedPaymentRequestsPage() {
             return <div className="text-sm font-medium">{firstItem.payment_to} <span className="text-gray-500">(+{payment_items.length - 1} more)</span></div>;
           }
         }
+
+        // Fallback: Try to extract vendor/beneficiary from payment reason
+        const vendorMatch = payment_reason.match(/Vendor\s+([A-Z])/i) ||
+                          payment_reason.match(/(\d+)\s+staff/i);
+        if (vendorMatch) {
+          const beneficiary = vendorMatch[0];
+          return <div className="text-sm font-medium text-gray-700">{beneficiary}</div>;
+        }
+
+        // Check if vendor field exists
+        if (row.original.vendor) {
+          return <div className="text-sm font-medium text-gray-700">Vendor</div>;
+        }
+
         return <div className="text-sm text-gray-400">—</div>;
       },
     },
@@ -82,10 +123,26 @@ export default function ApprovedPaymentRequestsPage() {
     },
     {
       header: "Amount",
-      id: "total_amount",
-      accessorKey: "total_amount",
+      id: "amount",
       cell: ({ row }: any) => {
-        const amount = parseFloat(row.getValue("total_amount") || "0");
+        // Use gross_amount if total_amount is 0 (for PRs without payment items)
+        const totalAmount = parseFloat(row.original.total_amount || "0");
+        const grossAmount = parseFloat(row.original.gross_amount || "0");
+        const amount = totalAmount > 0 ? totalAmount : grossAmount;
+
+        if (amount === 0) {
+          return (
+            <div className="flex items-center gap-1">
+              <span className="font-semibold text-orange-600">
+                {formatCurrency(0)}
+              </span>
+              <Badge variant="outline" className="text-xs border-orange-300 text-orange-700">
+                ⚠ Incomplete
+              </Badge>
+            </div>
+          );
+        }
+
         return (
           <div className="font-semibold text-green-600">
             {formatCurrency(amount)}
@@ -94,31 +151,38 @@ export default function ApprovedPaymentRequestsPage() {
       },
     },
     {
-      header: "Status",
-      id: "status",
-      accessorKey: "status",
+      header: "PV Status",
+      id: "pv_status",
       cell: ({ row }: any) => {
-        const status = row.getValue("status");
+        const paymentRequest = row.original;
+        const hasPaymentVoucher = paymentRequest.payment_vouchers && paymentRequest.payment_vouchers.length > 0;
+
+        if (hasPaymentVoucher) {
+          const latestPV = paymentRequest.payment_vouchers[paymentRequest.payment_vouchers.length - 1];
+          const pvStatus = latestPV.status;
+
+          if (pvStatus === "PAID") {
+            return (
+              <Badge variant="default" className="bg-green-600">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                PAID
+              </Badge>
+            );
+          } else if (pvStatus === "ISSUED") {
+            return (
+              <Badge variant="default" className="bg-blue-600">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                PV ISSUED
+              </Badge>
+            );
+          }
+        }
+
         return (
-          <Badge variant="default" className="bg-green-500">
+          <Badge variant="outline" className="border-orange-300 text-orange-700">
             <CheckCircle2 className="h-3 w-3 mr-1" />
-            {status}
+            PENDING PV
           </Badge>
-        );
-      },
-    },
-    {
-      header: "Payment Date",
-      id: "payment_date",
-      accessorKey: "payment_date",
-      cell: ({ row }: any) => {
-        const date = row.getValue("payment_date");
-        return date ? (
-          <span className="text-sm text-gray-600">
-            {new Date(date).toLocaleDateString()}
-          </span>
-        ) : (
-          <span className="text-sm text-gray-400">—</span>
         );
       },
     },
@@ -127,14 +191,32 @@ export default function ApprovedPaymentRequestsPage() {
       header: "Actions",
       cell: ({ row }: any) => {
         const paymentRequest = row.original;
-        const isProcessed = paymentRequest.payment_disbursement || paymentRequest.payment_voucher;
+        const hasPaymentVoucher = paymentRequest.payment_vouchers && paymentRequest.payment_vouchers.length > 0;
+
+        // Check if payment request has a valid amount
+        const totalAmount = parseFloat(paymentRequest.total_amount || "0");
+        const grossAmount = parseFloat(paymentRequest.gross_amount || "0");
+        const amount = totalAmount > 0 ? totalAmount : grossAmount;
+        const isIncomplete = amount === 0;
 
         return (
           <div className="flex items-center gap-2">
-            {isProcessed ? (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => router.push(`/dashboard/finance/approved-payment-requests/${paymentRequest.id}`)}
+            >
+              <Eye className="h-4 w-4 mr-1" />
+              View
+            </Button>
+            {hasPaymentVoucher ? (
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2 className="h-3 w-3" />
                 PV Created
+              </Badge>
+            ) : isIncomplete ? (
+              <Badge variant="outline" className="border-orange-300 text-orange-700">
+                Incomplete Data
               </Badge>
             ) : (
               <Button
@@ -194,7 +276,7 @@ export default function ApprovedPaymentRequestsPage() {
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-sm">
-            {data?.data?.paginator?.count || 0} Approved Requests
+            {data?.data?.results?.length || 0} of {data?.data?.paginator?.count || 0} Approved Requests
           </Badge>
         </div>
       </div>
@@ -216,7 +298,7 @@ export default function ApprovedPaymentRequestsPage() {
       {selectedPaymentRequest && (
         <ProcessPaymentRequestDialog
           open={processDialogOpen}
-          onOpenChange={setProcessDialogOpen}
+          onOpenChange={handleCloseDialog}
           paymentRequest={selectedPaymentRequest}
         />
       )}

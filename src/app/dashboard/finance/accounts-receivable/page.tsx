@@ -42,6 +42,13 @@ import {
   CollectionStatus
 } from "../../../../features/finance/types/accounts-receivable.types";
 import {
+  useGetAccountsReceivable,
+  useGetARSummary,
+  useSendReminder,
+  useUpdateCollectionStatus,
+  useWriteOffAR,
+} from "../../../../features/finance/controllers/accountsReceivableController";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -55,106 +62,39 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
-// Mock data for now - replace with actual API integration
-const mockAccountsReceivable: AccountsReceivable[] = [
-  {
-    id: "1",
-    customer_id: "cust-1",
-    customer_name: "Acme Corporation",
-    invoice_id: "inv-001",
-    invoice_number: "INV-001",
-    transaction_type: "INVOICE",
-    transaction_date: "2024-09-01",
-    due_date: "2024-09-30",
-    original_amount: 5400.00,
-    current_balance: 5400.00,
-    amount_paid: 0,
-    amount_due: 5400.00,
-    aging_bucket: "PAST_DUE_30",
-    days_outstanding: 45,
-    status: "OVERDUE",
-    payment_terms: "NET_30",
-    currency: "USD",
-    collection_status: "FIRST_NOTICE_SENT",
-    last_contact_date: "2024-10-05",
-    next_follow_up_date: "2024-10-28",
-    collection_notes: "Customer responded via email, promised payment by end of month",
-    assigned_collector: "John Smith",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    created_by: "user-1"
-  },
-  {
-    id: "2",
-    customer_id: "cust-2",
-    customer_name: "Tech Solutions Inc",
-    invoice_id: "inv-002",
-    invoice_number: "INV-002",
-    transaction_type: "INVOICE",
-    transaction_date: "2024-10-15",
-    due_date: "2024-11-15",
-    original_amount: 3680.00,
-    current_balance: 3680.00,
-    amount_paid: 0,
-    amount_due: 3680.00,
-    aging_bucket: "CURRENT",
-    days_outstanding: 10,
-    status: "OPEN",
-    payment_terms: "NET_30",
-    currency: "USD",
-    collection_status: "NOT_STARTED",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    created_by: "user-1"
-  },
-  {
-    id: "3",
-    customer_id: "cust-3",
-    customer_name: "Small Business LLC",
-    invoice_id: "inv-003",
-    invoice_number: "INV-003",
-    transaction_type: "INVOICE",
-    transaction_date: "2024-07-01",
-    due_date: "2024-07-31",
-    original_amount: 1296.00,
-    current_balance: 1296.00,
-    amount_paid: 0,
-    amount_due: 1296.00,
-    aging_bucket: "PAST_DUE_90",
-    days_outstanding: 95,
-    status: "OVERDUE",
-    payment_terms: "NET_30",
-    currency: "USD",
-    collection_status: "FINAL_NOTICE_SENT",
-    last_contact_date: "2024-10-15",
-    next_follow_up_date: "2024-10-30",
-    collection_notes: "Customer disputes charges, reviewing documentation",
-    assigned_collector: "Jane Doe",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    created_by: "user-1"
-  }
-];
-
 export default function AccountsReceivablePage() {
   const [filters, setFilters] = useState<{
-    status?: ARStatus;
-    aging_bucket?: AgingBucket;
-    collection_status?: CollectionStatus;
+    status?: ARStatus | "all";
+    aging_bucket?: AgingBucket | "all";
+    collection_status?: CollectionStatus | "all";
     assigned_collector?: string;
     search?: string;
     page?: number;
     page_size?: number;
   }>({
     page: 1,
-    page_size: 10,
+    page_size: 20,
   });
 
   const [activeTab, setActiveTab] = useState("overview");
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [selectedReceivable, setSelectedReceivable] = useState<AccountsReceivable | null>(null);
 
-  const accountsReceivable = mockAccountsReceivable;
+  // Fetch accounts receivable data
+  const { data: arData, isLoading: arLoading } = useGetAccountsReceivable(filters);
+  const { data: statsData, isLoading: statsLoading } = useGetARSummary(filters);
+
+  const accountsReceivable = arData?.data || [];
+  const stats = statsData?.data;
+
+  // Helper function to format currency
+  const formatCurrency = (amount: string | number) => {
+    const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+    return numAmount.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
 
   // Handlers
   const handleSearch = (search: string) => {
@@ -166,7 +106,14 @@ export default function AccountsReceivablePage() {
   };
 
   const clearFilters = () => {
-    setFilters({ page: 1, page_size: 10 });
+    setFilters({
+      page: 1,
+      page_size: 20,
+      status: "all",
+      aging_bucket: "all",
+      collection_status: "all",
+      search: "",
+    });
   };
 
   const handleRecordPayment = (ar: AccountsReceivable) => {
@@ -196,39 +143,37 @@ export default function AccountsReceivablePage() {
 
   const getStatusColor = (status: ARStatus) => {
     switch (status) {
-      case 'OPEN': return 'bg-blue-100 text-blue-700';
-      case 'PAID': return 'bg-green-100 text-green-700';
-      case 'PARTIAL': return 'bg-yellow-100 text-yellow-700';
-      case 'OVERDUE': return 'bg-red-100 text-red-700';
-      case 'DISPUTED': return 'bg-orange-100 text-orange-700';
-      case 'WRITTEN_OFF': return 'bg-gray-100 text-gray-500';
-      case 'CANCELLED': return 'bg-gray-100 text-gray-500';
+      case 'current': return 'bg-blue-100 text-blue-700';
+      case 'paid': return 'bg-green-100 text-green-700';
+      case 'partially_paid': return 'bg-yellow-100 text-yellow-700';
+      case 'overdue': return 'bg-red-100 text-red-700';
+      case 'disputed': return 'bg-orange-100 text-orange-700';
+      case 'written_off': return 'bg-gray-100 text-gray-500';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   const getAgingColor = (bucket: AgingBucket) => {
     switch (bucket) {
-      case 'CURRENT': return 'bg-green-100 text-green-700';
-      case 'PAST_DUE_30': return 'bg-yellow-100 text-yellow-700';
-      case 'PAST_DUE_60': return 'bg-orange-100 text-orange-700';
-      case 'PAST_DUE_90': return 'bg-red-100 text-red-700';
-      case 'PAST_DUE_120': return 'bg-red-200 text-red-800';
+      case 'current': return 'bg-green-100 text-green-700';
+      case 'past_due_30': return 'bg-yellow-100 text-yellow-700';
+      case 'past_due_60': return 'bg-orange-100 text-orange-700';
+      case 'past_due_90': return 'bg-red-100 text-red-700';
+      case 'past_due_120': return 'bg-red-200 text-red-800';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   const getCollectionStatusColor = (status: CollectionStatus) => {
     switch (status) {
-      case 'NOT_STARTED': return 'bg-gray-100 text-gray-700';
-      case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700';
-      case 'FIRST_NOTICE_SENT': return 'bg-yellow-100 text-yellow-700';
-      case 'SECOND_NOTICE_SENT': return 'bg-orange-100 text-orange-700';
-      case 'FINAL_NOTICE_SENT': return 'bg-red-100 text-red-700';
-      case 'PAYMENT_PLAN': return 'bg-purple-100 text-purple-700';
-      case 'LEGAL_ACTION': return 'bg-red-200 text-red-800';
-      case 'COLLECTION_AGENCY': return 'bg-red-200 text-red-800';
-      case 'RESOLVED': return 'bg-green-100 text-green-700';
+      case 'not_started': return 'bg-gray-100 text-gray-700';
+      case 'first_notice_sent': return 'bg-yellow-100 text-yellow-700';
+      case 'second_notice_sent': return 'bg-orange-100 text-orange-700';
+      case 'final_notice_sent': return 'bg-red-100 text-red-700';
+      case 'in_negotiation': return 'bg-blue-100 text-blue-700';
+      case 'payment_plan_active': return 'bg-purple-100 text-purple-700';
+      case 'legal_action': return 'bg-red-200 text-red-800';
+      case 'resolved': return 'bg-green-100 text-green-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -271,7 +216,7 @@ export default function AccountsReceivablePage() {
       header: "Amount Due",
       cell: ({ row }: any) => (
         <div className="font-mono text-sm font-medium">
-          ${row.getValue("amount_due")?.toLocaleString() || "0.00"}
+          ${formatCurrency(row.getValue("amount_due") || "0")}
         </div>
       ),
     },
@@ -294,12 +239,12 @@ export default function AccountsReceivablePage() {
       header: "Aging",
       cell: ({ row }: any) => {
         const bucket = row.getValue("aging_bucket") as AgingBucket;
-        const bucketLabels = {
-          'CURRENT': 'Current',
-          'PAST_DUE_30': '31-60 Days',
-          'PAST_DUE_60': '61-90 Days',
-          'PAST_DUE_90': '91-120 Days',
-          'PAST_DUE_120': '120+ Days'
+        const bucketLabels: Record<AgingBucket, string> = {
+          'current': 'Current',
+          'past_due_30': '31-60 Days',
+          'past_due_60': '61-90 Days',
+          'past_due_90': '91-120 Days',
+          'past_due_120': '120+ Days'
         };
         return (
           <Badge className={`${getAgingColor(bucket)} border-0 text-xs`}>
@@ -379,18 +324,6 @@ export default function AccountsReceivablePage() {
     },
   ];
 
-  // Statistics
-  const stats = {
-    totalOutstanding: accountsReceivable.reduce((sum, ar) => sum + ar.amount_due, 0),
-    totalOverdue: accountsReceivable.filter((ar: any) => ar.status === 'OVERDUE').reduce((sum, ar) => sum + ar.amount_due, 0),
-    current: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'CURRENT').reduce((sum, ar) => sum + ar.amount_due, 0),
-    pastDue30: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'PAST_DUE_30').reduce((sum, ar) => sum + ar.amount_due, 0),
-    pastDue60: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'PAST_DUE_60').reduce((sum, ar) => sum + ar.amount_due, 0),
-    pastDue90: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'PAST_DUE_90').reduce((sum, ar) => sum + ar.amount_due, 0),
-    pastDue120: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'PAST_DUE_120').reduce((sum, ar) => sum + ar.amount_due, 0),
-    totalCustomers: new Set(accountsReceivable.map((ar: any) => ar.customer_id)).size,
-    averageDays: Math.round(accountsReceivable.reduce((sum, ar) => sum + ar.days_outstanding, 0) / accountsReceivable.length),
-  };
 
   return (
     <div className="space-y-6">
@@ -408,11 +341,13 @@ export default function AccountsReceivablePage() {
             Generate Statement
           </Button>
           <Button onClick={() => {
-            // For demo purposes, select the first overdue receivable
-            const overdueReceivable = accountsReceivable.find((ar: any) => ar.status === 'OVERDUE') || accountsReceivable[0];
+            // Select the first overdue receivable or any receivable
+            const overdueReceivable = accountsReceivable.find((ar) => ar.status === 'overdue') || accountsReceivable[0];
             if (overdueReceivable) {
               setSelectedReceivable(overdueReceivable);
               setShowPaymentForm(true);
+            } else {
+              toast.info("No receivables available to record payment");
             }
           }}>
             <Plus size={20} className="mr-2" />
@@ -422,40 +357,46 @@ export default function AccountsReceivablePage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-blue-600">${stats.totalOutstanding.toLocaleString()}</div>
-          <div className="text-sm text-gray-600">Total Outstanding</div>
+      {statsLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-red-600">${stats.totalOverdue.toLocaleString()}</div>
-          <div className="text-sm text-gray-600">Overdue</div>
+      ) : stats ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-blue-600">${formatCurrency(stats.total_outstanding)}</div>
+            <div className="text-sm text-gray-600">Total Outstanding</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-red-600">${formatCurrency(stats.total_overdue)}</div>
+            <div className="text-sm text-gray-600">Overdue</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-green-600">${formatCurrency(stats.current)}</div>
+            <div className="text-sm text-gray-600">Current</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-yellow-600">${formatCurrency(stats.past_due_30)}</div>
+            <div className="text-sm text-gray-600">31-60 Days</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-orange-600">${formatCurrency(stats.past_due_60)}</div>
+            <div className="text-sm text-gray-600">61-90 Days</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-red-600">${formatCurrency(stats.past_due_90)}</div>
+            <div className="text-sm text-gray-600">91-120 Days</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-red-700">${formatCurrency(stats.past_due_120)}</div>
+            <div className="text-sm text-gray-600">120+ Days</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border">
+            <div className="text-2xl font-bold text-purple-600">{Math.round(stats.average_days_outstanding)}</div>
+            <div className="text-sm text-gray-600">Avg Days</div>
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-green-600">${stats.current.toLocaleString()}</div>
-          <div className="text-sm text-gray-600">Current</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-yellow-600">${stats.pastDue30.toLocaleString()}</div>
-          <div className="text-sm text-gray-600">31-60 Days</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-orange-600">${stats.pastDue60.toLocaleString()}</div>
-          <div className="text-sm text-gray-600">61-90 Days</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-red-600">${stats.pastDue90.toLocaleString()}</div>
-          <div className="text-sm text-gray-600">91-120 Days</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-red-700">${stats.pastDue120.toLocaleString()}</div>
-          <div className="text-sm text-gray-600">120+ Days</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-2xl font-bold text-purple-600">{stats.averageDays}</div>
-          <div className="text-sm text-gray-600">Avg Days</div>
-        </div>
-      </div>
+      ) : null}
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -481,61 +422,60 @@ export default function AccountsReceivablePage() {
 
             <Select
               value={filters.status || "all"}
-              onValueChange={(value) => handleFilterChange("status", value === "all" ? undefined : value)}
+              onValueChange={(value) => handleFilterChange("status", value === "all" ? "all" : value)}
             >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="OPEN">Open</SelectItem>
-                <SelectItem value="PAID">Paid</SelectItem>
-                <SelectItem value="PARTIAL">Partial</SelectItem>
-                <SelectItem value="OVERDUE">Overdue</SelectItem>
-                <SelectItem value="DISPUTED">Disputed</SelectItem>
-                <SelectItem value="WRITTEN_OFF">Written Off</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                <SelectItem value="current">Current</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="partially_paid">Partially Paid</SelectItem>
+                <SelectItem value="overdue">Overdue</SelectItem>
+                <SelectItem value="disputed">Disputed</SelectItem>
+                <SelectItem value="written_off">Written Off</SelectItem>
               </SelectContent>
             </Select>
 
             <Select
               value={filters.aging_bucket || "all"}
-              onValueChange={(value) => handleFilterChange("aging_bucket", value === "all" ? undefined : value)}
+              onValueChange={(value) => handleFilterChange("aging_bucket", value === "all" ? "all" : value)}
             >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Aging" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Ages</SelectItem>
-                <SelectItem value="CURRENT">Current</SelectItem>
-                <SelectItem value="PAST_DUE_30">31-60 Days</SelectItem>
-                <SelectItem value="PAST_DUE_60">61-90 Days</SelectItem>
-                <SelectItem value="PAST_DUE_90">91-120 Days</SelectItem>
-                <SelectItem value="PAST_DUE_120">120+ Days</SelectItem>
+                <SelectItem value="current">Current</SelectItem>
+                <SelectItem value="past_due_30">31-60 Days</SelectItem>
+                <SelectItem value="past_due_60">61-90 Days</SelectItem>
+                <SelectItem value="past_due_90">91-120 Days</SelectItem>
+                <SelectItem value="past_due_120">120+ Days</SelectItem>
               </SelectContent>
             </Select>
 
             <Select
               value={filters.collection_status || "all"}
-              onValueChange={(value) => handleFilterChange("collection_status", value === "all" ? undefined : value)}
+              onValueChange={(value) => handleFilterChange("collection_status", value === "all" ? "all" : value)}
             >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Collection Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="NOT_STARTED">Not Started</SelectItem>
-                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                <SelectItem value="FIRST_NOTICE_SENT">First Notice</SelectItem>
-                <SelectItem value="SECOND_NOTICE_SENT">Second Notice</SelectItem>
-                <SelectItem value="FINAL_NOTICE_SENT">Final Notice</SelectItem>
-                <SelectItem value="PAYMENT_PLAN">Payment Plan</SelectItem>
-                <SelectItem value="LEGAL_ACTION">Legal Action</SelectItem>
-                <SelectItem value="RESOLVED">Resolved</SelectItem>
+                <SelectItem value="not_started">Not Started</SelectItem>
+                <SelectItem value="first_notice_sent">First Notice</SelectItem>
+                <SelectItem value="second_notice_sent">Second Notice</SelectItem>
+                <SelectItem value="final_notice_sent">Final Notice</SelectItem>
+                <SelectItem value="in_negotiation">In Negotiation</SelectItem>
+                <SelectItem value="payment_plan_active">Payment Plan</SelectItem>
+                <SelectItem value="legal_action">Legal Action</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
               </SelectContent>
             </Select>
 
-            {(filters.search || filters.status || filters.aging_bucket || filters.collection_status) && (
+            {(filters.search || (filters.status && filters.status !== "all") || (filters.aging_bucket && filters.aging_bucket !== "all") || (filters.collection_status && filters.collection_status !== "all")) && (
               <Button variant="outline" onClick={clearFilters}>
                 Clear Filters
               </Button>
@@ -551,17 +491,33 @@ export default function AccountsReceivablePage() {
 
           {/* Data Table */}
           <Card className="p-6">
-            <DataTable
-              columns={columns}
-              data={accountsReceivable}
-              pagination={{
-                total: accountsReceivable.length,
-                pageSize: filters.page_size || 10,
-                onChange: (page) => {
-                  setFilters(prev => ({ ...prev, page }));
-                }
-              }}
-            />
+            {arLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              </div>
+            ) : accountsReceivable.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <FileText className="h-12 w-12 text-gray-400 mb-4" />
+                <p className="text-gray-600">No accounts receivable found</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  {filters.search || filters.status !== "all" || filters.aging_bucket !== "all"
+                    ? "Try adjusting your filters"
+                    : "Start by creating invoices for your customers"}
+                </p>
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={accountsReceivable}
+                pagination={{
+                  total: arData?.pagination?.total || 0,
+                  pageSize: filters.page_size || 20,
+                  onChange: (page) => {
+                    setFilters(prev => ({ ...prev, page }));
+                  }
+                }}
+              />
+            )}
           </Card>
         </TabsContent>
 

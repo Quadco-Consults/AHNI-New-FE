@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import DataTableWithExpansion from "@/components/Table/DataTableWithExpansion";
 import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import CostSheetTrackersExpanded from "@/features/programs/components/plan/work-plan-tracker/CostSheetTrackersExpanded";
+import MonthlyActivityPlansExpanded from "@/features/programs/components/plan/work-plan-tracker/MonthlyActivityPlansExpanded";
 import { getActivityPlanDetailsColumns } from "@/features/programs/components/table-columns/plan/activity-plan";
 import { useParams, useRouter } from "next/navigation";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
@@ -137,10 +138,10 @@ export default function PlannedActivities() {
             onChange: (page: number) => setPage(page),
           }}
           renderExpandedRow={(row: any) => (
-            <CostSheetTrackersExpanded
+            <MonthlyActivityPlansExpanded
               activityId={row.work_plan_activity}
               activityNumber={row.activity_code || "N/A"}
-              isEditable={true}
+              workPlanId={id as string}
             />
           )}
           canExpand={(row: any) => {
