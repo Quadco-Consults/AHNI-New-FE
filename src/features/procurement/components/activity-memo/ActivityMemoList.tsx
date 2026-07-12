@@ -527,7 +527,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
                           <div className="flex gap-4">
                             <span className="font-bold">Module:</span>
                             <span>
-                              {selectedMemoForDetails.module_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
+                              {selectedMemoForDetails.modules_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
                                'N/A'}
                             </span>
                           </div>
@@ -659,7 +659,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
                           <div className="flex">
                             <span className="w-24 font-bold bg-gray-200 p-1 border border-black">Module:</span>
                             <span className="flex-1 p-1 border border-black">
-                              {selectedMemoForDetails.module_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
+                              {selectedMemoForDetails.modules_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
                                'N/A'}
                             </span>
                           </div>

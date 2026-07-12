@@ -43,6 +43,7 @@ const Items = () => {
   const router = useRouter();
   const [quotationData, setQuotationData] = useState<any>(null);
   const [isPopulating, setIsPopulating] = useState(false);
+  const [excludedItems, setExcludedItems] = useState<any[]>([]);
   // Use ref to track if items have been loaded to prevent duplication
   const itemsLoadedRef = React.useRef(false);
   const loadedPRIdRef = React.useRef<string | null>(null);
@@ -114,6 +115,42 @@ const Items = () => {
     }
   }, [purchaseRequestId]);
 
+  // Helper function to determine if an item requires RFQ (competitive bidding)
+  const shouldIncludeInRFQ = (prItem: any, fullItemDetails: any): boolean => {
+    const itemName = fullItemDetails?.name || prItem.item_detail?.name || prItem.description || "";
+    const itemDescription = prItem.description || "";
+    const combinedText = `${itemName} ${itemDescription}`.toLowerCase();
+
+    // Personnel cost keywords - these should NOT be in RFQ
+    const personnelKeywords = [
+      'daily rate', 'hourly rate', 'monthly rate',
+      'stipend', 'salary', 'allowance', 'wage', 'pay',
+      'mobilizer', 'counselor', 'counsellor', 'facilitator',
+      'staff', 'personnel', 'consultant fee', 'honorarium',
+      'per diem', 'sitting allowance', 'transport refund'
+    ];
+
+    // Check if item matches personnel keywords
+    const isPersonnelCost = personnelKeywords.some(keyword => combinedText.includes(keyword));
+
+    if (isPersonnelCost) {
+      console.log(`⚠️ Excluding personnel item from RFQ: ${itemName}`);
+      return false;
+    }
+
+    // Micro purchase check - items under ₦50,000 typically don't need RFQ
+    const itemTotal = prItem.amount || (prItem.quantity * prItem.unit_cost) || 0;
+    const MICRO_PURCHASE_THRESHOLD = 50000;
+
+    if (itemTotal < MICRO_PURCHASE_THRESHOLD) {
+      console.log(`⚠️ Excluding micro purchase (₦${itemTotal}) from RFQ: ${itemName}`);
+      return false;
+    }
+
+    // Include all other items (goods and services requiring competitive bidding)
+    return true;
+  };
+
   // Populate items when purchase request data is loaded
   useEffect(() => {
     // CRITICAL: Check ref first to prevent duplicate loading, even if state/props change
@@ -127,25 +164,57 @@ const Items = () => {
       // Clear existing items first
       form.setValue("items", []);
 
-      // Transform PR items to RFQ items format with auto-populated descriptions
-      const transformedItems = purchaseRequestData.data.items.map((prItem: any) => {
-        // Find the full item details to auto-populate description
-        const fullItemDetails = itemsData?.data?.results?.find((item: any) => item.id === prItem.item);
+      // Transform PR items to RFQ items format with FILTERING
+      const allTransformedItems = purchaseRequestData.data.items
+        .map((prItem: any) => {
+          // Find the full item details to auto-populate description
+          const fullItemDetails = itemsData?.data?.results?.find((item: any) => item.id === prItem.item);
 
-        return {
-          item: prItem.item || "",
-          description: fullItemDetails?.name || prItem.item_detail?.name || prItem.description || "",
-          quantity: prItem.quantity?.toString() || "",
-          unit: fullItemDetails?.uom || prItem.unit || "pieces",
-          specifications: prItem.specifications || prItem.description || "",
-          lot: "",
-        };
-      });
+          return {
+            prItem, // Keep reference for filtering
+            fullItemDetails,
+            item: prItem.item || "",
+            description: fullItemDetails?.name || prItem.item_detail?.name || prItem.description || "",
+            quantity: prItem.quantity?.toString() || "",
+            unit: fullItemDetails?.uom || prItem.unit || "pieces",
+            specifications: prItem.specifications || prItem.description || "",
+            lot: "",
+          };
+        });
 
-      // Set the transformed items
-      form.setValue("items", transformedItems);
+      // Separate included and excluded items
+      const includedItems = allTransformedItems
+        .filter(({ prItem, fullItemDetails }) => shouldIncludeInRFQ(prItem, fullItemDetails))
+        .map(({ prItem, fullItemDetails, ...item }) => item);
 
-      toast.success(`Populated ${transformedItems.length} items from Purchase Request!`);
+      const excludedItemsList = allTransformedItems
+        .filter(({ prItem, fullItemDetails }) => !shouldIncludeInRFQ(prItem, fullItemDetails))
+        .map(({ description, quantity, unit, prItem }) => ({
+          description,
+          quantity,
+          unit,
+          amount: prItem.amount || (prItem.quantity * prItem.unit_cost) || 0
+        }));
+
+      // Store excluded items for display
+      setExcludedItems(excludedItemsList);
+
+      // Set the included items in the form
+      form.setValue("items", includedItems);
+
+      const totalItems = purchaseRequestData.data.items.length;
+      const excludedCount = excludedItemsList.length;
+
+      if (excludedCount > 0) {
+        toast.success(
+          `Loaded ${includedItems.length} items for RFQ (excluded ${excludedCount} personnel/direct payment items)`,
+          { duration: 5000 }
+        );
+        console.log(`📋 RFQ Items Summary: ${includedItems.length} included, ${excludedCount} excluded (personnel/micro purchases)`);
+      } else {
+        toast.success(`Populated ${includedItems.length} items from Purchase Request!`);
+      }
+
       setIsPopulating(false);
     }
     // CRITICAL: Only depend on purchaseRequestData, NOT on form or isPopulating to prevent duplicate runs
@@ -289,6 +358,36 @@ const Items = () => {
                       ✅ {purchaseRequestData.data.items.length} items loaded from this purchase request
                     </p>
                   )}
+                </div>
+              )}
+
+              {/* Show excluded items warning */}
+              {excludedItems.length > 0 && (
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-yellow-800 mb-2">
+                        {excludedItems.length} item{excludedItems.length > 1 ? 's' : ''} excluded from RFQ
+                      </p>
+                      <p className="text-xs text-yellow-700 mb-3">
+                        The following items are personnel costs or micro purchases and should be processed through Payment Request → Contract Request instead:
+                      </p>
+                      <ul className="space-y-1">
+                        {excludedItems.map((item: any, idx: number) => (
+                          <li key={idx} className="text-xs text-yellow-800 flex items-start gap-2">
+                            <span className="text-yellow-600">•</span>
+                            <span>
+                              <strong>{item.description}</strong> - Qty: {item.quantity} {item.unit}
+                              {item.amount > 0 && ` (₦${item.amount.toLocaleString()})`}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

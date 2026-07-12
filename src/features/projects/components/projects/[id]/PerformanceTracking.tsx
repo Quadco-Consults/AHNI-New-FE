@@ -23,6 +23,10 @@ interface ProjectTarget {
   q3_target?: number;
   q4_target?: number;
   target_notes?: string;
+  // Backend fields
+  target_value?: number; // Backend field name for annual_target
+  comments?: string; // Backend field name for target_notes
+  achievements?: any[]; // Achievement records from backend
 }
 
 interface Achievement {

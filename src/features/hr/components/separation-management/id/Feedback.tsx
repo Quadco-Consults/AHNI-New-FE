@@ -3,7 +3,7 @@ import Card from "@/components/Card";
 import DescriptionCard from "@/components/DescriptionCard";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { SeparationManagement } from "@/features/hr/types/separation-management";
+import { ExitTrackerSeparation } from "@/features/hr/types/separation-management";
 import { useUpdateSeparationManagement } from "@/features/hr/controllers/separationManagementController";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,7 +11,7 @@ import FeedbackModal from "@/features/common/components/modals/FeedbackModal";
 import { useParams } from "next/navigation";
 
 interface FeedbackProps {
-  data?: SeparationManagement;
+  data?: ExitTrackerSeparation;
 }
 
 const Feedback = ({ data }: FeedbackProps) => {

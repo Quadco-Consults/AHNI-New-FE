@@ -264,34 +264,43 @@ const ActivityMemoView = () => {
                         {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
                       </span>
                     </div>
-                    {/* Display authorizers (copy) */}
-                    {memoData?.authorised_by_details?.map((user: any, index: number) => (
-                      <div key={index} className="text-sm text-gray-600 mt-1">
-                        {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'})
-                      </div>
-                    ))}
                   </div>
                 </div>
 
-                {/* Through (Reviewers) */}
+                {/* CC (Reviewers) */}
                 <div className="flex">
-                  <span className="font-bold w-20 text-base">Through:</span>
+                  <span className="font-bold w-20 text-base">CC:</span>
                   <div className="flex-1">
-                    {memoData?.through_details && memoData.through_details.length > 0 ? (
-                      memoData.through_details.map((user: any, index: number) => (
+                    {memoData?.reviewed_by_details && memoData.reviewed_by_details.length > 0 ? (
+                      memoData.reviewed_by_details.map((user: any, index: number) => (
                         <div key={index} className="text-base">
-                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNI)
+                          {user.name || `${user.first_name} ${user.last_name}`} ({user.position || user.designation || 'Staff'}, AHNI)
                           <span className="ml-8 text-sm text-gray-600">
                             {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
                           </span>
                         </div>
                       ))
-                    ) : memoData?.through && memoData.through.length > 0 ? (
-                      <div className="text-base text-amber-600">
-                        {memoData.through.length} reviewer(s) selected (Details not available)
-                      </div>
                     ) : (
                       <div className="text-base text-gray-400">No reviewers assigned</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Through (Authorizers) */}
+                <div className="flex">
+                  <span className="font-bold w-20 text-base">Through:</span>
+                  <div className="flex-1">
+                    {memoData?.authorised_by_details && memoData.authorised_by_details.length > 0 ? (
+                      memoData.authorised_by_details.map((user: any, index: number) => (
+                        <div key={index} className="text-base">
+                          {user.name || `${user.first_name} ${user.last_name}`} ({user.position || user.designation || 'Staff'}, AHNI)
+                          <span className="ml-8 text-sm text-gray-600">
+                            {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-base text-gray-400">No authorizers assigned</div>
                     )}
                   </div>
                 </div>
@@ -343,7 +352,25 @@ const ActivityMemoView = () => {
               {/* Memo Content */}
               <div className="space-y-4 mb-8 text-justify leading-relaxed text-base">
                 {memoData.comment ? (
-                  <div dangerouslySetInnerHTML={{ __html: memoData.comment.replace(/\n/g, '<br />') }} />
+                  <>
+                    {/* Custom activity description from comment field */}
+                    <div dangerouslySetInnerHTML={{ __html: memoData.comment.replace(/\n/g, '<br />') }} />
+
+                    {/* Standard approval request text */}
+                    <p className="mt-4">
+                      This is therefore a request to approve the sum of
+                      <span className="font-bold"> ₦{(memoData.activity_budget ? parseFloat(memoData.activity_budget.toString()).toLocaleString() : grandTotal.toLocaleString())}.00</span> only
+                      to be charged to budget line {memoData.budget_line_details?.[0]?.code || memoData.budget_line_details?.[0]?.name || 'N/A'} for immediate procurement of listed items/execution of activities for effective operations in the state.
+                    </p>
+
+                    <p>
+                      Please, attached is the activity budget for your review and approval.
+                    </p>
+
+                    <p className="mt-3">
+                      Thank you.
+                    </p>
+                  </>
                 ) : (
                   <>
                     <p>

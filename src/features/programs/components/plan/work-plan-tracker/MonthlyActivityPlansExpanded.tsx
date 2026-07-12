@@ -2,12 +2,18 @@
 
 import { useMonthlyActivityPlansByActivity } from "@/features/programs/controllers/activityPlanController";
 import { LoadingSpinner } from "@/components/Loading";
-import { AlertCircle, Calendar, CheckCircle2, Clock, Edit } from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle2, Clock, Edit, MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import Link from "next/link";
 import { RouteEnum } from "@/constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dialogs";
+import PencilIcon from "@/components/icons/PencilIcon";
+import EditIcon from "@/components/icons/EditIcon";
 
 interface MonthlyActivityPlansExpandedProps {
   activityId: string;  // work_plan_activity ID
@@ -21,6 +27,7 @@ export default function MonthlyActivityPlansExpanded({
   workPlanId,
 }: MonthlyActivityPlansExpandedProps) {
   const { data: response, isLoading, error } = useMonthlyActivityPlansByActivity(activityId, !!activityId);
+  const dispatch = useAppDispatch();
 
   const monthlyPlans = response?.results || [];
 
@@ -94,110 +101,116 @@ export default function MonthlyActivityPlansExpanded({
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-3">
         <h4 className="text-sm font-semibold text-gray-700">
-          Monthly Execution Records for Activity {activityNumber}
+          Execution Records for Activity {activityNumber}
         </h4>
         <span className="text-xs text-gray-500">
-          {sortedPlans.length} {sortedPlans.length === 1 ? "month" : "months"}
+          {sortedPlans.length} {sortedPlans.length === 1 ? "record" : "records"}
         </span>
       </div>
 
-      <div className="space-y-3">
-        {sortedPlans.map((plan) => (
-          <div
-            key={plan.id}
-            className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-500" />
-                <span className="font-medium text-gray-900">
-                  {getMonthName(plan.start_date)}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {getStatusBadge(plan.status)}
-                {workPlanId && (
-                  <Link
-                    href={{
-                      pathname: RouteEnum.PROGRAM_CREATE_ACTIVITY_PLAN,
-                      search: `?plan=${workPlanId}&id=${plan.id}`,
-                    }}
-                  >
-                    <Button variant="outline" size="sm" className="flex items-center gap-1">
-                      <Edit className="w-3 h-3" />
-                      Edit
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="px-3 py-2 text-left font-medium text-gray-700">Period</th>
+              <th className="px-3 py-2 text-left font-medium text-gray-700">Duration</th>
+              <th className="px-3 py-2 text-left font-medium text-gray-700">Status</th>
+              <th className="px-3 py-2 text-left font-medium text-gray-700">Expected Results</th>
+              <th className="px-3 py-2 text-left font-medium text-gray-700">Resources Required</th>
+              <th className="px-3 py-2 text-center font-medium text-gray-700">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedPlans.map((plan, index) => (
+              <tr
+                key={plan.id}
+                className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                  index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
+                }`}
+              >
+                <td className="px-3 py-3">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <span className="font-medium text-gray-900">
+                      {getMonthName(plan.start_date)}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-3 py-3 text-gray-600 text-xs">
+                  {format(new Date(plan.start_date), "MMM d")} - {format(new Date(plan.end_date), "MMM d, yyyy")}
+                </td>
+                <td className="px-3 py-3">
+                  {getStatusBadge(plan.status)}
+                </td>
+                <td className="px-3 py-3 text-gray-700 max-w-xs">
+                  <div className="truncate" title={plan.expected_results || ''}>
+                    {plan.expected_results || '-'}
+                  </div>
+                </td>
+                <td className="px-3 py-3 text-gray-700 max-w-xs">
+                  <div className="truncate text-xs" title={plan.resources_required || ''}>
+                    {plan.resources_required || '-'}
+                  </div>
+                </td>
+                <td className="px-3 py-3 text-center">
+                  {workPlanId && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-fit">
+                        <div className="flex flex-col items-start justify-between gap-1">
+                          <Link
+                            className="w-full"
+                            href={{
+                              pathname: RouteEnum.PROGRAM_CREATE_ACTIVITY_PLAN,
+                              search: `?plan=${workPlanId}&id=${plan.id}`,
+                            }}
+                          >
+                            <Button
+                              className="w-full flex items-center justify-start gap-2"
+                              variant="ghost"
+                              size="sm"
+                            >
+                              <EditIcon />
+                              Edit
+                            </Button>
+                          </Link>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-500">Period:</span>
-                <p className="text-gray-900 mt-1">
-                  {format(new Date(plan.start_date), "MMM d, yyyy")} - {format(new Date(plan.end_date), "MMM d, yyyy")}
-                </p>
-              </div>
-
-              {plan.expected_results && (
-                <div className="col-span-2">
-                  <span className="text-gray-500">Expected Results:</span>
-                  <p className="text-gray-900 mt-1">{plan.expected_results}</p>
-                </div>
-              )}
-
-              {plan.achieved_results && (
-                <div className="col-span-2">
-                  <span className="text-gray-500">Achieved Results:</span>
-                  <p className="text-gray-900 mt-1">{plan.achieved_results}</p>
-                </div>
-              )}
-
-              {plan.comments && (
-                <div className="col-span-2">
-                  <span className="text-gray-500">Comments:</span>
-                  <p className="text-gray-900 mt-1">{plan.comments}</p>
-                </div>
-              )}
-
-              {plan.driver_vehicle && (
-                <div>
-                  <span className="text-gray-500">Driver/Vehicle:</span>
-                  <p className="text-gray-900 mt-1">{plan.driver_vehicle}</p>
-                </div>
-              )}
-
-              {plan.resources_required && (
-                <div>
-                  <span className="text-gray-500">Resources Required:</span>
-                  <p className="text-gray-900 mt-1">{plan.resources_required}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-              <span>
-                Created: {format(new Date(plan.created_datetime), "MMM d, yyyy")}
-              </span>
-              {plan.updated_datetime && plan.updated_datetime !== plan.created_datetime && (
-                <span>
-                  Updated: {format(new Date(plan.updated_datetime), "MMM d, yyyy")}
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
+                          <Button
+                            className="w-full flex items-center justify-start gap-2"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              dispatch(
+                                openDialog({
+                                  type: DialogType.ACTIVITY_PLAN_STATUS_MODAL,
+                                  dialogProps: { id: plan.id, status: plan.status },
+                                })
+                              );
+                            }}
+                          >
+                            <PencilIcon />
+                            Change Status
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <div className="mt-4 p-3 bg-blue-50 rounded-md">
-        <p className="text-xs text-blue-800">
-          <strong>Note:</strong> These are monthly execution records showing when this activity was performed each month.
-          Each record tracks the specific results and outcomes for that month.
-        </p>
+      <div className="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-800">
+        <strong>Note:</strong> These execution records track when this activity was performed throughout the year.
       </div>
     </div>
   );

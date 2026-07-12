@@ -26,14 +26,7 @@ import {
   useGenerateProjectReport
 } from "@/features/projects/controllers/projectController";
 
-interface ActivityReportProps extends IProjectSingleData {
-  budget_performance_calculated?: {
-    budget_performance_percentage: number;
-  };
-  achievement_against_target_calculated?: {
-    achievement_percentage: number;
-  };
-}
+type ActivityReportProps = IProjectSingleData;
 
 export default function ActivityReport(props: ActivityReportProps) {
   const {

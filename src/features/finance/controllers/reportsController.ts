@@ -197,6 +197,7 @@ export interface ReportFilters {
   account_type?: string;
   department?: string;
   project?: string;
+  enabled?: boolean; // Control whether the query should run
 }
 
 // ===== TRIAL BALANCE =====
@@ -218,6 +219,7 @@ export const useGetTrialBalance = (filters?: ReportFilters) => {
         throw new Error("Failed to fetch trial balance: " + (axiosError.response?.data as any)?.message);
       }
     },
+    enabled: filters?.enabled !== false, // Support enabled flag
     refetchOnWindowFocus: false,
   });
 };
@@ -242,6 +244,7 @@ export const useGetIncomeStatement = (filters?: ReportFilters) => {
         throw new Error("Failed to fetch income statement: " + (axiosError.response?.data as any)?.message);
       }
     },
+    enabled: filters?.enabled !== false, // Support enabled flag
     refetchOnWindowFocus: false,
   });
 };
@@ -264,6 +267,7 @@ export const useGetBalanceSheet = (filters?: ReportFilters) => {
         throw new Error("Failed to fetch balance sheet: " + (axiosError.response?.data as any)?.message);
       }
     },
+    enabled: filters?.enabled !== false, // Support enabled flag
     refetchOnWindowFocus: false,
   });
 };
@@ -286,6 +290,7 @@ export const useGetCashFlowStatement = (filters?: ReportFilters) => {
         throw new Error("Failed to fetch cash flow statement: " + (axiosError.response?.data as any)?.message);
       }
     },
+    enabled: filters?.enabled !== false, // Support enabled flag
     refetchOnWindowFocus: false,
   });
 };

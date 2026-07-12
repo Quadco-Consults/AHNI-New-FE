@@ -150,11 +150,6 @@ const DisbursementHistory: React.FC<any> = ({
         console.error("❌ Disbursement API Error:", error);
     }
 
-    // Log successful data load only once
-    if (data?.data?.results && !isFetching) {
-        console.log("✅ Disbursements loaded:", data.data.results.length, "records");
-    }
-
     return (
         <section className="w-full flex flex-col px-5 space-y-[1.25rem]">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

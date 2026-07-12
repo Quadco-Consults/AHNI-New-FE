@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/Loading";
 import { useIncomeStatement } from "../hooks/useFinancialStatements";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { cn } from "@/lib/utils";
 import axiosInstance from "@/constants/api_management/MyHttpHelperWithToken";
 import { RevenueExpensesPieChart, RevenueBreakdownChart, ExpensesBreakdownChart } from "../components/FinancialCharts";
@@ -31,6 +32,13 @@ export default function IncomeStatementPage() {
   );
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [projectId, setProjectId] = useState<string | undefined>(undefined);
+
+  // Fetch all projects for dropdown
+  const { data: projectsData } = useGetAllProjects({
+    page: 1,
+    size: 1000,
+    search: "",
+  });
 
   const { data, isLoading, error } = useIncomeStatement({
     start_date: startDate,
@@ -188,7 +196,11 @@ export default function IncomeStatementPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">All Projects</SelectItem>
-            {/* TODO: Add dynamic projects list */}
+            {projectsData?.data?.results?.map((project: any) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.title}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

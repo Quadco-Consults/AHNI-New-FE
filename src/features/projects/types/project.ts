@@ -29,32 +29,8 @@ export const ProjectSchema = z.object({
 
 export type TProjectFormValues = z.infer<typeof ProjectSchema>;
 
-export interface IProjectSingleData {
-  id: string;
-  title: string; // API uses 'title' not 'name'
-  name: string; // Keep for backward compatibility
-  currency: string;
-  funding_sources: { id: string; name: string }[];
-  project_managers: { id: string; first_name: string; last_name: string }[];
-  beneficiaries: { id: string; name: string }[];
-  location: { id: number; name: string }[];
-  intervention_areas: { id: string; code: string; name: string }[];
-  project_id: string;
-  goal: string;
-  narrative: string;
-  budget_performance: string;
-  achievement_against_target: string;
-  expected_results: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  budget: string;
-  status: string;
-  created_datetime: string;
-  updated_datetime: string;
-  created_by: string | null;
-  updated_by: string | null;
-}
+// Export the full interface from project/index.ts
+export * from './project/index';
 
 export interface TProjectDocumentData {
   id: string;

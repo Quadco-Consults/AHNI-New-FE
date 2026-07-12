@@ -1037,9 +1037,23 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                 </p>
               </div>
 
+              {/* Special Instructions - Text Input */}
+              <div>
+                <FormInput
+                  label='Special Instructions/Specification'
+                  name='special_instruction'
+                  placeholder='Enter any special instructions or specifications for this request'
+                  required
+                />
+                <p className='text-xs text-gray-500 mt-1'>
+                  Describe any specific requirements, delivery instructions, or technical specifications
+                </p>
+              </div>
+
+              {/* Optional Document Upload */}
               <div>
                 <label className='font-semibold text-gray-700 mb-2 block'>
-                  Specification/Instructions Document
+                  Specification/Instructions Document (Optional)
                 </label>
                 <div className='w-full px-4 relative gap-x-3 h-[52px] rounded-lg border-2 border-dashed border-gray-300 flex justify-center items-center hover:border-primary transition-colors'>
                   <UploadFile size={20} className='text-gray-500' />
@@ -1049,6 +1063,9 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     className='bg-inherit border-none cursor-pointer'
                   />
                 </div>
+                <p className='text-xs text-gray-500 mt-1'>
+                  Upload supporting documents if needed (file name will be noted)
+                </p>
               </div>
             </div>
           </div>

@@ -22,7 +22,6 @@ import {
   Sun,
   Award,
   BarChart,
-  Heart,
   Sparkles
 } from "lucide-react";
 import DataTable from "@/components/Table/DataTable";
@@ -49,13 +48,8 @@ const LeaveDashboard = () => {
   // The response has nested data: {status: true, data: {data: {...}}}
   const rawData = dashboardResponse?.data?.data || dashboardResponse?.data;
 
-  console.log("🎯 Dashboard Response:", dashboardResponse);
-  console.log("📊 Raw Dashboard Data:", rawData);
-  console.log("❌ Dashboard Error:", error);
-
   // Get user profile for personalization
   const { data: userProfile, isLoading: loadingProfile } = useGetUserProfile();
-  console.log("👤 User Profile Response:", userProfile);
 
   // Get user from localStorage as fallback
   const localUser = React.useMemo(() => {
@@ -68,8 +62,6 @@ const LeaveDashboard = () => {
     }
   }, []);
 
-  console.log("🏪 LocalStorage User:", localUser);
-
   const user = userProfile?.data || localUser || {
     first_name: 'User',
     legal_firstname: 'User',
@@ -77,8 +69,6 @@ const LeaveDashboard = () => {
     email: 'user@company.com',
     department: 'Department'
   };
-
-  console.log("✅ User Data Being Used:", user);
 
   // Fetch employee's own leave requests separately (for My Requests tab)
   const { data: myRequestsResponse, isLoading: loadingRequests } = useGetLeaveRequests({
@@ -93,26 +83,18 @@ const LeaveDashboard = () => {
 
   // Extract and normalize employee's leave requests
   const myAllRequests = React.useMemo(() => {
-    console.log("🔍 Raw leave requests response:", myRequestsResponse);
-
     const rawRequests = Array.isArray(myRequestsResponse?.data)
       ? myRequestsResponse.data
       : Array.isArray(myRequestsResponse?.data?.results)
       ? myRequestsResponse.data.results
       : [];
 
-    console.log("📝 Extracted raw requests:", rawRequests);
-
     const normalizedRequests = rawRequests.map(normalizeLeaveRequestEmployee);
-    console.log("✅ Normalized requests:", normalizedRequests);
 
     // Always return real data first, fallback to sample only if truly no data
     if (normalizedRequests.length > 0) {
-      console.log("🎯 Using REAL data from API:", normalizedRequests.length, "requests");
       return normalizedRequests;
     }
-
-    console.log("⚠️ No real data found, showing sample data for demonstration");
     // If no real data, show sample data for demonstration with clear indicators
     return [
       {
@@ -150,13 +132,9 @@ const LeaveDashboard = () => {
 
   // Extract leave balances with deduplication
   const leaveBalances = React.useMemo(() => {
-    console.log("🔍 Raw leave balances response:", leaveBalancesResponse);
-
     const balances = Array.isArray(leaveBalancesResponse?.data)
       ? leaveBalancesResponse.data
       : leaveBalancesResponse?.data?.results || [];
-
-    console.log(`📊 Leave balances from API: ${balances.length} items received`);
 
     // Normalize each balance to match expected structure
     const normalized = balances
@@ -165,56 +143,31 @@ const LeaveDashboard = () => {
 
     // AGGRESSIVE DEDUPLICATION: Use simple string-based keys for leave type name + year
     const deduplicatedMap = new Map();
-    let duplicateCount = 0;
 
-    console.log(`🔍 Starting deduplication of ${normalized.length} normalized balances...`);
-
-    normalized.forEach((balance: any, index: number) => {
+    normalized.forEach((balance: any) => {
       const leaveTypeName = balance.leaveType?.name || 'Unknown';
       const year = balance.year || new Date().getFullYear();
 
       // Simple key: just leave type name + year (no employee since it's personal dashboard)
       const key = `${leaveTypeName}-${year}`;
 
-      // Debug first few entries
-      if (index < 5) {
-        console.log(`🔑 Balance ${index}:`, {
-          key,
-          leaveTypeName,
-          year,
-          available: balance.available,
-          id: balance.id
-        });
-      }
-
       if (!deduplicatedMap.has(key)) {
         deduplicatedMap.set(key, balance);
-        console.log(`✅ Added new balance: ${key}`);
       } else {
-        duplicateCount++;
-        console.log(`🚨 DUPLICATE DETECTED: ${key} (duplicate #${duplicateCount})`);
-
         // Keep the balance with higher available amount
         const existing = deduplicatedMap.get(key);
         if (balance.available > existing.available) {
           deduplicatedMap.set(key, balance);
-          console.log(`🔄 Replaced with better balance (${balance.available} > ${existing.available})`);
         }
       }
     });
 
     const deduplicated = Array.from(deduplicatedMap.values());
-    console.log(`✅ DEDUPLICATION COMPLETE: ${normalized.length} → ${deduplicated.length} balances`);
-    console.log(`📊 Removed ${duplicateCount} duplicates`);
-    console.log('🎯 Final unique keys:', Array.from(deduplicatedMap.keys()));
 
     // Always return real data first, fallback to sample only if truly no data
     if (deduplicated.length > 0) {
-      console.log("🎯 Using REAL balance data from API:", deduplicated.length, "balances");
       return deduplicated;
     }
-
-    console.log("⚠️ No real balance data found, showing sample data for demonstration");
     // If no real data, show sample data for demonstration with clear indicators
     return [
       {
@@ -252,24 +205,16 @@ const LeaveDashboard = () => {
 
   // Normalize dashboard data - handle both camelCase and snake_case
   const data = React.useMemo(() => {
-    console.log("🔄 Processing dashboard data...");
-
     if (!rawData) {
-      console.log("❌ No raw data available");
       return null;
     }
 
     const stats = rawData.statistics || rawData.stats || {};
-    console.log("📊 Statistics from API:", stats);
 
     // Get leave requests and normalize employee data
     const recentRequests = (rawData.myRecentRequests || rawData.my_recent_requests || rawData.recent_requests || []);
     const upcomingLeaves = (rawData.myUpcomingLeaves || rawData.my_upcoming_leaves || rawData.upcoming_leaves || []);
     const dashboardBalances = rawData.myLeaveBalance || rawData.my_leave_balance || rawData.leave_balances || [];
-
-    console.log("📝 Recent requests from dashboard API:", recentRequests);
-    console.log("📅 Upcoming leaves from dashboard API:", upcomingLeaves);
-    console.log("💰 Dashboard balances from API:", dashboardBalances);
 
     const normalizedRecentRequests = recentRequests.map(normalizeLeaveRequestEmployee);
     const normalizedUpcomingLeaves = upcomingLeaves.map(normalizeLeaveRequestEmployee);
@@ -286,30 +231,8 @@ const LeaveDashboard = () => {
       myUpcomingLeaves: normalizedUpcomingLeaves,
     };
 
-    console.log("✅ Processed dashboard data:", processedData);
     return processedData;
   }, [rawData]);
-
-  // Debug logging
-  React.useEffect(() => {
-    if (rawData) {
-      console.log("Raw dashboard data:", rawData);
-      console.log("Available keys:", Object.keys(rawData));
-      console.log("Statistics:", rawData.statistics || rawData.stats);
-      console.log("Balance Summary:", rawData.balanceSummary);
-      console.log("My Leave Balance:", rawData.myLeaveBalance);
-      console.log("My Recent Requests:", rawData.myRecentRequests);
-      console.log("My Upcoming Leaves:", rawData.myUpcomingLeaves);
-    }
-  }, [rawData]);
-
-  React.useEffect(() => {
-    if (data) {
-      console.log("Processed dashboard data:", data);
-      console.log("Statistics processed:", data.statistics);
-      console.log("Recent requests:", data.myRecentRequests);
-    }
-  }, [data]);
 
   // Show loading state
   if (loading) {
@@ -488,19 +411,6 @@ const LeaveDashboard = () => {
         </div>
       )}
 
-      {myAllRequests.length > 0 && !myAllRequests.some((req: any) => req.reason?.includes('[SAMPLE DATA]')) && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <div>
-              <h4 className="font-semibold text-green-800">Live Data Connected</h4>
-              <p className="text-sm text-green-700">
-                Displaying real data from the API. All information shown is current and up-to-date.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Enhanced Header with Personalization */}
       <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 border border-blue-100 shadow-sm">
@@ -688,60 +598,6 @@ const LeaveDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Personalized Recommendations */}
-          {leaveBalances.length > 0 && (
-            <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
-              <div className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Heart className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-purple-900">Personalized Recommendations</h3>
-                </div>
-                <div className="space-y-3">
-                  {leaveBalances
-                    .filter(balance => {
-                      const remaining = balance.available || balance.remaining || 0;
-                      const total = balance.entitled || balance.allocated || 0;
-                      const percentage = total > 0 ? (remaining / total) * 100 : 0;
-                      return percentage > 70;
-                    })
-                    .slice(0, 2)
-                    .map((balance) => {
-                      const remaining = balance.available || balance.remaining || 0;
-                      const total = balance.entitled || balance.allocated || 0;
-                      const percentage = total > 0 ? (remaining / total) * 100 : 0;
-
-                      return (
-                        <div key={balance.id} className="bg-white/80 rounded-lg p-4 border border-purple-100">
-                          <p className="text-sm text-purple-800">
-                            💡 You have <span className="font-semibold">{remaining} {balance.leaveType?.name || 'leave'} days</span> remaining
-                            ({percentage.toFixed(0)}% unused). Consider planning some time off!
-                          </p>
-                        </div>
-                      );
-                    })}
-
-                  {myAllRequests.filter((req: any) => req.status === 'pending_approval' || req.status === 'pending').length > 0 && (
-                    <div className="bg-white/80 rounded-lg p-4 border border-purple-100">
-                      <p className="text-sm text-purple-800">
-                        ⏰ You have pending leave requests. Check with your manager for quick approval!
-                      </p>
-                    </div>
-                  )}
-
-                  {new Date().getMonth() >= 10 && ( // November/December
-                    <div className="bg-white/80 rounded-lg p-4 border border-purple-100">
-                      <p className="text-sm text-purple-800">
-                        🎄 Year-end reminder: Don't forget to use your remaining leave days before they expire!
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-          )}
-
           {/* Leave Balances Summary */}
           <div>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">

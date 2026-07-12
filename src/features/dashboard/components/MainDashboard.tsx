@@ -672,9 +672,6 @@ export default function Dashboard() {
                 <Clock className="h-4 w-4" />
                 {currentTime.toLocaleTimeString()} • {currentTime.toLocaleDateString()}
               </div>
-              <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">
-                Live Data
-              </Badge>
             </div>
           </div>
           <div className="flex items-center gap-2">

@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ExitSummary from "./ExitSummary";
 import Severance from "./Severance";
 import Feedback from "./Feedback";
+import ExitChecklist from "./ExitChecklist";
 import { useParams } from "next/navigation";
 import { useGetSeparationManagementById } from "@/features/hr/controllers/separationManagementController";
 import { LoadingSpinner } from "@/components/Loading";
@@ -14,20 +15,19 @@ const SeparationManagementDetail = () => {
   const { id } = useParams();
   const { data, isLoading } = useGetSeparationManagementById(id as string);
 
-  const separationData = data?.data;
-
-  // Debug logging to see what data we're getting
-  console.log("Separation Management Data:", {
-    fullData: data,
-    separationData: separationData,
-    employee: separationData?.employee
-  });
+  // API returns deeply nested structure: response.data.data.data
+  const separationData = data?.data?.data || data?.data;
 
   const TABS = [
     {
       label: "Exit Summary",
       value: "exit_summary",
       children: <ExitSummary data={separationData} />,
+    },
+    {
+      label: "Exit Checklist",
+      value: "exit_checklist",
+      children: <ExitChecklist data={separationData} />,
     },
     {
       label: "Severance and Benefit",

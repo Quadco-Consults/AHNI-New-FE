@@ -26,11 +26,12 @@ import { Badge } from "@/components/ui/badge";
 // import { useGetSingleSubGrant } from "@/features/c&g/subgrant/sub-grant";
 
 export default function ProjectDetail() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string | undefined;
 
   useEffect(() => {
     if (typeof window !== 'undefined' && id) {
-      localStorage.setItem("projectDetailID", id as string);
+      localStorage.setItem("projectDetailID", id);
     }
   }, [id]);
 
@@ -170,7 +171,7 @@ export default function ProjectDetail() {
           <>
             <TabsContent value='summary'>
               <Card>
-                <Summary {...project.data} />
+                <Summary {...(project.data as any)} />
               </Card>
             </TabsContent>
 
@@ -179,7 +180,7 @@ export default function ProjectDetail() {
                 <LoadingSpinner />
               ) : (
                 <Card>
-                  {project && <ObligationHistory {...project?.data} />}
+                  {project && <ObligationHistory {...(project?.data as any)} />}
                 </Card>
               )}
             </TabsContent>
@@ -189,14 +190,14 @@ export default function ProjectDetail() {
                 <LoadingSpinner />
               ) : (
                 <Card>
-                  {project && <DisbursementHistory {...project?.data} />}
+                  {project && <DisbursementHistory {...(project?.data as any)} />}
                 </Card>
               )}
             </TabsContent>
 
             <TabsContent value='performance'>
               <Card>
-                <Performance {...project.data} />
+                <Performance {...(project.data as any)} />
               </Card>
             </TabsContent>
 
@@ -206,7 +207,7 @@ export default function ProjectDetail() {
 
             <TabsContent value='activity'>
               <Card>
-                <ActivityReport {...project.data} />
+                <ActivityReport {...(project.data as any)} />
               </Card>
             </TabsContent>
           </>

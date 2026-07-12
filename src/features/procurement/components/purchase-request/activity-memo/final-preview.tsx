@@ -73,6 +73,14 @@ const Preview = () => {
   // Extract data from nested structure - try both direct and data property (before conditional returns)
   const apiData = requestsDetails?.data || requestsDetails;
 
+  // Utility function to format currency with commas
+  const formatCurrency = (value: string | number | null | undefined): string => {
+    if (!value) return '0.00';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '0.00';
+    return numValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   // Get initial memo data for hook parameters (before hook calls)
   const initialMemoData = (requestsDetails?.data || requestsDetails || reduxMemoData || {}) as any;
 
@@ -184,34 +192,34 @@ const Preview = () => {
   const interventionArea = findInterventionArea(interventionAreaId);
   const fundingSource = findFundingSource(fundingSourceId);
 
-  // Helper function for CC section (authorizers)
+  // Helper function for CC section (reviewers)
   const getCCSection = () => {
     const ccList: string[] = [];
 
     // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
-    const isActivityMemo = Array.isArray(requestsDetails?.copy_details) || Array.isArray(requestsDetails?.data?.copy_details) || Array.isArray(requestsDetails?.authorised_by_details);
+    const isActivityMemo = Array.isArray(requestsDetails?.through_details) || Array.isArray(requestsDetails?.data?.through_details) || Array.isArray(requestsDetails?.reviewed_by_details);
 
     if (isActivityMemo) {
-      // Activity Memo - Multiple authorizers (ManyToMany)
-      // CORRECT MAPPING: CC uses 'copy_details' or 'authorised_by_details' (authorizers)
-      const authorizersArray = requestsDetails?.copy_details || requestsDetails?.authorised_by_details || requestsDetails?.data?.copy_details || requestsDetails?.data?.authorised_by_details;
+      // Activity Memo - Multiple reviewers (ManyToMany)
+      // CORRECT MAPPING: CC uses reviewers (reviewed_by_details)
+      const reviewersArray = requestsDetails?.through_details || requestsDetails?.reviewed_by_details || requestsDetails?.data?.through_details || requestsDetails?.data?.reviewed_by_details;
 
-      if (authorizersArray && authorizersArray.length > 0) {
-        const authorizers = authorizersArray.map((user: any) => {
+      if (reviewersArray && reviewersArray.length > 0) {
+        const reviewers = reviewersArray.map((user: any) => {
           const userName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
           const userPosition = user.position || 'N/A';
           return `${userName} (${userPosition})`;
         });
-        ccList.push(...authorizers);
+        ccList.push(...reviewers);
       }
     } else {
-      // Purchase Request - Single authorizer (ForeignKey)
-      const authorizerObject = requestsDetails?.authorized_by_detail || requestsDetails?.authorised_by_detail || requestsDetails?.data?.authorized_by_detail || requestsDetails?.data?.authorised_by_detail;
+      // Purchase Request - Single reviewer (ForeignKey)
+      const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
 
-      if (authorizerObject) {
-        const authorizerName = authorizerObject.name || `${authorizerObject.first_name || ''} ${authorizerObject.last_name || ''}`.trim();
-        const authorizerPosition = authorizerObject.position || 'N/A';
-        ccList.push(`${authorizerName} (${authorizerPosition})`);
+      if (reviewerObject) {
+        const reviewerName = reviewerObject.name || `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
+        const reviewerPosition = reviewerObject.position || 'N/A';
+        ccList.push(`${reviewerName} (${reviewerPosition})`);
       }
     }
 
@@ -221,34 +229,34 @@ const Preview = () => {
     };
   };
 
-  // Helper function for Through section (reviewers)
+  // Helper function for Through section (authorizers)
   const getThroughSection = () => {
     const throughList: string[] = [];
 
     // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
-    const isActivityMemo = Array.isArray(requestsDetails?.through_details) || Array.isArray(requestsDetails?.data?.through_details) || Array.isArray(requestsDetails?.reviewed_by_details);
+    const isActivityMemo = Array.isArray(requestsDetails?.copy_details) || Array.isArray(requestsDetails?.data?.copy_details) || Array.isArray(requestsDetails?.authorised_by_details);
 
     if (isActivityMemo) {
-      // Activity Memo - Multiple reviewers (ManyToMany)
-      // CORRECT MAPPING: Through uses 'through_details' or 'reviewed_by_details' (reviewers)
-      const reviewersArray = requestsDetails?.through_details || requestsDetails?.reviewed_by_details || requestsDetails?.data?.through_details || requestsDetails?.data?.reviewed_by_details;
+      // Activity Memo - Multiple authorizers (ManyToMany)
+      // CORRECT MAPPING: Through uses authorizers (authorised_by_details)
+      const authorizersArray = requestsDetails?.copy_details || requestsDetails?.authorised_by_details || requestsDetails?.data?.copy_details || requestsDetails?.data?.authorised_by_details;
 
-      if (reviewersArray && reviewersArray.length > 0) {
-        const reviewers = reviewersArray.map((user: any) => {
+      if (authorizersArray && authorizersArray.length > 0) {
+        const authorizers = authorizersArray.map((user: any) => {
           const userName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
           const userPosition = user.position || 'N/A';
           return `${userName} (${userPosition})`;
         });
-        throughList.push(...reviewers);
+        throughList.push(...authorizers);
       }
     } else {
-      // Purchase Request - Single reviewer (ForeignKey)
-      const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
+      // Purchase Request - Single authorizer (ForeignKey)
+      const authorizerObject = requestsDetails?.authorized_by_detail || requestsDetails?.authorised_by_detail || requestsDetails?.data?.authorized_by_detail || requestsDetails?.data?.authorised_by_detail;
 
-      if (reviewerObject) {
-        const reviewerName = reviewerObject.name || `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
-        const reviewerPosition = reviewerObject.position || 'N/A';
-        throughList.push(`${reviewerName} (${reviewerPosition})`);
+      if (authorizerObject) {
+        const authorizerName = authorizerObject.name || `${authorizerObject.first_name || ''} ${authorizerObject.last_name || ''}`.trim();
+        const authorizerPosition = authorizerObject.position || 'N/A';
+        throughList.push(`${authorizerName} (${authorizerPosition})`);
       }
     }
 
@@ -262,43 +270,33 @@ const Preview = () => {
   };
 
   // Helper function to get reviewer for signature section
+  // Signature "Reviewed by" should show the reviewer from CC (reviewed_by field)
   const getReviewerForSignature = () => {
-    // Debug console.log commented to prevent render loops
-    // console.log("🔍 REVIEWER FOR SIGNATURE DEBUG:");
-
     // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
-    const isActivityMemo = Array.isArray(requestsDetails?.through_details) || Array.isArray(requestsDetails?.data?.through_details) || Array.isArray(requestsDetails?.reviewed_by_details);
-
-    // console.log("Signature reviewer - isActivityMemo:", isActivityMemo);
+    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details);
 
     if (isActivityMemo) {
       // Activity Memo - Multiple reviewers (take first one for signature)
-      // Use through_details (primary) or reviewed_by_details (fallback)
-      const reviewersArray = requestsDetails?.through_details || requestsDetails?.reviewed_by_details || requestsDetails?.data?.through_details || requestsDetails?.data?.reviewed_by_details;
-      // console.log("Signature reviewer - reviewers array:", reviewersArray);
+      // Use reviewed_by_details (the CC field which contains reviewers)
+      const reviewersArray = requestsDetails?.reviewed_by_details || requestsDetails?.data?.reviewed_by_details;
 
       if (reviewersArray && reviewersArray.length > 0) {
         const reviewer = reviewersArray[0];
         const reviewerName = reviewer.name || `${reviewer.first_name || ''} ${reviewer.last_name || ''}`.trim();
-        // console.log("Signature reviewer - first reviewer object:", reviewer);
-        // console.log("Signature reviewer - formatted name:", reviewerName);
         return reviewerName;
       }
     } else {
       // Purchase Request - Single reviewer
       const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
-      // console.log("Signature reviewer - reviewer object:", reviewerObject);
 
       if (reviewerObject) {
         const reviewerName = reviewerObject.name ||
                `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
-        // console.log("Signature reviewer - formatted name:", reviewerName);
         return reviewerName;
       }
     }
 
     // Fallback if no reviewer is found
-    // console.log("Signature reviewer - using fallback");
     return 'Please select reviewer in form';
   };
 
@@ -666,7 +664,25 @@ const Preview = () => {
               {/* Memo Content */}
               <div className='space-y-6 mb-10 text-justify leading-loose text-lg print:space-y-4 print:mb-8 print:leading-relaxed print:text-base'>
                 {memoData?.comment ? (
-                  <div dangerouslySetInnerHTML={{ __html: memoData.comment.replace(/\n/g, '<br />') }} />
+                  <>
+                    {/* Custom activity description from comment field */}
+                    <div dangerouslySetInnerHTML={{ __html: memoData.comment.replace(/\n/g, '<br />') }} />
+
+                    {/* Standard approval request text */}
+                    <p className='mt-4'>
+                      This is therefore a request to approve the sum of
+                      <span className='font-bold'> ₦{formatCurrency(memoData.activity_budget) || grandTotal?.toLocaleString() || '0'}.00</span> only
+                      to be charged to budget line {budgetLine?.code || budgetLine?.name || 'N/A'} for immediate procurement of listed items/execution of activities for effective operations in the state.
+                    </p>
+
+                    <p>
+                      Please, attached is the activity budget for your review and approval.
+                    </p>
+
+                    <p className='mt-3'>
+                      Thank you.
+                    </p>
+                  </>
                 ) : (
                   <>
                     <p>

@@ -21,12 +21,20 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/Loading";
 import { useCashFlowStatement } from "../hooks/useFinancialStatements";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { cn } from "@/lib/utils";
 
 export default function CashFlowPage() {
   const [startDate, setStartDate] = useState<Date>(new Date(new Date().getFullYear(), 0, 1));
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [projectId, setProjectId] = useState<string | undefined>(undefined);
+
+  // Fetch all projects for dropdown
+  const { data: projectsData } = useGetAllProjects({
+    page: 1,
+    size: 1000,
+    search: "",
+  });
 
   const { data, isLoading, error } = useCashFlowStatement({
     start_date: startDate,
@@ -150,6 +158,11 @@ export default function CashFlowPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">All Projects</SelectItem>
+            {projectsData?.data?.results?.map((project: any) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.title}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

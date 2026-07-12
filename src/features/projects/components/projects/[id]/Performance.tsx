@@ -4,15 +4,7 @@ import PerformanceTracking from "./PerformanceTracking";
 import { TrendingUp, DollarSign, Target } from "lucide-react";
 // import { formatNumberCurrency } from "@/utils/utls";
 
-interface PerformanceProps extends IProjectSingleData {
-  budget_performance_calculated?: {
-    budget_performance_percentage: number;
-  };
-  achievement_against_target_calculated?: {
-    achievement_percentage: number;
-  };
-  targets?: any[]; // Targets set during project creation
-}
+type PerformanceProps = IProjectSingleData;
 
 export default function Performance(props: PerformanceProps) {
   const {
@@ -33,7 +25,7 @@ export default function Performance(props: PerformanceProps) {
       {/* New Performance Tracking Section */}
       <PerformanceTracking
         projectId={id}
-        projectTargets={targets || []}
+        projectTargets={(targets as any) || []}
       />
 
       {/* Additional Performance Information */}

@@ -1,5 +1,5 @@
 import { TFundRequestActivity } from "@/features/programs/types/program-validator";
-import { useMemo } from "react";
+import { useMemo, Fragment } from "react";
 import {
     Table as ShadTable,
     TableBody,
@@ -70,6 +70,7 @@ export default function FundActivityTable({
                     <TableRow>
                         {columns.map((col) => (
                             <TableCell
+                                key={col}
                                 className={`font-semibold ${
                                     col === "Comment"
                                         ? "text-red-500"
@@ -86,7 +87,7 @@ export default function FundActivityTable({
                         const activities = groupedData[key];
 
                         return (
-                            <>
+                            <Fragment key={key}>
                                 <TableRow>
                                     <TableCell className="bg-gray-200"></TableCell>
                                     <TableCell className="bg-gray-200 text-red-500 font-semibold">
@@ -110,7 +111,7 @@ export default function FundActivityTable({
                                         },
                                         index
                                     ) => (
-                                        <TableRow>
+                                        <TableRow key={`${key}-${index}`}>
                                             <TableCell>
                                                 {(index + 1).toFixed(2)}
                                             </TableCell>
@@ -129,11 +130,11 @@ export default function FundActivityTable({
                                 )}
 
                                 <TableRow>
-                                    {[1, 2, 3, 4, 5, 6].map(() => (
-                                        <TableCell></TableCell>
+                                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                                        <TableCell key={`empty-${key}-${num}`}></TableCell>
                                     ))}
                                 </TableRow>
-                            </>
+                            </Fragment>
                         );
                     })}
 

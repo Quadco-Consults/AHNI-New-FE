@@ -1,42 +1,22 @@
 import Card from "@/components/Card";
 import DescriptionCard from "@/components/DescriptionCard";
-import { SeparationManagement } from "@/features/hr/types/separation-management";
+import { ExitTrackerSeparation } from "@/features/hr/types/separation-management";
 
 interface ExitSummaryProps {
-  data?: SeparationManagement;
+  data?: ExitTrackerSeparation;
 }
 
 const ExitSummary = ({ data }: ExitSummaryProps) => {
-  // Debug logging
-  console.log("ExitSummary - Received props data:", data);
-  console.log("ExitSummary - Type of data:", typeof data);
-  console.log("ExitSummary - Keys in data:", data ? Object.keys(data) : 'no data');
-
   if (!data) {
-    console.log("ExitSummary - No data provided");
     return null;
   }
 
   // Check if data has the API wrapper structure {status, message, data}
   const actualData = (data as any).data || data;
 
-  console.log("ExitSummary - Actual data to use:", actualData);
-  console.log("ExitSummary - Employee data:", actualData?.employee);
-  console.log("ExitSummary - Employee type:", typeof actualData?.employee);
-
   const employeeName = `${actualData.employee?.legal_firstname || ""} ${actualData.employee?.legal_lastname || ""}`.toUpperCase();
   const submitDate = actualData.submit_date ? new Date(actualData.submit_date).toLocaleDateString() : "N/A";
   const exitDate = actualData.exit_date ? new Date(actualData.exit_date).toLocaleDateString() : "N/A";
-
-  console.log("ExitSummary - Calculated values:", {
-    employeeName,
-    submitDate,
-    exitDate,
-    employeeNumber: actualData.employee?.employee_number,
-    position: actualData.employee?.position,
-    grade: actualData.employee?.grade,
-    location: actualData.employee?.location
-  });
 
   return (
     <div className="space-y-6">

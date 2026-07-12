@@ -42,8 +42,8 @@ export default function ProjectSummary(props: IProjectSingleData) {
             <span className='text-xs font-medium text-gray-500 mb-1'>Location</span>
             <span className='text-sm text-gray-900'>
               {Array.isArray(location)
-                ? location.map((loc: any) => loc.name).join(", ")
-                : location?.name || "Not specified"}
+                ? location.map((loc: any) => loc?.name || '').filter(Boolean).join(", ")
+                : "Not specified"}
             </span>
           </div>
 
@@ -97,7 +97,7 @@ export default function ProjectSummary(props: IProjectSingleData) {
             <span className='text-sm text-gray-900'>{end_date}</span>
           </div>
 
-          {total_obligation_amount && (
+          {total_obligation_amount && budget && (
             <div className='flex flex-col md:col-span-2'>
               <span className='text-xs font-medium text-gray-500 mb-2'>Budget Utilization</span>
               <div className='space-y-1'>
@@ -106,14 +106,14 @@ export default function ProjectSummary(props: IProjectSingleData) {
                     {formatNumberCurrency(total_obligation_amount, currency)} of {formatNumberCurrency(budget, currency)}
                   </span>
                   <span className='font-semibold'>
-                    {Math.min(Math.round((parseFloat(total_obligation_amount) / budget) * 100), 100)}%
+                    {Math.min(Math.round((parseFloat(total_obligation_amount) / Number(budget)) * 100), 100)}%
                   </span>
                 </div>
                 <div className='w-full bg-gray-200 rounded-full h-2'>
                   <div
                     className='bg-blue-600 h-2 rounded-full'
                     style={{
-                      width: `${Math.min((parseFloat(total_obligation_amount) / budget) * 100, 100)}%`
+                      width: `${Math.min((parseFloat(total_obligation_amount) / Number(budget)) * 100, 100)}%`
                     }}
                   ></div>
                 </div>
@@ -178,7 +178,9 @@ export default function ProjectSummary(props: IProjectSingleData) {
               <div key={partner.id} className='border border-gray-200 p-4 space-y-2 rounded bg-white'>
                 <h4 className='font-semibold text-sm text-gray-900'>{partner.name}</h4>
                 <div className='flex items-start gap-2 text-xs text-gray-600'>
-                  <LocationSvg className="flex-shrink-0 mt-0.5" />
+                  <div className="flex-shrink-0 mt-0.5">
+                    <LocationSvg />
+                  </div>
                   <span>{partner.state || 'Location not specified'}</span>
                 </div>
                 {partner.partner_type && (

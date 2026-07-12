@@ -40,6 +40,14 @@ function PurchaseRequest({
   const { data, isLoading, refetch } = useGetPurchaseRequests({ search: searchQuery });
   const { data: currentUser } = useGetUserProfile();
 
+  // Utility function to format currency with commas
+  const formatCurrency = (value: string | number | null | undefined): string => {
+    if (!value) return '0.00';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '0.00';
+    return numValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   // Handle status updates from approval workflow
   const handleStatusUpdate = () => {
     refetch();
@@ -440,10 +448,104 @@ function PurchaseRequest({
 
       {/* Tabbed View Details Modal */}
       {selectedPRForDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-7xl max-h-[95vh] overflow-y-auto m-4">
+        <>
+          {/* Print Styles */}
+          <style>{`
+            @media print {
+              @page {
+                size: A4;
+                margin: 15mm;
+              }
+
+              /* Hide modal overlay and navigation elements */
+              .print-hide,
+              .fixed.inset-0,
+              button,
+              nav,
+              header,
+              aside {
+                display: none !important;
+              }
+
+              /* Show only the tab content */
+              #tab-content {
+                display: block !important;
+                width: 100%;
+                max-width: 100%;
+                padding: 0 !important;
+                margin: 0 !important;
+              }
+
+              /* Professional document styling */
+              table {
+                border-collapse: collapse;
+                width: 100%;
+                page-break-inside: avoid;
+              }
+
+              th, td {
+                border: 2px solid #000 !important;
+                padding: 8px 12px !important;
+              }
+
+              th {
+                background-color: #e5e7eb !important;
+                font-weight: 700 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+
+              .bg-gray-200, .bg-gray-100, .bg-gray-50 {
+                background-color: #e5e7eb !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+
+              .bg-blue-200 {
+                background-color: #bfdbfe !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+
+              /* Ensure logos show in print */
+              img {
+                display: block !important;
+                max-width: 100px;
+                height: auto;
+              }
+
+              /* Borders */
+              .border, .border-black {
+                border: 2px solid #000 !important;
+              }
+
+              .border-b {
+                border-bottom: 2px solid #000 !important;
+              }
+
+              /* Typography */
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+                font-size: 12px;
+                line-height: 1.5;
+                color: #000 !important;
+                background: white !important;
+              }
+
+              .font-bold {
+                font-weight: 700 !important;
+              }
+
+              .underline {
+                text-decoration: underline;
+              }
+            }
+          `}</style>
+
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 print-hide">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-7xl max-h-[95vh] overflow-y-auto m-4">
             {/* Modal Header */}
-            <div className="p-4 border-b flex items-center justify-between bg-gray-50">
+            <div className="p-4 border-b flex items-center justify-between bg-gray-50 print-hide">
               <div className="flex items-center gap-4">
                 <h2 className="text-lg font-semibold">Purchase Request Details</h2>
                 <span className="text-sm text-gray-600">Ref: {selectedPRForDetails.ref_number}</span>
@@ -462,7 +564,7 @@ function PurchaseRequest({
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex border-b bg-gray-50">
+            <div className="flex border-b bg-gray-50 print-hide">
               {['Activity Memo', 'Expense Table', 'Purchase Request'].map((tab, index) => (
                 <button
                   key={tab}
@@ -485,7 +587,7 @@ function PurchaseRequest({
 
                 {/* Activity Memo Tab - AHNI Internal Memo Format */}
                 {activeTab === 0 && (
-                  <div>
+                  <div className="max-w-5xl mx-auto">
                     {/* AHNI Header with Logo */}
                     <div className="flex items-start justify-between mb-6">
                       <div className="flex items-center gap-4">
@@ -508,46 +610,45 @@ function PurchaseRequest({
                     {detailsActivityMemoData ? (
                       /* Real Activity Memo Content */
                       <div className="space-y-4">
-                        {/* To/Through/From Section */}
+                        {/* To/CC/Through/From Section - Using Activity Memo Staff */}
                         <div className="space-y-3">
                           <div className="flex items-start gap-4">
                             <span className="font-bold w-16">To:</span>
                             <div className="flex-1">
                               <div className="border-b border-black pb-1">
-                                {selectedPRForDetails.approved_by_detail ? (
-                                  `${selectedPRForDetails.approved_by_detail.name ||
-                                    `${selectedPRForDetails.approved_by_detail.first_name || ''} ${selectedPRForDetails.approved_by_detail.last_name || ''}`.trim() ||
-                                    selectedPRForDetails.approved_by_detail.email || 'Approver'
-                                  } (MD, AHNI)`
+                                {detailsActivityMemoData.approved_by_details ? (
+                                  `${detailsActivityMemoData.approved_by_details.name ||
+                                    `${detailsActivityMemoData.approved_by_details.first_name || ''} ${detailsActivityMemoData.approved_by_details.last_name || ''}`.trim() ||
+                                    detailsActivityMemoData.approved_by_details.email || 'Approver'
+                                  } (${detailsActivityMemoData.approved_by_details.position || 'MD'}, AHNI)`
                                 ) : (
                                   'Please select approver in form'
                                 )}
                               </div>
-                              <div className="border-b border-black pb-1 mt-2">
-                                {selectedPRForDetails.authorised_by_detail ? (
-                                  `${selectedPRForDetails.authorised_by_detail.name ||
-                                    `${selectedPRForDetails.authorised_by_detail.first_name || ''} ${selectedPRForDetails.authorised_by_detail.last_name || ''}`.trim() ||
-                                    selectedPRForDetails.authorised_by_detail.email || 'Authorizer'
-                                  } (Director of Operations, AHNI)`
-                                ) : (
-                                  'Please select authorizer in form'
-                                )}
-                              </div>
-                              <div className="border-b border-black pb-1 mt-2">
-                                {selectedPRForDetails.reviewed_by_detail ? (
-                                  `${selectedPRForDetails.reviewed_by_detail.name ||
-                                    `${selectedPRForDetails.reviewed_by_detail.first_name || ''} ${selectedPRForDetails.reviewed_by_detail.last_name || ''}`.trim() ||
-                                    selectedPRForDetails.reviewed_by_detail.email || 'Reviewer'
-                                  } (Director of Finance, AHNI)`
+                            </div>
+                            <div className="text-right text-sm w-24">
+                              <div>{detailsActivityMemoData.requested_date || new Date().toLocaleDateString()}</div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-4">
+                            <span className="font-bold w-16">CC:</span>
+                            <div className="flex-1">
+                              <div className="border-b border-black pb-1">
+                                {detailsActivityMemoData.reviewed_by_details && detailsActivityMemoData.reviewed_by_details.length > 0 ? (
+                                  detailsActivityMemoData.reviewed_by_details.map((reviewer, idx) => {
+                                    const name = reviewer.name ||
+                                      `${reviewer.first_name || ''} ${reviewer.last_name || ''}`.trim() ||
+                                      reviewer.email || 'Reviewer';
+                                    return `${name} (${reviewer.position || 'Staff'}, AHNI)`;
+                                  }).join(', ')
                                 ) : (
                                   'Please select reviewer in form'
                                 )}
                               </div>
                             </div>
                             <div className="text-right text-sm w-24">
-                              <div>{selectedPRForDetails.approved_date || new Date().toLocaleDateString()}</div>
-                              <div className="mt-6">{selectedPRForDetails.authorized_date || new Date().toLocaleDateString()}</div>
-                              <div className="mt-6">{selectedPRForDetails.reviewed_date || new Date().toLocaleDateString()}</div>
+                              <div>{detailsActivityMemoData.requested_date || new Date().toLocaleDateString()}</div>
                             </div>
                           </div>
 
@@ -555,18 +656,16 @@ function PurchaseRequest({
                             <span className="font-bold w-16">Through:</span>
                             <div className="flex-1">
                               <div className="border-b border-black pb-1">
-                                {detailsActivityMemoData.through_details?.length > 0 ?
-                                  detailsActivityMemoData.through_details.map((person, idx) => {
-                                    const personName = person.name ||
-                                      `${person.first_name || ''} ${person.last_name || ''}`.trim() ||
-                                      person.email ||
-                                      'Personnel';
-                                    return `${personName} (${person.designation || 'Staff'})`;
-                                  }).join(', ') :
-                                  detailsActivityMemoData.through_details?.length > 0 ?
-                                    detailsActivityMemoData.through_details.map(id => id).join(', ') :
-                                    'Please select through personnel in form'
-                                }
+                                {detailsActivityMemoData.authorised_by_details && detailsActivityMemoData.authorised_by_details.length > 0 ? (
+                                  detailsActivityMemoData.authorised_by_details.map((authorizer, idx) => {
+                                    const name = authorizer.name ||
+                                      `${authorizer.first_name || ''} ${authorizer.last_name || ''}`.trim() ||
+                                      authorizer.email || 'Authorizer';
+                                    return `${name} (${authorizer.position || 'Staff'}, AHNI)`;
+                                  }).join(', ')
+                                ) : (
+                                  'Please select authorizer in form'
+                                )}
                               </div>
                             </div>
                             <div className="text-right text-sm w-24">
@@ -578,25 +677,19 @@ function PurchaseRequest({
                             <span className="font-bold w-16">From:</span>
                             <div className="flex-1">
                               <div className="border-b border-black pb-1">
-                                {selectedPRForDetails.requested_by ? (
-                                  `${selectedPRForDetails.requested_by.name ||
-                                    `${selectedPRForDetails.requested_by.first_name || ''} ${selectedPRForDetails.requested_by.last_name || ''}`.trim() ||
-                                    selectedPRForDetails.requested_by.email ||
+                                {detailsActivityMemoData.created_by_details ? (
+                                  `${detailsActivityMemoData.created_by_details.name ||
+                                    `${detailsActivityMemoData.created_by_details.first_name || ''} ${detailsActivityMemoData.created_by_details.last_name || ''}`.trim() ||
+                                    detailsActivityMemoData.created_by_details.email ||
                                     'Requester'
-                                  } (${selectedPRForDetails.requested_by.designation || 'Staff'})`
-                                ) : selectedPRForDetails.requested_by_detail ? (
-                                  `${selectedPRForDetails.requested_by_detail.name ||
-                                    `${selectedPRForDetails.requested_by_detail.first_name || ''} ${selectedPRForDetails.requested_by_detail.last_name || ''}`.trim() ||
-                                    selectedPRForDetails.requested_by_detail.email ||
-                                    'Requester'
-                                  } (Staff)`
+                                  } (${detailsActivityMemoData.created_by_details.position || detailsActivityMemoData.created_by_details.designation || 'Staff'})`
                                 ) : (
-                                  'Please select requester in form'
+                                  'Requester (Staff)'
                                 )}
                               </div>
                             </div>
                             <div className="text-right text-sm w-24">
-                              <div>{selectedPRForDetails.date_of_request || selectedPRForDetails.request_date}</div>
+                              <div>{detailsActivityMemoData.requested_date || new Date().toLocaleDateString()}</div>
                             </div>
                           </div>
                         </div>
@@ -676,11 +769,11 @@ function PurchaseRequest({
 
                           <p className="mt-4">
                             This is therefore a request to approve the sum of
-                            <strong> ₦{detailsActivityMemoData.activity_budget?.toLocaleString() ||
-                              detailsActivityMemoData.expenses?.reduce((sum, expense) => {
+                            <strong> ₦{formatCurrency(detailsActivityMemoData.activity_budget) ||
+                              formatCurrency(detailsActivityMemoData.expenses?.reduce((sum, expense) => {
                                 const cost = parseFloat(expense.total_cost?.toString() || '0') || 0;
                                 return sum + cost;
-                              }, 0).toLocaleString() || '0'}</strong> only
+                              }, 0)) || '0.00'}</strong> only
                             to be charged to budget line {
                               detailsActivityMemoData.budget_line_details?.map(bl => bl.module_code).join(', ') ||
                               detailsActivityMemoData.budget_line?.join(', ') || '916'
@@ -752,13 +845,13 @@ function PurchaseRequest({
                               <span className="font-bold w-16">Through:</span>
                               <div className="flex-1">
                                 <div className="border-b border-black pb-1">
-                                  {selectedPRForDetails.reviewed_by_detail ? (
-                                    `${selectedPRForDetails.reviewed_by_detail.name ||
-                                      `${selectedPRForDetails.reviewed_by_detail.first_name || ''} ${selectedPRForDetails.reviewed_by_detail.last_name || ''}`.trim() ||
-                                      selectedPRForDetails.reviewed_by_detail.email || 'Reviewer'
-                                    } (Reviewer)`
+                                  {selectedPRForDetails.authorised_by_detail ? (
+                                    `${selectedPRForDetails.authorised_by_detail.name ||
+                                      `${selectedPRForDetails.authorised_by_detail.first_name || ''} ${selectedPRForDetails.authorised_by_detail.last_name || ''}`.trim() ||
+                                      selectedPRForDetails.authorised_by_detail.email || 'Authorizer'
+                                    } (${selectedPRForDetails.authorised_by_detail.position || 'Authorizer'})`
                                   ) : (
-                                    'Please select reviewer in form'
+                                    'Please select authorizer in form'
                                   )}
                                 </div>
                               </div>
@@ -858,7 +951,7 @@ function PurchaseRequest({
 
                 {/* Expense Table Tab - AHNI Activity Expense Sheet Format */}
                 {activeTab === 1 && (
-                  <div>
+                  <div className="max-w-5xl mx-auto">
                     {/* AHNI Header with proper layout */}
                     <div className="border border-black p-4 mb-4">
                       <div className="flex items-center justify-between mb-4">
@@ -874,7 +967,7 @@ function PurchaseRequest({
 
                       {/* Activity Header */}
                       <div className="bg-blue-200 p-2 text-center font-bold text-sm mb-4">
-                        Activity: {detailsActivityMemoData?.activity || selectedPRForDetails.title || '9.2.2 Anambra State Office Admin Cost Q3(July - September 2024)'}
+                        Activity: {detailsActivityMemoData?.activity_reference_number || detailsActivityMemoData?.subject || selectedPRForDetails.title || '9.2.2 Anambra State Office Admin Cost Q3(July - September 2024)'}
                       </div>
 
                       {/* Request Details Grid */}
@@ -905,7 +998,7 @@ function PurchaseRequest({
                           <div className="flex">
                             <span className="w-24 font-bold bg-gray-200 p-1 border border-black">Module:</span>
                             <span className="flex-1 p-1 border border-black">
-                              {detailsActivityMemoData?.module_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
+                              {detailsActivityMemoData?.modules_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
                                'N/A'}
                             </span>
                           </div>
@@ -1175,24 +1268,23 @@ function PurchaseRequest({
 
                 {/* Purchase Request Tab - AHNI Purchase Request Form Format */}
                 {activeTab === 2 && (
-                  <div>
+                  <div className="max-w-5xl mx-auto">
                     {/* AHNI Header with Logo and Contact Details */}
                     <div className="text-center mb-6">
-                      <div className="flex items-center justify-center gap-4 mb-4">
-                        <div className="w-20 h-16 border-2 border-black flex items-center justify-center">
-                          <img
-                            src={(logoPng as any).src || logoPng}
-                            alt="AHNI Logo"
-                            className="w-16 h-14 object-contain"
-                          />
-                        </div>
+                      <div className="flex items-center justify-center gap-4 mb-2">
+                        <img
+                          src={(logoPng as any).src || logoPng}
+                          alt="AHNI Logo"
+                          width={60}
+                          className="object-contain"
+                        />
                         <div>
                           <h1 className="text-xl font-bold">Achieving Health Nigeria Initiative (AHNI)</h1>
-                          <p className="text-sm">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
-                          <p className="text-sm">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
+                          <p className="text-xs">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+                          <p className="text-xs">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511</p>
                         </div>
                       </div>
-                      <h2 className="text-lg font-bold underline">PURCHASE REQUEST FORM</h2>
+                      <h2 className="text-lg font-bold underline mt-4">PURCHASE REQUEST FORM</h2>
                     </div>
 
                     {/* Request Information Grid */}
@@ -1236,32 +1328,26 @@ function PurchaseRequest({
                       </div>
                     </div>
 
-                    {/* Items Table */}
+                    {/* Items Table - AHNI Official Format */}
                     <table className="w-full border-collapse border border-black text-sm mb-4">
                       <thead>
                         <tr className="bg-gray-200">
                           <th className="border border-black px-2 py-3 text-center font-bold">S/N</th>
                           <th className="border border-black px-4 py-3 text-center font-bold">Description of items/services</th>
-                          <th className="border border-black px-2 py-3 text-center font-bold">UOM</th>
                           <th className="border border-black px-2 py-3 text-center font-bold">FCO</th>
-                          <th className="border border-black px-2 py-3 text-center font-bold">QTY</th>
+                          <th className="border border-black px-2 py-3 text-center font-bold">NO of Persons/Unit</th>
+                          <th className="border border-black px-2 py-3 text-center font-bold">No of Days</th>
                           <th className="border border-black px-2 py-3 text-center font-bold">Unit Cost</th>
-                          <th className="border border-black px-2 py-3 text-center font-bold">Total Amount =N=</th>
+                          <th className="border border-black px-2 py-3 text-center font-bold">Amount =N=</th>
                         </tr>
                       </thead>
                       <tbody>
                         {selectedPRForDetails.items && selectedPRForDetails.items.length > 0 ? (
                           selectedPRForDetails.items.map((item: any, index: number) => (
                             <tr key={index}>
-                              <td className="border border-black px-2 py-2 text-center font-bold">{index + 1}</td>
+                              <td className="border border-black px-2 py-2 text-center">{index + 1}</td>
                               <td className="border border-black px-4 py-2">
-                                <div className="font-bold">{item.item?.name || item.item_detail?.name}</div>
-                                {item.item?.description && (
-                                  <div className="text-xs mt-1">{item.item.description}</div>
-                                )}
-                              </td>
-                              <td className="border border-black px-2 py-2 text-center">
-                                {item.item?.uom || item.uom || 'Unit'}
+                                {item.item?.name || item.item_detail?.name || item.description}
                               </td>
                               <td className="border border-black px-2 py-2 text-center">
                                 {item.fconumber_details?.[0]?.module_name ||
@@ -1271,76 +1357,147 @@ function PurchaseRequest({
                                  item.fconumber ||
                                  item.fco_number ||
                                  item.fco ||
-                                 'N/A'}
+                                 ''}
                               </td>
                               <td className="border border-black px-2 py-2 text-center">
-                                {item.quantity || item.units || '0'}
+                                {item.num_of_persons || item.quantity || item.units || '1'}
                               </td>
                               <td className="border border-black px-2 py-2 text-center">
-                                ₦{item.unit_cost ? parseFloat(item.unit_cost.toString()).toLocaleString() : '0'}
+                                {item.duration || item.num_of_months || item.num_of_days || '1'}
                               </td>
-                              <td className="border border-black px-2 py-2 text-center font-bold">
-                                ₦{item.sub_total_amount ? parseFloat(item.sub_total_amount.toString()).toLocaleString() :
-                                   item.amount ? parseFloat(item.amount.toString()).toLocaleString() : '0'}
+                              <td className="border border-black px-2 py-2 text-right">
+                                {item.unit_cost ? parseFloat(item.unit_cost.toString()).toLocaleString() : '0'}
+                              </td>
+                              <td className="border border-black px-2 py-2 text-right">
+                                {item.sub_total_amount ? parseFloat(item.sub_total_amount.toString()).toLocaleString() :
+                                 item.amount ? parseFloat(item.amount.toString()).toLocaleString() : '0'}
                               </td>
                             </tr>
                           ))
                         ) : (
-                          /* Sample data when no items */
+                          /* Sample data when no items - AHNI BOT Retreat Example */
                           <>
-                            <tr>
+                            {/* FEEDING Category */}
+                            <tr className="bg-gray-100">
                               <td className="border border-black px-2 py-2 text-center font-bold">1</td>
-                              <td className="border border-black px-4 py-2">
-                                <div className="font-bold">FEEDING</div>
-                                <div className="text-xs">Dinner (Day 1)</div>
-                                <div className="text-xs">Tea Break (AM & PM) - Day 2</div>
-                                <div className="text-xs">Lunch - Day 2</div>
-                                <div className="text-xs">Tea Break (AM & PM) - Day 3</div>
-                                <div className="text-xs">Lunch - Day 3</div>
-                              </td>
-                              <td className="border border-black px-2 py-2 text-center">Unit</td>
-                              <td className="border border-black px-2 py-2 text-center">004-HOPM</td>
-                              <td className="border border-black px-2 py-2 text-center">83</td>
-                              <td className="border border-black px-2 py-2 text-center">8,000</td>
-                              <td className="border border-black px-2 py-2 text-center font-bold">662,500</td>
+                              <td className="border border-black px-4 py-2 font-bold" colSpan={6}>FEEDING</td>
                             </tr>
                             <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Dinner (Day 1)</td>
+                              <td className="border border-black px-2 py-2 text-center">004-HOPM</td>
+                              <td className="border border-black px-2 py-2 text-center">25</td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-right">12,000</td>
+                              <td className="border border-black px-2 py-2 text-right">300,000</td>
+                            </tr>
+                            <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Tea Break (AM & PM) - Day 2</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-2 py-2 text-center">17</td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-right">4,500</td>
+                              <td className="border border-black px-2 py-2 text-right">76,500</td>
+                            </tr>
+                            <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Lunch - Day 2</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-2 py-2 text-center">17</td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-right">8,000</td>
+                              <td className="border border-black px-2 py-2 text-right">136,000</td>
+                            </tr>
+                            <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Tea Break (AM & PM) - Day 3</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-2 py-2 text-center">12</td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-right">4,500</td>
+                              <td className="border border-black px-2 py-2 text-right">54,000</td>
+                            </tr>
+                            <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Lunch - Day 3</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-2 py-2 text-center">12</td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-right">8,000</td>
+                              <td className="border border-black px-2 py-2 text-right">96,000</td>
+                            </tr>
+
+                            {/* ACCOMMODATION Category */}
+                            <tr className="bg-gray-100">
                               <td className="border border-black px-2 py-2 text-center font-bold">2</td>
-                              <td className="border border-black px-4 py-2">
-                                <div className="font-bold">ACCOMMODATION</div>
-                                <div className="text-xs">Accommodation for participants</div>
-                              </td>
-                              <td className="border border-black px-2 py-2 text-center">Unit</td>
-                              <td className="border border-black px-2 py-2 text-center">004-HOPM</td>
-                              <td className="border border-black px-2 py-2 text-center">21</td>
-                              <td className="border border-black px-2 py-2 text-center">47,143</td>
-                              <td className="border border-black px-2 py-2 text-center font-bold">990,000</td>
+                              <td className="border border-black px-4 py-2 font-bold" colSpan={6}>ACCOMMODATION</td>
                             </tr>
                             <tr>
-                              <td className="border border-black px-2 py-2 text-center font-bold">3</td>
-                              <td className="border border-black px-4 py-2">
-                                <div className="font-bold">HALL RENTAL</div>
-                                <div className="text-xs">Hall Rental for 3 days</div>
-                              </td>
-                              <td className="border border-black px-2 py-2 text-center">Unit</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Accommodation</td>
                               <td className="border border-black px-2 py-2 text-center">004-HOPM</td>
+                              <td className="border border-black px-2 py-2 text-center">6</td>
                               <td className="border border-black px-2 py-2 text-center">3</td>
-                              <td className="border border-black px-2 py-2 text-center">200,000</td>
-                              <td className="border border-black px-2 py-2 text-center font-bold">600,000</td>
+                              <td className="border border-black px-2 py-2 text-right">45,000</td>
+                              <td className="border border-black px-2 py-2 text-right">810,000</td>
                             </tr>
                             <tr>
-                              <td className="border border-black px-2 py-2 text-center font-bold">4</td>
-                              <td className="border border-black px-4 py-2">
-                                <div className="font-bold">MEETING MATERIALS</div>
-                                <div className="text-xs">Writing Material</div>
-                                <div className="text-xs">Branded bags</div>
-                                <div className="text-xs">Printed Annual Report</div>
-                              </td>
-                              <td className="border border-black px-2 py-2 text-center">Unit</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Accommodation</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-center">3</td>
+                              <td className="border border-black px-2 py-2 text-right">60,000</td>
+                              <td className="border border-black px-2 py-2 text-right">180,000</td>
+                            </tr>
+
+                            {/* HALL RENTAL Category */}
+                            <tr className="bg-gray-100">
+                              <td className="border border-black px-2 py-2 text-center font-bold">3</td>
+                              <td className="border border-black px-4 py-2 font-bold" colSpan={6}>HALL RENTAL</td>
+                            </tr>
+                            <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Hall Rental</td>
                               <td className="border border-black px-2 py-2 text-center">004-HOPM</td>
-                              <td className="border border-black px-2 py-2 text-center">34</td>
-                              <td className="border border-black px-2 py-2 text-center">19,706</td>
-                              <td className="border border-black px-2 py-2 text-center font-bold">670,000</td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-center">3</td>
+                              <td className="border border-black px-2 py-2 text-right">200,000</td>
+                              <td className="border border-black px-2 py-2 text-right">600,000</td>
+                            </tr>
+
+                            {/* MEETING MATERIALS Category */}
+                            <tr className="bg-gray-100">
+                              <td className="border border-black px-2 py-2 text-center font-bold">4</td>
+                              <td className="border border-black px-4 py-2 font-bold" colSpan={6}>MEETING MATERIALS</td>
+                            </tr>
+                            <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Writing Material</td>
+                              <td className="border border-black px-2 py-2 text-center">004-HOPM</td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-center">11</td>
+                              <td className="border border-black px-2 py-2 text-right">5,000</td>
+                              <td className="border border-black px-2 py-2 text-right">55,000</td>
+                            </tr>
+                            <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Branded bags</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-center">11</td>
+                              <td className="border border-black px-2 py-2 text-right">45,000</td>
+                              <td className="border border-black px-2 py-2 text-right">495,000</td>
+                            </tr>
+                            <tr>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-4 py-2 pl-8">Printed Annual Report</td>
+                              <td className="border border-black px-2 py-2 text-center"></td>
+                              <td className="border border-black px-2 py-2 text-center">1</td>
+                              <td className="border border-black px-2 py-2 text-center">12</td>
+                              <td className="border border-black px-2 py-2 text-right">10,000</td>
+                              <td className="border border-black px-2 py-2 text-right">120,000</td>
                             </tr>
                           </>
                         )}
@@ -1348,15 +1505,15 @@ function PurchaseRequest({
                         {/* Total Row */}
                         <tr className="bg-gray-100">
                           <td colSpan={6} className="border border-black px-4 py-3 text-right font-bold text-lg">TOTAL</td>
-                          <td className="border border-black px-2 py-3 text-center font-bold text-lg">
+                          <td className="border border-black px-2 py-3 text-right font-bold text-lg">
                             {selectedPRForDetails.items && selectedPRForDetails.items.length > 0
-                              ? `₦${selectedPRForDetails.items.reduce((sum: number, item: any) => {
+                              ? selectedPRForDetails.items.reduce((sum: number, item: any) => {
                                   const amount = parseFloat(item.sub_total_amount?.toString() || item.amount?.toString() || "0");
                                   return sum + amount;
-                                }, 0).toLocaleString()}`
+                                }, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                               : selectedPRForDetails.total_amount
-                                ? `₦${parseFloat(selectedPRForDetails.total_amount.toString()).toLocaleString()}`
-                                : '₦0'
+                                ? parseFloat(selectedPRForDetails.total_amount.toString()).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                : '2,922,500.00'
                             }
                           </td>
                         </tr>
@@ -1368,7 +1525,7 @@ function PurchaseRequest({
                       <div className="flex items-start gap-2">
                         <span className="font-bold">Special instructions/specification:</span>
                         <span className="border-b border-black px-2 flex-1 min-h-[24px]">
-                          {selectedPRForDetails.title || 'AHNI BOT Retreat'}
+                          {selectedPRForDetails.special_instruction || selectedPRForDetails.special_instructions || ''}
                         </span>
                       </div>
                     </div>
@@ -1502,7 +1659,7 @@ function PurchaseRequest({
               </div>
 
               {/* Navigation and Action Buttons */}
-              <div className="flex items-center justify-between p-4 border-t bg-gray-50">
+              <div className="flex items-center justify-between p-4 border-t bg-gray-50 print-hide">
                 <div className="flex items-center gap-2">
                   <Button
                     onClick={() => setActiveTab(Math.max(0, activeTab - 1))}
@@ -1524,36 +1681,7 @@ function PurchaseRequest({
 
                 <div className="flex items-center gap-2">
                   <Button
-                    onClick={() => {
-                      const content = document.getElementById('tab-content');
-                      if (content) {
-                        const printWindow = window.open('', '_blank');
-                        if (printWindow) {
-                          printWindow.document.write(`
-                            <html>
-                              <head>
-                                <title>Print Document</title>
-                                <style>
-                                  body { font-family: Arial, sans-serif; margin: 20px; }
-                                  table { border-collapse: collapse; width: 100%; }
-                                  th, td { border: 1px solid black; padding: 8px; text-align: left; }
-                                  .text-center { text-align: center; }
-                                  .font-bold { font-weight: bold; }
-                                  .underline { text-decoration: underline; }
-                                  .border-b { border-bottom: 1px solid black; }
-                                  .bg-gray-50 { background-color: #f9fafb; }
-                                  .bg-gray-100 { background-color: #f3f4f6; }
-                                  @media print { body { margin: 0; } }
-                                </style>
-                              </head>
-                              <body>${content.innerHTML}</body>
-                            </html>
-                          `);
-                          printWindow.document.close();
-                          printWindow.print();
-                        }
-                      }
-                    }}
+                    onClick={() => window.print()}
                     variant="outline"
                     size="sm"
                   >
@@ -1561,32 +1689,8 @@ function PurchaseRequest({
                   </Button>
                   <Button
                     onClick={() => {
-                      const content = document.getElementById('tab-content');
-                      if (content) {
-                        const link = document.createElement('a');
-                        const file = new Blob([`
-                          <html>
-                            <head>
-                              <title>Document</title>
-                              <style>
-                                body { font-family: Arial, sans-serif; margin: 20px; }
-                                table { border-collapse: collapse; width: 100%; }
-                                th, td { border: 1px solid black; padding: 8px; text-align: left; }
-                                .text-center { text-align: center; }
-                                .font-bold { font-weight: bold; }
-                                .underline { text-decoration: underline; }
-                                .border-b { border-bottom: 1px solid black; }
-                                .bg-gray-50 { background-color: #f9fafb; }
-                                .bg-gray-100 { background-color: #f3f4f6; }
-                              </style>
-                            </head>
-                            <body>${content.innerHTML}</body>
-                          </html>
-                        `], { type: 'text/html' });
-                        link.href = URL.createObjectURL(file);
-                        link.download = `${['Activity_Memo', 'Expense_Table', 'Purchase_Request'][activeTab]}_${selectedPRForDetails.ref_number}.html`;
-                        link.click();
-                      }
+                      // Download functionality disabled - use Print to PDF instead
+                      alert('Please use Print button and select "Save as PDF" option');
                     }}
                     variant="outline"
                     size="sm"
@@ -1597,7 +1701,8 @@ function PurchaseRequest({
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </section>
   );

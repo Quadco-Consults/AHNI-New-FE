@@ -29,6 +29,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/Loading";
 import { useGeneralLedger } from "../hooks/useFinancialStatements";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { cn } from "@/lib/utils";
 
 export default function GeneralLedgerPage() {
@@ -36,6 +37,13 @@ export default function GeneralLedgerPage() {
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [accountId, setAccountId] = useState<string | undefined>(undefined);
   const [projectId, setProjectId] = useState<string | undefined>(undefined);
+
+  // Fetch all projects for dropdown
+  const { data: projectsData } = useGetAllProjects({
+    page: 1,
+    size: 1000,
+    search: "",
+  });
 
   const { data, isLoading, error } = useGeneralLedger({
     start_date: startDate,
@@ -215,6 +223,11 @@ export default function GeneralLedgerPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">All Projects</SelectItem>
+            {projectsData?.data?.results?.map((project: any) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.title}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

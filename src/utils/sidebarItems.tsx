@@ -873,6 +873,28 @@ export const departmentalLinks: SidebarItem[] = [
             module: "hr",
             codenames: ["view_employeeseparation"]
           }
+        ],
+        children: [
+          {
+            name: "Separations",
+            path: "/dashboard/hr/separation-management",
+            permissions: [
+              {
+                module: "hr",
+                codenames: ["view_employeeseparation"]
+              }
+            ]
+          },
+          {
+            name: "Exit Tracker",
+            path: "/dashboard/hr/separation-management/exit-tracker",
+            permissions: [
+              {
+                module: "hr",
+                codenames: ["view_employeeseparation"]
+              }
+            ]
+          }
         ]
       },
       {
@@ -2214,6 +2236,13 @@ export const globalHubLinks: GlobalHubItem[] = [
         codenames: ["view_adhocrequisition"]
       }
     ]
+  },
+  {
+    label: "Pending Exit Clearances",
+    path: "/dashboard/global-hub/pending-exit-clearances",
+    icon: <CheckSquare className="w-4 h-4" />,
+    category: "hr"
+    // No permissions = accessible to all staff for clearing exiting employees
   },
 
   // Programs & Plans

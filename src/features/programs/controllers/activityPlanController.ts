@@ -428,7 +428,8 @@ export const useMonthlyActivityPlansByActivity = (
             size: 100, // Get all monthly records (12 per activity typically)
           },
         });
-        return response.data;
+        // Handle nested data structure: response.data.data.results
+        return response.data?.data || response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error(

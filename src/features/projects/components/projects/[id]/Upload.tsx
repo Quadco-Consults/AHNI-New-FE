@@ -13,7 +13,8 @@ import UploadsComponent from "@/components/UploadComponent";
 
 export default function ProjectUploads() {
   const dispatch = useAppDispatch();
-  const { id: projectId } = useParams<{ id: string }>();
+  const params = useParams();
+  const projectId = (params?.id as string) || "";
   const [page, setPage] = useState(1);
   const [documentToDelete, setDocumentToDelete] = useState<string>("");
 
@@ -43,7 +44,7 @@ export default function ProjectUploads() {
   return (
     <UploadsComponent
       title="Project Uploads"
-      documents={documentsData}
+      documents={documentsData as any}
       isFetching={isFetching}
       deleteDocument={deleteDocument}
       onUploadClick={() => {

@@ -18,6 +18,10 @@ export const ProjectTargetDefinitionSchema = z.object({
   q3_target: z.number().optional(),
   q4_target: z.number().optional(),
   target_notes: z.string().optional(),
+  // API returns these additional fields
+  target_value: z.number().optional(), // Backend field name
+  comments: z.string().optional(), // Backend field name
+  achievements: z.array(z.any()).optional(), // Achievement records from backend
 });
 
 // Export the target definition type for use in components
@@ -65,6 +69,7 @@ export interface IProjectSingleData {
     sub_objectives: string[];
   }[];
   partners: TPartnerData[];
+  consortium_partners?: TPartnerData[]; // Alias for partners
   documents: [];
   // grant: IGrantSingleData;
   created_datetime: string;
@@ -88,6 +93,16 @@ export interface IProjectSingleData {
   // NEW: Ahni's role fields
   ahni_role?: 'PRIME_RECIPIENT' | 'SUBRECIPIENT';
   prime_recipient_organization?: string | null;
+  // Calculated fields from backend
+  achievement_against_target_calculated?: {
+    achievement_percentage: number;
+  };
+  budget_performance_calculated?: {
+    budget_performance_percentage: number;
+  };
+  // Optional fields for component compatibility
+  name?: string;
+  description?: string;
 }
 
 export interface ProjectsData {
