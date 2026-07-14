@@ -53,6 +53,7 @@ import {
   useGetSingleCba,
   useUpdateCba,
 } from "@/features/procurement/controllers";
+import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetAllUsers, useGetProcurementOfficers } from "@/features/auth/controllers";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
@@ -125,6 +126,9 @@ const CreateCBA = () => {
 
   // Update CBA hook for edit mode
   const { updateCba, isLoading: updateCbaIsLoading } = useUpdateCba(cbaId || "");
+
+  // Get all CBAs to check for technical evaluation status
+  const { data: allCbasData } = CbaAPI.useGetAllCbas({});
 
   // Get vendor bid submissions for this RFQ
   // In edit mode, use the solicitation from existing CBA data
@@ -305,6 +309,28 @@ const CreateCBA = () => {
     authorisers?: string[];
     approvers?: string[];
   }) => {
+    // VALIDATION: Check if National Open Tender requires technical evaluation
+    if (!isEditMode) {
+      const selectedSolicitation = rfqData?.data?.results?.find(
+        (rfq: any) => rfq.id === data?.solicitation
+      );
+
+      if (selectedSolicitation?.tender_type === 'NATIONAL OPEN TENDER') {
+        // Check if technical evaluation is completed for this RFQ
+        const existingCbaForRfq = allCbasData?.results?.find(
+          (cba: any) => cba.solicitation?.id === data?.solicitation
+        );
+
+        if (!existingCbaForRfq?.technical_evaluation_completed) {
+          toast.error(
+            "National Open Tender RFQs require technical prequalification to be completed before creating CBA. " +
+            "Please go to the RFQ details page and complete the Technical Prequalification tab first."
+          );
+          return;
+        }
+      }
+    }
+
     // Ensure cba_date is in 'YYYY-MM-DD' format
     let formattedDate = data?.cba_date;
     if (formattedDate && !/^\d{4}-\d{2}-\d{2}$/.test(formattedDate)) {

@@ -31,7 +31,7 @@ const Procurement = () => {
         </Button>
         <h1 className="text-2xl font-bold text-gray-800">Procurement Module Configuration</h1>
         <p className="text-sm text-gray-600 mt-1">
-          Manage procurement configurations including lots, items, market prices, and evaluation criteria
+          Manage procurement configurations including lots, items, market prices, bid evaluation criteria, and EOI registration
         </p>
       </div>
       <div>
@@ -44,10 +44,10 @@ const Procurement = () => {
               Solicitation Evaluation Criteria
             </TabsTrigger>
             <TabsTrigger value='category'>
-              Pre-qualification Category
+              Prequalification Category
             </TabsTrigger>
             <TabsTrigger value='criteria'>
-              Pre-qualification Criteria
+              Bid Evaluation Criteria
             </TabsTrigger>
             <TabsTrigger value='questionnaire'>Questionnaire</TabsTrigger>
           </TabsList>

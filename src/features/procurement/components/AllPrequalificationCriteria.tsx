@@ -54,9 +54,14 @@ export default function PrequalificationCriteria() {
     return (
         <div>
             <div className="flex justify-between items-center py-6 mb-6">
-                <h1 className="text-error font-semibold text-sm">
-                    Pre-qualification Criteria
-                </h1>
+                <div>
+                    <h1 className="text-error font-semibold text-sm">
+                        Bid Evaluation Criteria
+                    </h1>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Technical and financial criteria for evaluating bids (not for EOI vendor registration)
+                    </p>
+                </div>
                 <div className="flex gap-2">
                     <Button
                         onClick={() => setBulkUploadOpen(true)}
@@ -73,7 +78,7 @@ export default function PrequalificationCriteria() {
                                 openDialog({
                                     type: DialogType.AddPrequalificationCriteria,
                                     dialogProps: {
-                                        header: "Add Prequalification Criteria",
+                                        header: "Add Bid Evaluation Criterion",
                                     },
                                 })
                             )
@@ -91,7 +96,7 @@ export default function PrequalificationCriteria() {
                 open={bulkUploadOpen}
                 onClose={() => setBulkUploadOpen(false)}
                 apiEndpoint="/procurements/prequalification-criteria"
-                title="Prequalification Criteria"
+                title="Bid Evaluation Criteria"
                 onUploadComplete={() => {
                     refetch();
                     setBulkUploadOpen(false);

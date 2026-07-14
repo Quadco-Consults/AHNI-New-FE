@@ -13,7 +13,7 @@ import BreadcrumbCard from "@/components/Breadcrumb";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import GoBack from "@/components/GoBack";
 import EOIVendorSubmission from "@/features/procurement/components/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
-import SummaryOfTechnicalPrequalification from "@/features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
+import TechnicalEvaluationMatrix from "./tab-contents/TechnicalEvaluationMatrix";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
@@ -57,6 +57,12 @@ const RFQDetails = () => {
   // Check if this RFQ came from EOI (checking multiple possible field names)
   const isFromEOI = (data?.data as any)?.eoi_tender || (data?.data as any)?.eoi_id || (data?.data as any)?.eoi;
 
+  // Check if this is a National Open Tender RFQ (requires technical prequalification)
+  const isNationalOpenTender = (data?.data as any)?.tender_type === 'NATIONAL OPEN TENDER';
+
+  // Show technical evaluation for National Open Tender RFQs (whether from EOI or not)
+  const showTechnicalEvaluation = isFromEOI || isNationalOpenTender;
+
   // Get vendor submissions for evaluation
   const submissions = (submissionsData as any)?.data?.data?.results || (submissionsData as any)?.data?.results || [];
   const hasSubmissions = submissions && submissions.length > 0;
@@ -80,6 +86,8 @@ const RFQDetails = () => {
   console.log({
     data: data?.data?.tender_type,
     isFromEOI,
+    isNationalOpenTender,
+    showTechnicalEvaluation,
     hasSubmissions,
     existingCba,
     submissions: submissions?.length || 0
@@ -108,10 +116,10 @@ const RFQDetails = () => {
         <TabsList>
           <TabsTrigger value="rfq-details">RFQ Details</TabsTrigger>
           <TabsTrigger value="vendor-submission">Vendor Submission</TabsTrigger>
-          {/* Only show vendor submission evaluation tab for EOI national open tenders */}
-          {isFromEOI && (
-            <TabsTrigger value="vendor-submission-evaluation">
-              Vendor Submission Evaluation
+          {/* Show technical prequalification tab for National Open Tender RFQs */}
+          {showTechnicalEvaluation && (
+            <TabsTrigger value="technical-prequalification">
+              Technical Prequalification
             </TabsTrigger>
           )}
         </TabsList>
@@ -123,10 +131,10 @@ const RFQDetails = () => {
           {data && <VendorSubmission {...data?.data} />}
         </TabsContent>
 
-        {/* Only render vendor submission evaluation content for EOI national open tenders */}
-        {isFromEOI && (
-          <TabsContent value="vendor-submission-evaluation">
-            <SummaryOfTechnicalPrequalification solicitationId={id as string} />
+        {/* Technical Prequalification for National Open Tender RFQs */}
+        {showTechnicalEvaluation && (
+          <TabsContent value="technical-prequalification">
+            <TechnicalEvaluationMatrix solicitationId={id as string} />
           </TabsContent>
         )}
       </Tabs>

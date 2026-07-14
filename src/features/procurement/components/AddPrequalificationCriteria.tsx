@@ -53,7 +53,11 @@ const AddPrequalificationCriteria = () => {
             body: data,
           })
         : await prequalificationCriteria(data);
-      toast.success("Pre-qualification Criteria Added Succesfully");
+      toast.success(
+        dialogProps?.type === "update"
+          ? "Bid Evaluation Criterion Updated Successfully"
+          : "Bid Evaluation Criterion Added Successfully"
+      );
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {

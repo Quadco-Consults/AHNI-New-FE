@@ -23,7 +23,7 @@ export const useGetAllVendorPrequalifications = ({
   enabled = true,
   vendor,
 }: TRequest & { enabled?: boolean }) => {
-  return useQuery<TPaginatedResponse<VendorPrequalificationData>>({
+  return useQuery<VendorPrequalificationData>({
     queryKey: ["vendor-prequalifications", page, size, search, status, vendor],
     queryFn: async () => {
       try {
@@ -33,13 +33,23 @@ export const useGetAllVendorPrequalifications = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+
+        // Handle 403 Forbidden (vendor already assigned to someone else)
+        if (axiosError.response?.status === 403) {
+          const errorData = axiosError.response?.data as any;
+          throw new Error(
+            errorData?.message || "This vendor is already assigned to another procurement officer"
+          );
+        }
+
         throw new Error(
-          "Sorry: " + (axiosError.response?.data as any)?.message
+          "Sorry: " + (axiosError.response?.data as any)?.message || "An error occurred"
         );
       }
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    retry: false, // Don't retry on 403 errors
   });
 };
 
