@@ -307,7 +307,7 @@ const EoIDetails = (props: EoIDetailsProps) => {
                           <tr key={item.id} className="hover:bg-gray-50">
                             <td className="px-4 py-3 text-sm text-gray-900">{index + 1}</td>
                             <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                              {item.item?.name || "N/A"}
+                              {item.item_detail?.name || item.item?.name || "N/A"}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-600">
                               {item.description || "-"}
@@ -318,7 +318,7 @@ const EoIDetails = (props: EoIDetailsProps) => {
                               </div>
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">
-                              {item.quantity?.toLocaleString() || 0}
+                              {item.quantity?.toLocaleString() || 0} {item.item_detail?.uom || ""}
                             </td>
                           </tr>
                         ))}
