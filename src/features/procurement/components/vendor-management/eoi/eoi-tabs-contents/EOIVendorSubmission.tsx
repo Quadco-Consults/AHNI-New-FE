@@ -41,13 +41,17 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
   const [isCreatingCBA, setIsCreatingCBA] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch vendors registered for this specific EOI
+  // Check if this is an OPEN_TENDER type EOI
+  const isOpenTender = eoiData?.type === "OPEN_TENDER";
+  const linkedRfqId = (eoiData as any)?.linked_rfq?.id;
+
+  // Fetch vendors registered for this specific EOI (only for NEW_VENDOR type)
   // The backend should support filtering by eoi parameter
   const { data: vendorsData, isLoading: isLoadingVendors, error: vendorsError } = VendorsAPI.useGetVendors({
     page: 1,
     size: 100,
     search: searchTerm,
-    enabled: true,
+    enabled: !isOpenTender, // Only fetch for NEW_VENDOR type
   });
 
   // Filter vendors by EOI ID
@@ -93,6 +97,69 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
     window.location.href = `/dashboard/procurement/solicitation-management/rfq/create/create-cba?eoi_id=${eoiId}`;
   };
 
+  // If this is an OPEN_TENDER type, show different UI
+  if (isOpenTender) {
+    return (
+      <div className='space-y-6'>
+        <Card className='p-8'>
+          <div className="flex flex-col items-center justify-center text-center space-y-6">
+            <div className="bg-indigo-100 p-4 rounded-full">
+              <Icon icon="ph:file-text-duotone" fontSize={48} className="text-indigo-600" />
+            </div>
+
+            <div className="space-y-2 max-w-2xl">
+              <h3 className="text-xl font-semibold text-gray-900">National Open Tender - RFQ Submissions</h3>
+              <p className="text-sm text-gray-600">
+                This is a National Open Tender with a linked Request for Quotation (RFQ).
+                Vendor bid submissions are managed through the RFQ system, not vendor registrations.
+              </p>
+            </div>
+
+            {linkedRfqId ? (
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <Icon icon="mdi:link-variant" fontSize={20} />
+                  <span>Linked RFQ: <strong>{(eoiData as any)?.linked_rfq?.rfq_id}</strong></span>
+                </div>
+
+                <div className="flex gap-3">
+                  <Link href={`/dashboard/procurement/solicitation-management/rfq/${linkedRfqId}`}>
+                    <Button variant="default">
+                      <Icon icon="ph:eye-duotone" className="mr-2" fontSize={18} />
+                      View RFQ Details
+                    </Button>
+                  </Link>
+
+                  <Link href={`/dashboard/procurement/solicitation-management/rfq/${linkedRfqId}/submissions`}>
+                    <Button variant="outline">
+                      <Icon icon="ph:list-duotone" className="mr-2" fontSize={18} />
+                      View Bid Submissions
+                    </Button>
+                  </Link>
+                </div>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleCreateCBA}
+                  disabled={isCreatingCBA}
+                >
+                  {isCreatingCBA ? "Creating CBA..." : "Create Comparative Bid Analysis (CBA)"}
+                </Button>
+              </div>
+            ) : (
+              <div className="text-sm text-orange-600 bg-orange-50 px-4 py-3 rounded-lg">
+                <Icon icon="ph:warning-duotone" className="inline mr-2" fontSize={18} />
+                No linked RFQ found for this tender. Please create an RFQ first.
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // For NEW_VENDOR type, show vendor registrations
   return (
     <div className='space-y-6'>
       {/* Stats Dashboard */}
@@ -138,12 +205,6 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
           </div>
 
           <div className="flex gap-3">
-            {/* Show Create CBA button for OPEN_TENDER EOIs that have vendor submissions */}
-            {eoiData?.type === "OPEN_TENDER" && vendorSubmissions.length > 0 && (
-              <Button onClick={handleCreateCBA} disabled={isCreatingCBA} variant="outline">
-                {isCreatingCBA ? "Creating..." : "Create CBA"}
-              </Button>
-            )}
             <Link href={`${generatePath(RouteEnum.VENDOR_REGISTRATION)}?eoi_id=${eoiId}`}>
               <Button>
                 <span>
