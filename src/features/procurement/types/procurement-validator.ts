@@ -11,6 +11,7 @@ export const EOISchema = z.object({
     required_error: "EOI type is required",
   }),
   solicitation: z.string().optional(),
+  lot_mode: z.enum(['single', 'multiple']).optional().default('single'), // NEW: Lot-based tendering mode
 });
 
 export const PrequalificationCriteriaSchema = z.object({

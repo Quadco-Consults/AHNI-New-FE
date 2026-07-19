@@ -30,8 +30,27 @@ const RFQItemSchema = z.object({
   quantity: z.union([z.string().min(1, "Quantity is required"), z.number().positive("Quantity must be positive")]),
   unit: z.string().min(1, "Unit is required"),
   specifications: z.string().optional(),
-  lot: z.string().optional(), // Optional lot field
+  lot: z.string().optional(), // Optional lot field (required in multi-lot mode)
 });
+
+// Function to create schema based on lot mode
+const createRFQItemsFormSchema = (lotMode: string) => {
+  return z.object({
+    items: z.array(RFQItemSchema).min(1, "At least one item is required"),
+  }).refine(
+    (data) => {
+      // If lot_mode is "multiple", ensure all items have a lot assigned
+      if (lotMode === "multiple") {
+        return data.items.every((item) => item.lot && item.lot.trim() !== "");
+      }
+      return true;
+    },
+    {
+      message: "All items must be assigned to a lot in multi-lot mode",
+      path: ["items"],
+    }
+  );
+};
 
 const RFQItemsFormSchema = z.object({
   items: z.array(RFQItemSchema).min(1, "At least one item is required"),
@@ -44,6 +63,7 @@ const Items = () => {
   const [quotationData, setQuotationData] = useState<any>(null);
   const [isPopulating, setIsPopulating] = useState(false);
   const [excludedItems, setExcludedItems] = useState<any[]>([]);
+  const [lotMode, setLotMode] = useState<string>("single");
   // Use ref to track if items have been loaded to prevent duplication
   const itemsLoadedRef = React.useRef(false);
   const loadedPRIdRef = React.useRef<string | null>(null);
@@ -92,12 +112,14 @@ const Items = () => {
       try {
         const parsed = JSON.parse(storedData);
         setQuotationData(parsed);
+        setLotMode(parsed.lot_mode || "single");
         console.log("📋 Loaded quotation data from sessionStorage:", parsed);
         console.log("🔍 Selected vendors field from sessionStorage:", {
           selected_vendors: parsed.selected_vendors,
           tender_type: parsed.tender_type,
           vendorCount: parsed.selected_vendors?.length || 0,
           hasVendors: !!(parsed.selected_vendors && parsed.selected_vendors.length > 0),
+          lot_mode: parsed.lot_mode,
           allKeys: Object.keys(parsed)
         });
       } catch (error) {
@@ -343,6 +365,14 @@ const Items = () => {
                 </p>
               </div>
 
+              {lotMode === "multiple" && (
+                <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                  <p className="text-sm text-purple-800">
+                    <strong>⚡ Multi-Lot Mode:</strong> Each item must be assigned to a lot. Vendors will bid on individual lots based on their categories.
+                  </p>
+                </div>
+              )}
+
               {purchaseRequestId && (
                 <div className="p-3 bg-green-50 rounded-lg">
                   <p className="text-sm text-green-800">
@@ -458,12 +488,13 @@ const Items = () => {
 
                     <FormSelect
                       name={`items.${index}.lot`}
-                      label="Select Lot (Optional)"
-                      placeholder="Choose a lot or leave empty"
+                      label={lotMode === "multiple" ? "Select Lot (Required)" : "Select Lot (Optional)"}
+                      placeholder={lotMode === "multiple" ? "Choose a lot for this item" : "Choose a lot or leave empty"}
+                      required={lotMode === "multiple"}
                     >
                       <SelectContent>
                         {isLotsLoading && <LoadingSpinner />}
-                        <SelectItem value="no-lot">No Lot Required</SelectItem>
+                        {lotMode === "single" && <SelectItem value="no-lot">No Lot Required</SelectItem>}
                         {lotsData?.results?.map((lot: any) => (
                           <SelectItem key={lot.id} value={lot.id}>
                             {lot.name} - Packet #{lot.packet_number}

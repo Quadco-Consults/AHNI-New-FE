@@ -58,6 +58,7 @@ import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/c
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import { useQueryClient } from "@tanstack/react-query";
 import { EOIDataTable } from "./EOIDataTable";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const EOI = () => {
   const [startDate, setStartDate] = useState<Date>();
@@ -113,6 +114,7 @@ const EOI = () => {
       type: "",
       categories: [],
       solicitation: "",
+      lot_mode: "single",
     },
   });
 
@@ -133,6 +135,7 @@ const EOI = () => {
       categories: [],
       solicitation: "",
       financial_year: "",
+      lot_mode: "single",
     });
     setStartDate(undefined);
     setEndDate(undefined);
@@ -154,6 +157,8 @@ const EOI = () => {
       categories: eoi.categories || [],
       solicitation: eoi.solicitation || "",
       financial_year: typeof eoi.financial_year === 'string' ? eoi.financial_year : eoi.financial_year?.year || "",
+      // @ts-ignore - lot_mode may not exist in old EOI records
+      lot_mode: eoi.lot_mode || "single",
     });
 
     // Parse and set dates
@@ -342,7 +347,9 @@ const EOI = () => {
                 eoi_number: data.eoi_number,
                 solicitation_type: data.solicitation || "R_F_Q",
                 // Pass categories as comma-separated string
-                eoi_categories: data.categories.join(",")
+                eoi_categories: data.categories.join(","),
+                // Pass lot_mode to RFQ creation
+                lot_mode: data.lot_mode || "single"
               });
 
               router.push(
@@ -570,6 +577,72 @@ const EOI = () => {
                           </div>
                         )}
                       </div>
+
+                      {/* Lot Mode Selection - Only for OPEN_TENDER */}
+                      {tender === "OPEN_TENDER" && (
+                        <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <FormField
+                            control={form.control}
+                            name="lot_mode"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <div>
+                                  <h4 className="font-medium text-sm">Lot Configuration</h4>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Choose how to structure this tender
+                                  </p>
+                                </div>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex flex-col space-y-2"
+                                  >
+                                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                      <RadioGroupItem value="single" id="single" />
+                                      <Label htmlFor="single" className="flex-1 cursor-pointer">
+                                        <div className="font-medium text-sm">Single Lot (Traditional)</div>
+                                        <div className="text-xs text-gray-500">
+                                          All items in one package - vendors bid on everything together
+                                        </div>
+                                      </Label>
+                                    </div>
+                                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-100 cursor-pointer">
+                                      <RadioGroupItem value="multiple" id="multiple" />
+                                      <Label htmlFor="multiple" className="flex-1 cursor-pointer">
+                                        <div className="font-medium text-sm">Multiple Lots (Category-Based)</div>
+                                        <div className="text-xs text-gray-500">
+                                          Divide into separate lots by category - vendors bid on their specialties
+                                        </div>
+                                      </Label>
+                                    </div>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                                {field.value === "multiple" && matchedCategories.length > 0 && (
+                                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <p className="text-xs font-medium text-blue-900 mb-2">
+                                      Preview: {matchedCategories.length} lot(s) will be created:
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {matchedCategories.slice(0, 5).map((category: CategoryResultsData) => (
+                                        <Badge key={category.id} variant="outline" className="text-xs bg-white">
+                                          {category.name}
+                                        </Badge>
+                                      ))}
+                                      {matchedCategories.length > 5 && (
+                                        <Badge variant="outline" className="text-xs bg-white">
+                                          +{matchedCategories.length - 5} more
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
 
                       <div className="space-y-2">
                         <h4 className="font-medium ">Category</h4>

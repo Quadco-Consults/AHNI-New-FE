@@ -269,6 +269,30 @@ export default function VendorRFQsPage() {
                             ))}
                           </div>
 
+                          {/* Lot-based tender information */}
+                          {rfq.lot_info?.is_lot_based && (
+                            <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-md">
+                              <div className="flex items-center gap-2 text-sm">
+                                <Badge variant="default" className="bg-purple-600">
+                                  Lot-Based Tender
+                                </Badge>
+                                <span className="text-purple-900 font-medium">
+                                  {rfq.lot_info.eligible_lots} of {rfq.lot_info.total_lots} lots eligible for you
+                                </span>
+                                {rfq.lot_info.submitted_lots > 0 && (
+                                  <span className="text-purple-700">
+                                    • {rfq.lot_info.submitted_lots} bid{rfq.lot_info.submitted_lots !== 1 ? 's' : ''} submitted
+                                  </span>
+                                )}
+                              </div>
+                              {rfq.lot_info.can_bid_more && (
+                                <p className="text-xs text-purple-700 mt-1">
+                                  You can bid on {rfq.lot_info.eligible_lots - rfq.lot_info.submitted_lots} more lot{(rfq.lot_info.eligible_lots - rfq.lot_info.submitted_lots) !== 1 ? 's' : ''}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
                           <div className="flex items-center gap-4">
                             <Badge variant={getStatusBadgeVariant(rfq.status || rfq.rfq_status)}>
                               {rfq.status || rfq.rfq_status}
@@ -308,6 +332,7 @@ export default function VendorRFQsPage() {
                             {rfq.has_submitted_bid || rfq.submission_status === 'SUBMITTED' ? 'View Submission' :
                              rfq.submission_status === 'DRAFT' ? 'Continue Bid' :
                              isClosed ? 'View Details' :
+                             rfq.lot_info?.is_lot_based ? 'View Lots & Bid' :
                              (rfq.vendor_eligible || rfq.eligibility_status === 'ELIGIBLE') ? 'Submit Bid' : 'View Details'}
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>

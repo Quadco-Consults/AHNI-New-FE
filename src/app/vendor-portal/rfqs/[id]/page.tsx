@@ -108,6 +108,18 @@ export default function VendorRFQDetailsPage() {
   const isClosingSoon = daysRemaining <= 7 && daysRemaining > 0;
   const isClosed = daysRemaining <= 0;
 
+  // Check if this is a lot-based tender and redirect to lots page
+  const isLotBased = rfqDetails.lot_info?.is_lot_based;
+  if (isLotBased && typeof window !== 'undefined') {
+    router.push(`/vendor-portal/rfqs/${rfqId}/lots`);
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <LoadingSpinner />
+        <span className="ml-2">Redirecting to lot selection...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}

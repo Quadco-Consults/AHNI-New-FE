@@ -54,10 +54,15 @@ export default function VendorBidSubmissionPage() {
   const router = useRouter();
   const rfqId = Array.isArray(params?.id) ? params?.id[0] : params?.id;
 
+  // Get lot_id from URL search params if this is a lot-based bid
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const lotId = searchParams?.get('lot_id') || null;
+
   const [documents, setDocuments] = useState<FileList | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
+  const [lotInfo, setLotInfo] = useState<any>(null);
 
   const { data: rfqDetails, isLoading, error } = useVendorRFQDetails(rfqId as string);
 
@@ -150,6 +155,11 @@ export default function VendorBidSubmissionPage() {
 
       // Add RFQ ID
       formData.append("rfq_id", rfqId as string);
+
+      // Add lot ID if this is a lot-based bid
+      if (lotId) {
+        formData.append("lot_id", lotId);
+      }
 
       // Add documents if any
       if (documents) {
@@ -247,6 +257,16 @@ export default function VendorBidSubmissionPage() {
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-gray-900">Submit Bid</h1>
           <p className="text-gray-600 mt-1">{rfqDetails.title}</p>
+          {lotId && (
+            <div className="mt-2">
+              <Badge variant="default" className="bg-purple-600">
+                Lot-Based Bid
+              </Badge>
+              <span className="ml-2 text-sm text-gray-600">
+                Bidding on a specific lot
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

@@ -80,6 +80,7 @@ const Quotation = () => {
   const eoiNumber = searchParams.get("eoi_number");
   const solicitationType = searchParams.get("solicitation_type");
   const eoiCategories = searchParams.get("eoi_categories");
+  const lotMode = searchParams.get("lot_mode") || "single";
 
   const categoryQueryResult = useGetAllCategories(
     useMemo(
@@ -197,30 +198,35 @@ const Quotation = () => {
     ) || [];
 
   const onSubmit: SubmitHandler<TSolicitationQuotationFormData> = (data) => {
-    // Add EOI ID to the data if it exists (coming from EOI flow)
+    // Add EOI ID and lot_mode to the data if they exist
     const dataWithEoi = eoiId ? { ...data, eoi_id: eoiId } : data;
-    sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(dataWithEoi));
+    const dataWithLotMode = { ...dataWithEoi, lot_mode: lotMode };
+    sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(dataWithLotMode));
 
-    console.log("📝 RFQ Quotation Data Saved:", dataWithEoi);
+    console.log("📝 RFQ Quotation Data Saved:", dataWithLotMode);
     console.log("🔍 Selected vendors field specifically:", {
       selected_vendors: data.selected_vendors,
       tender_type: data.tender_type,
       vendorCount: data.selected_vendors?.length || 0,
+      lot_mode: lotMode,
       allFields: Object.keys(data)
     });
 
-    // Navigate to items page - replace quotation with items in the path
-    let path = pathname?.replace("/quotation", "/items") || "";
+    // Navigate based on lot_mode:
+    // - If multiple lots: go to Lots page for configuration
+    // - If single lot: go directly to Items page (traditional flow)
+    let nextStep = lotMode === "multiple" ? "/lots" : "/items";
+    let path = pathname?.replace("/quotation", nextStep) || "";
     if (eoiId && id !== "create") {
       // Remove the ID from the end if present
       path = path.substring(0, path.lastIndexOf("/"));
     }
 
-    // Preserve search parameters (like type=OPEN_TENDER) in the redirect
+    // Preserve search parameters (like type=OPEN_TENDER, lot_mode) in the redirect
     const currentParams = searchParams?.toString() || "";
     const finalPath = currentParams ? `${path}?${currentParams}` : path;
 
-    console.log("🔗 Navigating to:", finalPath);
+    console.log("🔗 Navigating to:", finalPath, "| Lot Mode:", lotMode);
     router.push(finalPath);
   };
 
