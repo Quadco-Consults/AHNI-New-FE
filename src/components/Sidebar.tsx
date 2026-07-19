@@ -250,13 +250,18 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           ];
           const isNestedAdminChild = (adminSubmenus.includes(parentDepartment) || parentDepartment === 'Admin') && canAccessAdminFeatures;
 
-          // Enhanced nested finance child check - includes ALL 22 finance submenu items
+          // Enhanced nested finance child check - includes ALL finance submenu items
           const financeSubmenus = [
+            // Main finance sections
+            'Finance Dashboards', 'Payments & Disbursements', 'Grant Operations', 'Revenue Management',
+            'Accounts Payable', 'Accounts Receivable', 'Expense Management', 'Banking',
+            'Accounting Core', 'Tax Management', 'Integrations', 'Reports',
+            // Legacy/detailed submenu names (keep for backwards compatibility)
             'Financial Classifications', 'Chart of Accounts', 'Bank Accounts', 'Journal Entries',
             'Financial Reports', 'Bank Reconciliation', 'Integration Dashboard', 'Financial Analysis',
             'QuickBooks Settings', 'QuickBooks Sync', 'Customer Management', 'Invoicing & Billing',
-            'Sales Orders', 'Accounts Receivable', 'Tax Management', 'Accounts Payable',
-            'Fixed Assets', 'Expense Tracking', 'Budget Reports', 'Petty Cash', 'Travel Reconciliation'
+            'Sales Orders', 'Fixed Assets', 'Expense Tracking', 'Budget Reports', 'Petty Cash',
+            'Travel Reconciliation'
           ];
           const isNestedFinanceChild = (financeSubmenus.includes(parentDepartment) || parentDepartment === 'Finance') && canAccessFinanceFeatures;
 

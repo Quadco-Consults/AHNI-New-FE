@@ -21,7 +21,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/Table/DataTable";
 import { Plus, Trash2, Search } from 'lucide-react';
 import { useParams } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 
 type Data = {
@@ -29,6 +29,7 @@ type Data = {
   company_name: string;
   type_of_business: string;
   company_registration_number: string;
+  tin: string;
   status: string;
   evaluation_status: string | null;
   isSelected: boolean;
@@ -49,65 +50,42 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
     enabled: true,
   });
 
-  // Debug: Log when vendors data changes
-  useEffect(() => {
-    console.log("📦 Vendors API Response Changed:", {
-      isLoading: isLoadingVendors,
-      hasData: !!vendorsData,
-      hasError: !!vendorsError,
-      error: vendorsError,
-      rawData: vendorsData,
-    });
-
-    if (vendorsError) {
-      console.error("❌ Vendors API Error:", vendorsError);
-    }
-  }, [vendorsData, isLoadingVendors, vendorsError]);
-
-  // Check if backend has EOI support (migration applied)
-  const backendHasEOISupport = !vendorsError || !vendorsError?.message?.includes("eoi_id does not exist");
-
   // Filter vendors by EOI ID
   const vendorSubmissions = useMemo(() => {
-    console.log("🔄 vendorSubmissions recalculating...");
-
-    // If there's an error (likely backend not ready), return empty array
+    // If there's an error, return empty array
     if (vendorsError) {
-      console.warn("⚠️ Vendors API error (backend migration not applied yet):", vendorsError);
       return [];
     }
 
     if (!vendorsData?.data?.results) {
-      console.log("⚠️ No vendors data yet");
       return [];
     }
 
-    // Log vendor data structure
-    console.log("🔍 EOI Vendor Submissions Debug:", {
-      eoiId,
-      totalVendors: vendorsData.data.results.length,
-      firstVendor: vendorsData.data.results[0],
-      allVendorEOIs: vendorsData.data.results.map((v: any) => ({ name: v.company_name, eoi: v.eoi })),
-    });
-
     // Filter to only show vendors registered for this EOI
     const eoiVendors = vendorsData.data.results.filter((vendor: any) => {
-      const matches = vendor.eoi === eoiId;
-      console.log(`Checking vendor "${vendor.company_name}": eoi="${vendor.eoi}", looking for "${eoiId}", matches=${matches}`);
-      return matches;
+      return vendor.eoi === eoiId;
     });
-
-    console.log(`✅ Found ${eoiVendors.length} vendors for EOI ${eoiId}:`, eoiVendors);
 
     return eoiVendors.map((vendor: any) => ({
       id: vendor.id,
       company_name: vendor.company_name || "-",
       type_of_business: vendor.type_of_business || "-",
       company_registration_number: vendor.company_registration_number || "-",
+      tin: vendor.tin || "-",
       status: vendor.status || "Pending",
       evaluation_status: vendor.evaluation_status || null,
     }));
-  }, [vendorsData, eoiId]);
+  }, [vendorsData, eoiId, vendorsError]);
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    const total = vendorSubmissions.length;
+    const approved = vendorSubmissions.filter(v => v.status === "Approved").length;
+    const pending = vendorSubmissions.filter(v => v.status === "Pending").length;
+    const rejected = vendorSubmissions.filter(v => v.status === "Rejected" || v.status === "Fail").length;
+
+    return { total, approved, pending, rejected };
+  }, [vendorSubmissions]);
 
   const handleCreateCBA = () => {
     // For EOI flow, we redirect to CBA creation and let it handle finding the solicitation
@@ -116,7 +94,36 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
   };
 
   return (
-    <div className='space-y-10'>
+    <div className='space-y-6'>
+      {/* Stats Dashboard */}
+      <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
+        <Card className='p-5'>
+          <div className='space-y-1'>
+            <p className='text-sm text-muted-foreground'>Total Submissions</p>
+            <p className='text-2xl font-bold'>{stats.total}</p>
+          </div>
+        </Card>
+        <Card className='p-5'>
+          <div className='space-y-1'>
+            <p className='text-sm text-muted-foreground'>Approved</p>
+            <p className='text-2xl font-bold text-green-600'>{stats.approved}</p>
+          </div>
+        </Card>
+        <Card className='p-5'>
+          <div className='space-y-1'>
+            <p className='text-sm text-muted-foreground'>Pending Review</p>
+            <p className='text-2xl font-bold text-yellow-600'>{stats.pending}</p>
+          </div>
+        </Card>
+        <Card className='p-5'>
+          <div className='space-y-1'>
+            <p className='text-sm text-muted-foreground'>Rejected</p>
+            <p className='text-2xl font-bold text-red-600'>{stats.rejected}</p>
+          </div>
+        </Card>
+      </div>
+
+      {/* Table Card */}
       <Card className='space-y-10'>
         <div className='flex mt-1 justify-between items-center'>
           <div className='border w-1/3 py-2 px-2 flex items-center rounded-lg'>
@@ -148,12 +155,28 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
           </div>
         </div>
 
-        <DataTable
-          // @ts-ignore
-          columns={columns}
-          data={vendorSubmissions}
-          isLoading={isLoadingVendors}
-        />
+        {vendorSubmissions.length === 0 && !isLoadingVendors ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Icon icon="ph:users-three-duotone" fontSize={64} className="text-gray-300 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No Vendor Submissions Yet</h3>
+            <p className="text-sm text-gray-500 mb-6 max-w-md">
+              Vendors will appear here once they register for this EOI. You can also manually add vendors using the button above.
+            </p>
+            <Link href={`${generatePath(RouteEnum.VENDOR_REGISTRATION)}?eoi_id=${eoiId}`}>
+              <Button variant="outline">
+                <Plus size={16} className="mr-2" />
+                Add First Vendor
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <DataTable
+            // @ts-ignore
+            columns={columns}
+            data={vendorSubmissions}
+            isLoading={isLoadingVendors}
+          />
+        )}
       </Card>
     </div>
   );
@@ -194,16 +217,26 @@ const columns: ColumnDef<Data>[] = [
   {
     header: "Type of Business",
     accessorKey: "type_of_business",
-    size: 250,
+    size: 200,
   },
   {
     header: "Company Reg No",
     accessorKey: "company_registration_number",
-    size: 200,
+    size: 180,
+  },
+  {
+    header: "TIN",
+    accessorKey: "tin",
+    size: 150,
+    cell: ({ getValue }) => {
+      const tin = getValue() as string;
+      return <span className="font-mono text-sm">{tin || "-"}</span>;
+    },
   },
   {
     header: "Prequalification",
     accessorKey: "status",
+    size: 150,
     cell: ({ getValue }) => {
       return (
         <Badge
@@ -222,6 +255,7 @@ const columns: ColumnDef<Data>[] = [
   {
     header: "Evaluation",
     accessorKey: "evaluation_status",
+    size: 150,
     cell: ({ getValue }) => {
       return (
         <Badge

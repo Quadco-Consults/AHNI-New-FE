@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Search } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -26,12 +26,9 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import eoiPng from "assets/imgs/eoi.png";
 import logoPng from "assets/imgs/logo.png";
-import Card from "@/components/Card";
 import { Icon } from "@iconify/react";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RouteEnum } from "@/constants/RouterConstants";
 import FormTextArea from "@/components/FormTextArea";
@@ -60,6 +57,7 @@ import { TFinancialYearData } from "@/features/admin/types/config/financial-year
 import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/config/financialYearController";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import { useQueryClient } from "@tanstack/react-query";
+import { EOIDataTable } from "./EOIDataTable";
 
 const EOI = () => {
   const [startDate, setStartDate] = useState<Date>();
@@ -777,70 +775,12 @@ const EOI = () => {
           </div>
         </div>
         {/*  @ts-ignore */}
-        {data?.data?.results && data?.data?.results.length > 0 ? (
-          <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
-            {/*  @ts-ignore */}
-            {data?.data?.results?.map((eoi: EOIResultsData) => (
-              <Card
-                key={eoi.id}
-                className="space-y-4 flex flex-col justify-between"
-              >
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <img src={eoiPng.src} alt="eoi" />
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleEdit(eoi)}
-                      >
-                        <Edit size={16} />
-                      </Button>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <DeleteIcon />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80 p-5">
-                          <div className="grid gap-4">
-                            <div className="space-y-2">
-                              <h4 className="font-medium leading-none">
-                                Are you absolutely sure?
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                This action cannot be undone. This will
-                                permanently delete this data from our servers.
-                              </p>
-                            </div>
-                            <Button onClick={() => deleteEOIHandler()}>
-                              Confirm
-                            </Button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                  <h2 className="text-lg font-bold">{eoi.name}</h2>
-
-                  <h6 className="line-clamp-5">{eoi.description}</h6>
-                </div>
-
-                <div className="flex justify-center">
-                  <Link
-                    href={`/dashboard/procurement/vendor-management/eoi/${eoi.id}`}
-                  >
-                    <Button variant="ghost" className="border text-primary">
-                      Tap to View
-                    </Button>
-                  </Link>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center">No Data</p>
-        )}
+        <EOIDataTable
+          data={data?.data?.results || []}
+          onEdit={handleEdit}
+          onView={(id) => router.push(`/dashboard/procurement/vendor-management/eoi/${id}`)}
+          onDelete={deleteEOIHandler}
+        />
       </div>
     </div>
   );

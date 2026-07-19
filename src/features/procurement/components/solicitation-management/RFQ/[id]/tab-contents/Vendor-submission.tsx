@@ -299,6 +299,9 @@ const ActionListAction = ({ data, cbaData }: any) => {
     cbaData
   });
 
+  // Check if this is a National Open Tender RFQ
+  const isNationalOpenTender = data?.solicitation?.tender_type === 'NATIONAL OPEN TENDER';
+
   // Build the correct evaluation URL:
   // :id should be the vendor submission ID (the vendor being evaluated)
   // :appID should be the solicitation ID
@@ -315,11 +318,14 @@ const ActionListAction = ({ data, cbaData }: any) => {
           <Eye size={16} />
         </IconButton>
       </Link>
-      <Link href={evaluationUrl}>
-        <IconButton className="bg-alternate-light hover:text-primary">
-          Evaluate
-        </IconButton>
-      </Link>
+      {/* Hide Evaluate button for National Open Tender - use Technical Prequalification tab instead */}
+      {!isNationalOpenTender && (
+        <Link href={evaluationUrl}>
+          <IconButton className="bg-alternate-light hover:text-primary">
+            Evaluate
+          </IconButton>
+        </Link>
+      )}
     </div>
   );
 };
