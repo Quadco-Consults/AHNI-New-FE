@@ -20,7 +20,9 @@ export default function OrganizationChartPage() {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
   const { data, isLoading, error } = useOrgChart();
-  const orgData = Array.isArray(data?.data) ? data.data : [];
+  // Handle nested response structure from APIResponseViewSetMixin
+  const orgData = Array.isArray(data?.data?.data) ? data.data.data :
+                  Array.isArray(data?.data) ? data.data : [];
 
   // Toggle node expansion
   const toggleNodeExpansion = (nodeId: string) => {
