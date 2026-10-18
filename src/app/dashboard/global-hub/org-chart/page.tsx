@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,14 @@ export default function OrganizationChartPage() {
   // Handle nested response structure from APIResponseViewSetMixin
   const orgData = Array.isArray(data?.data?.data) ? data.data.data :
                   Array.isArray(data?.data) ? data.data : [];
+
+  // Auto-expand all nodes on initial load to show full hierarchy
+  useEffect(() => {
+    if (orgData.length > 0 && expandedNodes.size === 0) {
+      const allUserIds = orgData.map(user => user.id);
+      setExpandedNodes(new Set(allUserIds));
+    }
+  }, [orgData]);
 
   // Toggle node expansion
   const toggleNodeExpansion = (nodeId: string) => {
@@ -241,12 +249,16 @@ export default function OrganizationChartPage() {
         <Button
           variant="outline"
           onClick={() => {
-            // Expand all root nodes
-            const newExpanded = new Set(buildHierarchy.map(u => u.id));
-            setExpandedNodes(newExpanded);
+            // Toggle between expand all and collapse all
+            if (expandedNodes.size === orgData.length) {
+              setExpandedNodes(new Set());
+            } else {
+              const allUserIds = orgData.map(u => u.id);
+              setExpandedNodes(new Set(allUserIds));
+            }
           }}
         >
-          Expand All
+          {expandedNodes.size === orgData.length ? 'Collapse All' : 'Expand All'}
         </Button>
       </div>
 
