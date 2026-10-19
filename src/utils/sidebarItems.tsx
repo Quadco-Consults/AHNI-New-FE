@@ -2451,6 +2451,19 @@ export const moduleLinks: SidebarItem[] = [
         ]
       }
     ]
+  },
+  // My Recruitments - Available to users with hiring_manager permission
+  {
+    name: "My Recruitments",
+    path: "/dashboard/my-recruitments",
+    icon: <Users />,
+    permissions: [
+      {
+        module: "hr",
+        codenames: ["hiring_manager"],
+        requireAll: false
+      }
+    ]
   }
 ];
 

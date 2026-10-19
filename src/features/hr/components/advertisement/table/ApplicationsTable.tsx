@@ -62,12 +62,14 @@ const ApplicationsTable = ({
   id: propId,
   status = "",
   isOnboardingPage = false,
+  isHiringManagerView = false,
 }: {
   href?: string;
   linkTitle?: string;
   id?: string;
   status?: "LONGLISTED" | "SHORTLISTED" | "PREFERRED" | "ACCEPTED" | "";
   isOnboardingPage?: boolean;
+  isHiringManagerView?: boolean;
 }) => {
   const dispatch = useAppDispatch();
 
