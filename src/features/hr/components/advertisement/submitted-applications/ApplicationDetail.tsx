@@ -11,19 +11,41 @@ import { cn } from "@/lib/utils";
 import PdfContent from "@/components/PdfContent";
 import { toast } from "sonner";
 import { useState } from "react";
-import { CheckCheckIcon } from "lucide-react";
+import { CheckCheckIcon, ListChecks } from "lucide-react";
+import useApiManager from "@/constants/mainController";
 
 const ApplicationDetail = () => {
   const params = useParams();
   const applicationId = params?.applicationId as string;
-  const [isShortlisting, setIsShortlisting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const { data, isLoading, refetch } = useGetJobApplication(applicationId);
   const application = data?.data;
   const { patchJobApplicationShortlisted } = usePatchJobApplicationShortlisted(applicationId);
 
+  // Longlist hook
+  const { callApi: longlistApi } = useApiManager({
+    endpoint: `hr/jobs/applications/${applicationId}/longlist/`,
+    queryKey: ["job-applications", "job-application"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const handleLonglist = async () => {
+    setIsProcessing(true);
+    try {
+      await longlistApi({});
+      toast.success("Applicant longlisted successfully");
+      refetch();
+    } catch (error) {
+      toast.error("Failed to longlist applicant");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleShortlist = async () => {
-    setIsShortlisting(true);
+    setIsProcessing(true);
     try {
       await patchJobApplicationShortlisted({
         status: "SHORTLISTED",
@@ -33,7 +55,7 @@ const ApplicationDetail = () => {
     } catch (error) {
       toast.error("Failed to shortlist applicant");
     } finally {
-      setIsShortlisting(false);
+      setIsProcessing(false);
     }
   };
 
@@ -62,26 +84,42 @@ const ApplicationDetail = () => {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold">Application Details</h1>
             <div className="flex items-center gap-3">
+              {/* Longlist button - for APPLIED status */}
               {application.status?.toLowerCase() === "applied" && (
                 <Button
-                  onClick={handleShortlist}
-                  disabled={isShortlisting}
-                  className="flex items-center gap-2"
+                  onClick={handleLonglist}
+                  disabled={isProcessing}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                 >
-                  <CheckCheckIcon className="w-4 h-4" />
-                  {isShortlisting ? "Shortlisting..." : "Shortlist"}
+                  <ListChecks className="w-4 h-4" />
+                  {isProcessing ? "Processing..." : "Longlist"}
                 </Button>
               )}
+
+              {/* Shortlist button - for LONGLISTED status */}
+              {application.status?.toLowerCase() === "longlisted" && (
+                <Button
+                  onClick={handleShortlist}
+                  disabled={isProcessing}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  <CheckCheckIcon className="w-4 h-4" />
+                  {isProcessing ? "Processing..." : "Shortlist"}
+                </Button>
+              )}
+
               <Badge
                 className={cn(
                   "p-2 rounded-lg capitalize",
                   application.status?.toLowerCase() === "shortlisted"
                     ? "bg-green-50 text-green-500"
+                    : application.status?.toLowerCase() === "longlisted"
+                    ? "bg-blue-50 text-blue-500"
                     : application.status?.toLowerCase() === "applied"
                     ? "bg-yellow-50 text-yellow-500"
                     : application.status?.toLowerCase() === "accepted"
                     ? "bg-black text-white"
-                    : "bg-blue-50 text-blue-500"
+                    : "bg-gray-50 text-gray-500"
                 )}
               >
                 {application.status}
@@ -93,51 +131,96 @@ const ApplicationDetail = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <h2 className="text-lg font-medium">Applicant Information</h2>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Name</label>
-                  <p className="text-sm">{application.applicant_name}</p>
+                  <label className="text-sm font-medium text-gray-500">Full Name</label>
+                  <p className="text-sm font-medium">
+                    {[application.applicant_first_name, application.applicant_middle_name, application.applicant_last_name]
+                      .filter(Boolean)
+                      .join(" ") || application.applicant_name || "N/A"}
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Email</label>
-                  <p className="text-sm">{application.applicant_email}</p>
+                  <p className="text-sm">{application.applicant_email || "N/A"}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Phone</label>
+                  <p className="text-sm">{application.phone || application.phone_number || "N/A"}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Home Address</label>
+                  <p className="text-sm">{application.home_address || application.address || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Position Applied</label>
-                  <p className="text-sm">{application.position_applied}</p>
+                  <p className="text-sm font-medium">{application.position_applied || "N/A"}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Position Location</label>
+                  <p className="text-sm">{application.position_location || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Employment Type</label>
-                  <p className="text-sm">{application.employment_type}</p>
+                  <p className="text-sm">
+                    <Badge variant="outline" className="capitalize">
+                      {application.employment_type || "N/A"}
+                    </Badge>
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* References */}
+            {/* Current Employment & References */}
             <div className="space-y-4">
-              <h2 className="text-lg font-medium">References</h2>
-              <div className="space-y-4">
-                {application.referee_1_name && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Reference 1</label>
-                    <p className="text-sm">{application.referee_1_name}</p>
-                    <p className="text-sm text-gray-500">{application.referee_1_email}</p>
-                  </div>
-                )}
-                {application.referee_2_name && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Reference 2</label>
-                    <p className="text-sm">{application.referee_2_name}</p>
-                    <p className="text-sm text-gray-500">{application.referee_2_email}</p>
-                  </div>
-                )}
-                {application.referee_3_name && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Reference 3</label>
-                    <p className="text-sm">{application.referee_3_name}</p>
-                    <p className="text-sm text-gray-500">{application.referee_3_email}</p>
-                  </div>
-                )}
+              <h2 className="text-lg font-medium">Current Employment</h2>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Current Position</label>
+                  <p className="text-sm">{application.current_position || "N/A"}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Current Employer</label>
+                  <p className="text-sm">{application.current_employer || "N/A"}</p>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <h2 className="text-lg font-medium mb-3">References</h2>
+                <div className="space-y-4">
+                  {application.referee_1_name ? (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <label className="text-sm font-medium text-gray-700">Reference 1</label>
+                      <p className="text-sm mt-1">{application.referee_1_name}</p>
+                      <p className="text-sm text-gray-500">{application.referee_1_email}</p>
+                      {application.referee_1_phone && (
+                        <p className="text-sm text-gray-500">{application.referee_1_phone}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-400">No references provided</p>
+                  )}
+                  {application.referee_2_name && (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <label className="text-sm font-medium text-gray-700">Reference 2</label>
+                      <p className="text-sm mt-1">{application.referee_2_name}</p>
+                      <p className="text-sm text-gray-500">{application.referee_2_email}</p>
+                      {application.referee_2_phone && (
+                        <p className="text-sm text-gray-500">{application.referee_2_phone}</p>
+                      )}
+                    </div>
+                  )}
+                  {application.referee_3_name && (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <label className="text-sm font-medium text-gray-700">Reference 3</label>
+                      <p className="text-sm mt-1">{application.referee_3_name}</p>
+                      <p className="text-sm text-gray-500">{application.referee_3_email}</p>
+                      {application.referee_3_phone && (
+                        <p className="text-sm text-gray-500">{application.referee_3_phone}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
