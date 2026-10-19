@@ -2296,6 +2296,19 @@ export const globalHubLinks: GlobalHubItem[] = [
         codenames: ["view_ticket"]
       }
     ]
+  },
+  // My Recruitments - Cross-departmental feature for hiring managers
+  {
+    name: "My Recruitments",
+    path: "/dashboard/my-recruitments",
+    icon: <Users />,
+    permissions: [
+      {
+        module: "hr",
+        codenames: ["hiring_manager"],
+        requireAll: false
+      }
+    ]
   }
 ];
 
@@ -2449,19 +2462,6 @@ export const moduleLinks: SidebarItem[] = [
             codenames: ["is_superuser"]
           }
         ]
-      }
-    ]
-  },
-  // My Recruitments - Available to users with hiring_manager permission
-  {
-    name: "My Recruitments",
-    path: "/dashboard/my-recruitments",
-    icon: <Users />,
-    permissions: [
-      {
-        module: "hr",
-        codenames: ["hiring_manager"],
-        requireAll: false
       }
     ]
   }
