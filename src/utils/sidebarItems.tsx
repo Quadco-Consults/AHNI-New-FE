@@ -2299,9 +2299,10 @@ export const globalHubLinks: GlobalHubItem[] = [
   },
   // My Recruitments - Cross-departmental feature for hiring managers
   {
-    name: "My Recruitments",
+    label: "My Recruitments",
     path: "/dashboard/my-recruitments",
-    icon: <Users />,
+    icon: <Users className="w-4 h-4" />,
+    category: "recruitment",
     permissions: [
       {
         module: "hr",
@@ -2482,5 +2483,6 @@ export const globalHubCategories = {
   financial: { label: "Financial Services", icon: <DollarSign className="w-4 h-4" /> },
   contracts: { label: "Contracts & Reports", icon: <FileText className="w-4 h-4" /> },
   hr: { label: "Staff Self-Service", icon: <Users className="w-4 h-4" /> },
-  support: { label: "Support", icon: <HeartHandshake className="w-4 h-4" /> }
+  support: { label: "Support", icon: <HeartHandshake className="w-4 h-4" /> },
+  recruitment: { label: "Recruitment", icon: <UserPlus className="w-4 h-4" /> }
 };
