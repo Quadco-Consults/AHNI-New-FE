@@ -308,16 +308,6 @@ const ApplicationDetail = () => {
             </div>
           )}
 
-          {/* Application Notes */}
-          {application.application_notes && (
-            <div className="space-y-2">
-              <h2 className="text-lg font-medium">Application Notes</h2>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm whitespace-pre-wrap">{application.application_notes}</p>
-              </div>
-            </div>
-          )}
-
           {/* Interview Information */}
           {(application.interview_date || application.interviewer || application.interview_feedback) && (
             <div className="space-y-4">
