@@ -23,6 +23,21 @@ const ApplicationDetail = () => {
   const application = data?.data;
   const { patchJobApplicationShortlisted } = usePatchJobApplicationShortlisted(applicationId);
 
+  // Parse application_notes JSON to get additional data
+  let additionalInfo: any = {};
+  try {
+    if (application?.application_notes) {
+      additionalInfo = JSON.parse(application.application_notes);
+    }
+  } catch (error) {
+    console.error("Error parsing application_notes:", error);
+  }
+
+  const contactInfo = additionalInfo?.contact_information || {};
+  const positionDetails = additionalInfo?.position_details || {};
+  const references = additionalInfo?.professional_references || [];
+  const eligibility = additionalInfo?.eligibility || {};
+
   // Longlist hook
   const { callApi: longlistApi } = useApiManager({
     endpoint: `hr/jobs/applications/${applicationId}/longlist/`,
@@ -146,11 +161,11 @@ const ApplicationDetail = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Phone</label>
-                  <p className="text-sm">{application.phone || application.phone_number || "N/A"}</p>
+                  <p className="text-sm">{contactInfo.phone || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Home Address</label>
-                  <p className="text-sm">{application.home_address || application.address || "N/A"}</p>
+                  <p className="text-sm">{contactInfo.home_address || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Position Applied</label>
@@ -158,7 +173,7 @@ const ApplicationDetail = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Position Location</label>
-                  <p className="text-sm">{application.position_location || "N/A"}</p>
+                  <p className="text-sm">{positionDetails.position_location || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Employment Type</label>
@@ -177,48 +192,84 @@ const ApplicationDetail = () => {
               <div className="space-y-3">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Current Position</label>
-                  <p className="text-sm">{application.current_position || "N/A"}</p>
+                  <p className="text-sm">{positionDetails.current_position || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Current Employer</label>
-                  <p className="text-sm">{application.current_employer || "N/A"}</p>
+                  <p className="text-sm">{positionDetails.current_employer || "N/A"}</p>
                 </div>
               </div>
 
+              {/* Eligibility Information */}
+              {(eligibility.nigerian_citizen || eligibility.authorized_to_work || eligibility.worked_for_ahni_before) && (
+                <div className="mt-6">
+                  <h2 className="text-lg font-medium mb-3">Eligibility</h2>
+                  <div className="space-y-2 bg-gray-50 p-3 rounded-lg">
+                    {eligibility.nigerian_citizen && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Nigerian Citizen:</span>
+                        <span className="text-sm font-medium">{eligibility.nigerian_citizen}</span>
+                      </div>
+                    )}
+                    {eligibility.authorized_to_work && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Authorized to Work:</span>
+                        <span className="text-sm font-medium">{eligibility.authorized_to_work}</span>
+                      </div>
+                    )}
+                    {eligibility.worked_for_ahni_before && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Worked for AHNI Before:</span>
+                        <span className="text-sm font-medium">{eligibility.worked_for_ahni_before}</span>
+                      </div>
+                    )}
+                    {eligibility.worked_for_ahni_when && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">When:</span>
+                        <span className="text-sm font-medium">{eligibility.worked_for_ahni_when}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-6">
-                <h2 className="text-lg font-medium mb-3">References</h2>
+                <h2 className="text-lg font-medium mb-3">Professional References</h2>
                 <div className="space-y-4">
-                  {application.referee_1_name ? (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <label className="text-sm font-medium text-gray-700">Reference 1</label>
-                      <p className="text-sm mt-1">{application.referee_1_name}</p>
-                      <p className="text-sm text-gray-500">{application.referee_1_email}</p>
-                      {application.referee_1_phone && (
-                        <p className="text-sm text-gray-500">{application.referee_1_phone}</p>
-                      )}
-                    </div>
+                  {references && references.length > 0 ? (
+                    references.map((ref: any, index: number) => (
+                      <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <label className="text-sm font-semibold text-gray-700">
+                            Reference {ref.referee_number || index + 1}
+                          </label>
+                          {ref.title && (
+                            <Badge variant="outline" className="text-xs">
+                              {ref.title}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium">{ref.name}</p>
+                          {ref.position && (
+                            <p className="text-sm text-gray-600">{ref.position}</p>
+                          )}
+                          {ref.employer && (
+                            <p className="text-sm text-gray-600">{ref.employer}</p>
+                          )}
+                          <div className="flex flex-col gap-1 mt-2">
+                            {ref.email && (
+                              <p className="text-sm text-gray-500">✉️ {ref.email}</p>
+                            )}
+                            {ref.phone && (
+                              <p className="text-sm text-gray-500">📞 {ref.phone}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
                   ) : (
-                    <p className="text-sm text-gray-400">No references provided</p>
-                  )}
-                  {application.referee_2_name && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <label className="text-sm font-medium text-gray-700">Reference 2</label>
-                      <p className="text-sm mt-1">{application.referee_2_name}</p>
-                      <p className="text-sm text-gray-500">{application.referee_2_email}</p>
-                      {application.referee_2_phone && (
-                        <p className="text-sm text-gray-500">{application.referee_2_phone}</p>
-                      )}
-                    </div>
-                  )}
-                  {application.referee_3_name && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <label className="text-sm font-medium text-gray-700">Reference 3</label>
-                      <p className="text-sm mt-1">{application.referee_3_name}</p>
-                      <p className="text-sm text-gray-500">{application.referee_3_email}</p>
-                      {application.referee_3_phone && (
-                        <p className="text-sm text-gray-500">{application.referee_3_phone}</p>
-                      )}
-                    </div>
+                    <p className="text-sm text-gray-400">No professional references provided</p>
                   )}
                 </div>
               </div>
