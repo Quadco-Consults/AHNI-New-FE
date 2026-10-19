@@ -2298,18 +2298,12 @@ export const globalHubLinks: GlobalHubItem[] = [
     ]
   },
   // My Recruitments - Cross-departmental feature for hiring managers
+  // No permission check - visibility controlled by API (shows empty state if no recruitments)
   {
     label: "My Recruitments",
     path: "/dashboard/my-recruitments",
     icon: <Users className="w-4 h-4" />,
-    category: "recruitment",
-    permissions: [
-      {
-        module: "hr",
-        codenames: ["hiring_manager"],
-        requireAll: false
-      }
-    ]
+    category: "recruitment"
   }
 ];
 
