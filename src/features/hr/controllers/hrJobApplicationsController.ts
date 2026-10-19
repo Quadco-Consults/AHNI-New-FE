@@ -229,6 +229,62 @@ export const usePatchJobApplicationPreferred = (id: string) => {
   return { patchJobApplicationPreferred, data, isLoading, isSuccess, error };
 };
 
+// Send Pre-boarding Form
+export const useSendPreboarding = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    JobApplication,
+    Error,
+    Partial<JobApplication>
+  >({
+    endpoint: `${BASE_URL}${id}/send-preboarding/`,
+    queryKey: ["job-applications", "job-application"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const sendPreboarding = async () => {
+    try {
+      const result = await callApi({});
+      toast.success("Pre-boarding form sent to applicant successfully");
+      return result;
+    } catch (error) {
+      console.error("Send pre-boarding error:", error);
+      toast.error("Failed to send pre-boarding form");
+      throw error;
+    }
+  };
+
+  return { sendPreboarding, data, isLoading, isSuccess, error };
+};
+
+// Complete Pre-boarding
+export const useCompletePreboarding = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    JobApplication,
+    Error,
+    any
+  >({
+    endpoint: `${BASE_URL}${id}/complete-preboarding/`,
+    queryKey: ["job-applications", "job-application"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const completePreboarding = async (preboardingData?: any) => {
+    try {
+      const result = await callApi({ preboarding_data: preboardingData || {} });
+      toast.success("Pre-boarding completed successfully");
+      return result;
+    } catch (error) {
+      console.error("Complete pre-boarding error:", error);
+      toast.error("Failed to complete pre-boarding");
+      throw error;
+    }
+  };
+
+  return { completePreboarding, data, isLoading, isSuccess, error };
+};
+
 // Update Job Application Status to Interviewed - following the same pattern as other status endpoints
 export const usePatchJobApplicationInterviewed = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<

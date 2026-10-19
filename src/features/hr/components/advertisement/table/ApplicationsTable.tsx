@@ -26,6 +26,7 @@ import {
   useBulkShortlistApplicants,
   useBulkRejectApplicants,
   useBulkUpdateStatus,
+  useSendPreboarding,
 } from "@/features/hr/controllers/hrJobApplicationsController";
 import { useCombinedApplicationStatus, getStatusDisplay } from "@/features/hr/controllers/useCombinedApplicationStatus";
 import { useGetJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
@@ -493,6 +494,7 @@ const ActionList = ({
   const { patchJobApplicationAccepted } = usePatchJobApplicationAccepted(data?.id as string);
   const { patchJobApplicationPreferred } = usePatchJobApplicationPreferred(data?.id as string);
   const { updateJobApplicationToInterviewed } = useUpdateJobApplicationToInterviewed(data?.id as string);
+  const { sendPreboarding } = useSendPreboarding(data?.id as string);
 
   const statusInfo = getStatusDisplay(data);
   const hasCompletedInterview = data?.interviewCompleted || false;
@@ -539,6 +541,16 @@ const ActionList = ({
       toast.success("Applicant preferred successfully");
     } catch (error) {
       toast.error("Failed to update status");
+    }
+  };
+
+  const handleSendPreboarding = async () => {
+    try {
+      await sendPreboarding();
+      // Toast is already handled in the hook
+    } catch (error) {
+      // Error toast is already handled in the hook
+      console.error("Send pre-boarding failed:", error);
     }
   };
 
@@ -590,6 +602,21 @@ const ActionList = ({
               >
                 <CheckCheckIcon />
                 Mark as Preferred
+              </Button>
+            )}
+
+            {/* Send Pre-boarding - Show for ACCEPTED or PREFERRED status */}
+            {(isAcceptedTab || isPreferredTab) &&
+             (data?.status?.toLowerCase() === "accepted" || data?.status?.toLowerCase() === "preferred") &&
+             data?.status?.toLowerCase() !== "pre_boarding" &&
+             !isOnboardingPage && (
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+                onClick={handleSendPreboarding}
+              >
+                <Users />
+                Send Pre-boarding
               </Button>
             )}
 
