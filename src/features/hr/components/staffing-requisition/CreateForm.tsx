@@ -192,7 +192,7 @@ export default function CreateStaffingRequisitionForm() {
       }
 
       toast.success("Staffing requisition created successfully!");
-      router.push("/dashboard/hr/staffing-requisitions");
+      router.back();
     } catch (error: any) {
       console.error("Submission error:", error);
       toast.error(error?.response?.data?.message || "Failed to create requisition");
@@ -210,7 +210,7 @@ export default function CreateStaffingRequisitionForm() {
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() => router.push("/dashboard/hr/staffing-requisitions")}
+              onClick={() => router.back()}
               className="h-8 w-8"
             >
               <ArrowLeft className="h-4 w-4" />

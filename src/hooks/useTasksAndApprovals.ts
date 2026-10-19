@@ -16,6 +16,12 @@ export type ApprovalModule =
   | 'asset_request'
   | 'facility_maintenance'
   | 'vehicle_maintenance'
+  | 'cba_review'
+  | 'cba_authorise'
+  | 'cba_approve'
+  | 'interview_panel'
+  | 'staff_requisition'
+  | 'adhoc_staff'
   | 'custom_task';
 
 export type TaskPriority = 'low' | 'medium' | 'high';
@@ -261,6 +267,213 @@ export const useTasksAndApprovals = () => {
     }
   };
 
+  // Fetch CBAs pending review/authorisation/approval by current user
+  const fetchCBATasks = async (): Promise<UnifiedTask[]> => {
+    try {
+      const response = await AxiosWithToken.get('/procurements/cbas/', {
+        params: { status: 'UNDER_REVIEW' }
+      });
+      const data = response.data.results || response.data.data?.results || [];
+
+      // Get current user ID from token/auth context if available
+      // For now, we'll process all CBAs and create tasks based on workflow status
+      const tasks: UnifiedTask[] = [];
+
+      for (const cba of data) {
+        // Check if user needs to review
+        if (cba.reviewers && Array.isArray(cba.reviewers) && cba.reviewers.length > 0) {
+          // Check if already reviewed by checking signatures
+          const needsReview = !cba.reviewed_by;
+          if (needsReview) {
+            tasks.push({
+              id: `cba_review_${cba.id}`,
+              type: 'cba_review' as const,
+              title: `CBA Review - ${cba.solicitation?.rfq_id || cba.solicitation?.title || 'Solicitation'}`,
+              description: `${cba.cba_type} CBA requires your review`,
+              status: 'pending' as const,
+              priority: 'high' as TaskPriority,
+              requestor: cba.assignee?.first_name ? `${cba.assignee.first_name} ${cba.assignee.last_name}` : undefined,
+              dueDate: cba.cba_date,
+              createdAt: cba.created_datetime,
+              metadata: cba,
+              detailsUrl: `/dashboard/procurement/cba/${cba.id}`,
+            });
+          }
+        }
+
+        // Check if user needs to authorise (after all reviewers have signed)
+        if (cba.authorisers && Array.isArray(cba.authorisers) && cba.authorisers.length > 0) {
+          const needsAuthorisation = cba.reviewed_by && !cba.authorised_by;
+          if (needsAuthorisation) {
+            tasks.push({
+              id: `cba_authorise_${cba.id}`,
+              type: 'cba_authorise' as const,
+              title: `CBA Authorisation - ${cba.solicitation?.rfq_id || cba.solicitation?.title || 'Solicitation'}`,
+              description: `${cba.cba_type} CBA requires your authorisation`,
+              status: 'pending' as const,
+              priority: 'high' as TaskPriority,
+              requestor: cba.assignee?.first_name ? `${cba.assignee.first_name} ${cba.assignee.last_name}` : undefined,
+              amount: cba.selected_total,
+              dueDate: cba.cba_date,
+              createdAt: cba.created_datetime,
+              metadata: cba,
+              detailsUrl: `/dashboard/procurement/cba/${cba.id}`,
+            });
+          }
+        }
+
+        // Check if user needs to approve (after all reviewers and authorisers have signed)
+        if (cba.approvers && Array.isArray(cba.approvers) && cba.approvers.length > 0) {
+          const needsApproval = cba.authorised_by && !cba.approved_by_user;
+          if (needsApproval) {
+            tasks.push({
+              id: `cba_approve_${cba.id}`,
+              type: 'cba_approve' as const,
+              title: `CBA Approval - ${cba.solicitation?.rfq_id || cba.solicitation?.title || 'Solicitation'}`,
+              description: `${cba.cba_type} CBA requires your final approval`,
+              status: 'pending' as const,
+              priority: 'high' as TaskPriority,
+              requestor: cba.assignee?.first_name ? `${cba.assignee.first_name} ${cba.assignee.last_name}` : undefined,
+              amount: cba.selected_total,
+              dueDate: cba.cba_date,
+              createdAt: cba.created_datetime,
+              metadata: cba,
+              detailsUrl: `/dashboard/procurement/cba/${cba.id}`,
+            });
+          }
+        }
+      }
+
+      return tasks;
+    } catch (error: any) {
+      console.warn('CBA tasks endpoint not available:', error.response?.status);
+      return [];
+    }
+  };
+
+  // Fetch Interview Panel assignments
+  const fetchInterviewPanelTasks = async (): Promise<UnifiedTask[]> => {
+    try {
+      const response = await AxiosWithToken.get('/hr/jobs/advertisements/', {
+        params: { status: 'PUBLISHED', is_published: true }
+      });
+      const data = response.data.results || response.data.data?.results || [];
+
+      // Filter to only show advertisements where user is an interviewer
+      // and where there are scheduled interviews or applications to review
+      const tasks: UnifiedTask[] = [];
+
+      for (const advert of data) {
+        // Check if user is in interviewers list
+        if (advert.interviewers && Array.isArray(advert.interviewers) && advert.interviewers.length > 0) {
+          // Check if interview is scheduled or approaching
+          const hasScheduledInterview = advert.interview_date;
+
+          if (hasScheduledInterview) {
+            tasks.push({
+              id: `interview_${advert.id}`,
+              type: 'interview_panel' as const,
+              title: `Interview Panel - ${advert.title || advert.position?.name}`,
+              description: `Scheduled interview${advert.interview_date ? ` on ${new Date(advert.interview_date).toLocaleDateString()}` : ''}`,
+              status: 'pending' as const,
+              priority: 'medium' as TaskPriority,
+              requestor: advert.published_by?.first_name ? `${advert.published_by.first_name} ${advert.published_by.last_name}` : 'HR',
+              dueDate: advert.interview_date,
+              createdAt: advert.created_datetime,
+              metadata: advert,
+              detailsUrl: `/dashboard/hr/jobs/advertisements/${advert.id}`,
+            });
+          }
+        }
+      }
+
+      return tasks;
+    } catch (error: any) {
+      console.warn('Interview panel tasks endpoint not available:', error.response?.status);
+      return [];
+    }
+  };
+
+  // Fetch Staff Requisitions pending approval
+  const fetchStaffRequisitions = async (): Promise<UnifiedTask[]> => {
+    try {
+      const response = await AxiosWithToken.get('/hr/staffing-requisitions/pending-approvals/');
+      const data = response.data.results || response.data.data?.results || response.data.data || [];
+
+      return data.map((req: any) => ({
+        id: `staff_req_${req.id}`,
+        type: 'staff_requisition' as const,
+        title: `Staff Requisition - ${req.position?.title || 'Position'}`,
+        description: `${req.number_of_staff} staff needed for ${req.department?.name || 'Department'}`,
+        status: 'pending' as const,
+        priority: (req.position_nature === 'NEW' ? 'high' : 'medium') as TaskPriority,
+        requestor: req.created_by?.name || req.created_by?.email,
+        dueDate: req.expected_date_of_resumption,
+        createdAt: req.created_at || req.created_datetime,
+        metadata: req,
+        detailsUrl: `/dashboard/hr/staffing-requisitions/${req.id}`,
+      }));
+    } catch (error: any) {
+      console.warn('Staff requisitions endpoint not available:', error.response?.status);
+      return [];
+    }
+  };
+
+  // Fetch Adhoc Staff requests pending approval
+  const fetchAdhocStaffRequests = async (): Promise<UnifiedTask[]> => {
+    try {
+      const response = await AxiosWithToken.get('/hr/adhoc-staff/', {
+        params: { status: 'PENDING' }
+      });
+      const data = response.data.results || response.data.data?.results || [];
+
+      return data.map((adhoc: any) => ({
+        id: `adhoc_${adhoc.id}`,
+        type: 'adhoc_staff' as const,
+        title: `Adhoc Staff Request - ${adhoc.full_name || 'Staff'}`,
+        description: `${adhoc.role || 'Adhoc position'} for ${adhoc.duration || 'specified duration'}`,
+        status: 'pending' as const,
+        priority: 'medium' as TaskPriority,
+        requestor: adhoc.requested_by?.full_name || adhoc.requested_by?.email,
+        amount: adhoc.proposed_amount || adhoc.total_amount,
+        dueDate: adhoc.end_date,
+        createdAt: adhoc.created_datetime || adhoc.created_at,
+        metadata: adhoc,
+        detailsUrl: `/dashboard/hr/adhoc-staff/${adhoc.id}`,
+      }));
+    } catch (error: any) {
+      console.warn('Adhoc staff requests endpoint not available:', error.response?.status);
+      return [];
+    }
+  };
+
+  // Fetch Item Requisitions pending approval
+  const fetchItemRequisitions = async (): Promise<UnifiedTask[]> => {
+    try {
+      const response = await AxiosWithToken.get('/inventory/item-requisitions/', {
+        params: { status: 'PENDING' }
+      });
+      const data = response.data.results || response.data.data?.results || [];
+
+      return data.map((item: any) => ({
+        id: `item_req_${item.id}`,
+        type: 'item_requisition' as const,
+        title: `Item Requisition #${item.requisition_number || item.id}`,
+        description: item.purpose || item.description || 'Item requisition pending approval',
+        status: 'pending' as const,
+        priority: (item.priority || 'medium') as TaskPriority,
+        requestor: item.requested_by?.full_name || item.requested_by?.email,
+        dueDate: item.required_date || item.needed_by_date,
+        createdAt: item.created_datetime || item.created_at,
+        metadata: item,
+        detailsUrl: `/dashboard/inventory/item-requisitions/${item.id}`,
+      }));
+    } catch (error: any) {
+      console.warn('Item requisitions endpoint not available:', error.response?.status);
+      return [];
+    }
+  };
+
   // Fetch all tasks and approvals
   const fetchAllTasks = useCallback(async () => {
     setIsLoading(true);
@@ -273,6 +486,11 @@ export const useTasksAndApprovals = () => {
         vehicleRequests,
         expenseAuths,
         contractRequests,
+        cbaTasks,
+        interviewPanelTasks,
+        staffRequisitions,
+        adhocStaffRequests,
+        itemRequisitions,
       ] = await Promise.all([
         fetchPurchaseRequests(),
         fetchLeaveRequests(),
@@ -281,6 +499,11 @@ export const useTasksAndApprovals = () => {
         fetchVehicleRequests(),
         fetchExpenseAuthorizations(),
         fetchContractRequests(),
+        fetchCBATasks(),
+        fetchInterviewPanelTasks(),
+        fetchStaffRequisitions(),
+        fetchAdhocStaffRequests(),
+        fetchItemRequisitions(),
       ]);
 
       const allTasks = [
@@ -291,6 +514,11 @@ export const useTasksAndApprovals = () => {
         ...vehicleRequests,
         ...expenseAuths,
         ...contractRequests,
+        ...cbaTasks,
+        ...interviewPanelTasks,
+        ...staffRequisitions,
+        ...adhocStaffRequests,
+        ...itemRequisitions,
       ];
 
       // Sort by priority and date
@@ -316,10 +544,11 @@ export const useTasksAndApprovals = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Approve a task
-  const approveTask = useCallback(async (task: UnifiedTask) => {
+  const approveTask = useCallback(async (task: UnifiedTask, comments?: string) => {
     try {
       let endpoint = '';
-      const baseId = task.id.split('_')[1];
+      const parts = task.id.split('_');
+      const baseId = parts[parts.length - 1]; // Get last part (UUID)
 
       switch (task.type) {
         case 'purchase_request':
@@ -343,11 +572,37 @@ export const useTasksAndApprovals = () => {
         case 'contract_request':
           endpoint = `/contract-grants/contract-requests/${baseId}/approve/`;
           break;
+        case 'cba_review':
+          endpoint = `/procurements/cbas/${baseId}/review/`;
+          await AxiosWithToken.post(endpoint, { comments });
+          break;
+        case 'cba_authorise':
+          endpoint = `/procurements/cbas/${baseId}/authorise/`;
+          await AxiosWithToken.post(endpoint, { comments });
+          break;
+        case 'cba_approve':
+          endpoint = `/procurements/cbas/${baseId}/approve/`;
+          await AxiosWithToken.post(endpoint, { comments });
+          break;
+        case 'interview_panel':
+          // Interview panels are informational, redirect to details page
+          throw new Error('Interview panel tasks cannot be approved directly. Please view details.');
+        case 'staff_requisition':
+          endpoint = `/hr/staffing-requisitions/${baseId}/approve/`;
+          break;
+        case 'adhoc_staff':
+          endpoint = `/hr/adhoc-staff/${baseId}/approve/`;
+          break;
+        case 'item_requisition':
+          endpoint = `/inventory/item-requisitions/${baseId}/approve/`;
+          break;
         default:
           throw new Error('Unknown task type');
       }
 
-      await AxiosWithToken.post(endpoint, { status: 'approved' });
+      if (!endpoint.includes('cbas')) {
+        await AxiosWithToken.post(endpoint, { status: 'approved', comments });
+      }
 
       // Remove from tasks list
       setTasks(prev => prev.filter(t => t.id !== task.id));
@@ -371,7 +626,8 @@ export const useTasksAndApprovals = () => {
   const rejectTask = useCallback(async (task: UnifiedTask, reason?: string) => {
     try {
       let endpoint = '';
-      const baseId = task.id.split('_')[1];
+      const parts = task.id.split('_');
+      const baseId = parts[parts.length - 1]; // Get last part (UUID)
 
       switch (task.type) {
         case 'purchase_request':
@@ -395,11 +651,37 @@ export const useTasksAndApprovals = () => {
         case 'contract_request':
           endpoint = `/contract-grants/contract-requests/${baseId}/reject/`;
           break;
+        case 'cba_review':
+          endpoint = `/procurements/cbas/${baseId}/review-reject/`;
+          await AxiosWithToken.post(endpoint, { comments: reason });
+          break;
+        case 'cba_authorise':
+          endpoint = `/procurements/cbas/${baseId}/authorise-reject/`;
+          await AxiosWithToken.post(endpoint, { comments: reason });
+          break;
+        case 'cba_approve':
+          endpoint = `/procurements/cbas/${baseId}/approve-reject/`;
+          await AxiosWithToken.post(endpoint, { comments: reason });
+          break;
+        case 'interview_panel':
+          // Interview panels are informational, cannot be rejected
+          throw new Error('Interview panel tasks cannot be rejected');
+        case 'staff_requisition':
+          endpoint = `/hr/staffing-requisitions/${baseId}/reject/`;
+          break;
+        case 'adhoc_staff':
+          endpoint = `/hr/adhoc-staff/${baseId}/reject/`;
+          break;
+        case 'item_requisition':
+          endpoint = `/inventory/item-requisitions/${baseId}/reject/`;
+          break;
         default:
           throw new Error('Unknown task type');
       }
 
-      await AxiosWithToken.post(endpoint, { status: 'rejected', reason });
+      if (!endpoint.includes('cbas')) {
+        await AxiosWithToken.post(endpoint, { status: 'rejected', reason });
+      }
 
       // Remove from tasks list
       setTasks(prev => prev.filter(t => t.id !== task.id));

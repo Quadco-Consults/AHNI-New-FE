@@ -5,6 +5,7 @@ import GoBack from "@/components/GoBack";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import JobDetail from "./JobDetail";
 import SubmittedApplication from "./SubmittedApplication";
+import LongList from "./LongList";
 import Shortlist from "./Shortlist";
 import InterviewAnalysis from "./InterviewAnalysis";
 import Interviewed from "./Interviewed";
@@ -36,7 +37,13 @@ const AdvertisementDetail = () => {
       children: data?.data ? <SubmittedApplication {...data.data} /> : <div>Loading...</div>,
     },
     {
-      label: "Shortlist",
+      label: "Long List (HR)",
+      value: "longlist",
+      // @ts-ignore
+      children: data?.data ? <LongList {...data.data} /> : <div>Loading...</div>,
+    },
+    {
+      label: "Shortlist (Hiring Manager)",
       value: "shortlist",
       // @ts-ignore
       children: data?.data ? <Shortlist {...data.data} /> : <div>Loading...</div>,

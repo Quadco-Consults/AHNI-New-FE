@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, Search, Filter, Bell, Pin } from "lucide-react";
+import { Calendar, Search, Filter, Bell, Pin, Briefcase, MapPin, Clock } from "lucide-react";
 import { usePermissions } from "@/hooks/usePermissions";
+import { usePublishedJobAdvertisements } from "@/hooks/useJobAdvertisements";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { format } from "date-fns";
 
 interface Announcement {
   id: string;
@@ -21,84 +25,98 @@ interface Announcement {
   created_date: string;
   is_pinned: boolean;
   target_audience: string[];
+  type: "general" | "job_vacancy";
+  job_metadata?: {
+    position: string;
+    locations: string;
+    deadline: string;
+    number_of_positions: number;
+    job_type: string;
+    advertisement_id: string;
+  };
 }
 
 export default function AnnouncementsPage() {
+  const router = useRouter();
   const { user } = usePermissions();
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - replace with actual API call
-  const mockAnnouncements: Announcement[] = [
-    {
-      id: "1",
-      title: "System Maintenance Scheduled",
-      content: "The ERP system will undergo scheduled maintenance on Saturday, November 25th from 2:00 AM to 6:00 AM. During this time, some features may be temporarily unavailable.",
-      priority: "high",
-      category: "System",
-      author: {
-        name: "IT Department",
-        department: "Information Technology"
-      },
-      created_date: "2025-11-20T10:30:00Z",
-      is_pinned: true,
-      target_audience: ["all"]
-    },
-    {
-      id: "2",
-      title: "New Contract Request Process",
-      content: "We have updated the contract request workflow to streamline approvals. Please review the new process documentation in the knowledge base.",
-      priority: "medium",
-      category: "Process Update",
-      author: {
-        name: "Contracts & Grants Team",
-        department: "Contracts and Grants"
-      },
-      created_date: "2025-11-18T14:15:00Z",
-      is_pinned: false,
-      target_audience: ["contracts", "admin"]
-    },
-    {
-      id: "3",
-      title: "Holiday Schedule Reminder",
-      content: "Please remember that the office will be closed on November 30th for the national holiday. All pending requests should be submitted by November 29th.",
-      priority: "medium",
-      category: "General",
-      author: {
-        name: "HR Department",
-        department: "Human Resources"
-      },
-      created_date: "2025-11-15T09:00:00Z",
-      is_pinned: false,
-      target_audience: ["all"]
-    },
-    {
-      id: "4",
-      title: "Security Update Required",
-      content: "All users must update their passwords by December 1st, 2025. Please ensure your new password meets the security requirements outlined in the security policy.",
-      priority: "urgent",
-      category: "Security",
-      author: {
-        name: "Security Team",
-        department: "Information Technology"
-      },
-      created_date: "2025-11-22T16:45:00Z",
-      is_pinned: true,
-      target_audience: ["all"]
+  // Fetch published job advertisements
+  const { data: jobAdsData, isLoading: isLoadingJobs } = usePublishedJobAdvertisements();
+  const jobAdvertisements = jobAdsData?.data || [];
+
+  // Fetch general announcements from backend
+  const { data: announcementsData, isLoading: isLoadingAnnouncements } = useAnnouncements();
+  const generalAnnouncements = announcementsData?.data || announcementsData?.results || [];
+
+  // Convert general announcements from backend to unified format
+  const formattedGeneralAnnouncements: Announcement[] = useMemo(() => {
+    if (!Array.isArray(generalAnnouncements)) {
+      return [];
     }
-  ];
+    return generalAnnouncements.map((announcement) => ({
+      id: announcement.id,
+      title: announcement.title,
+      content: announcement.content,
+      priority: announcement.priority,
+      category: announcement.announcement_type_display || "General",
+      type: "general" as const,
+      author: {
+        name: announcement.author_name,
+        department: announcement.department || ""
+      },
+      created_date: announcement.published_date || announcement.created_datetime,
+      is_pinned: announcement.is_pinned,
+      target_audience: announcement.target_all_staff ? ["all"] : [],
+    }));
+  }, [generalAnnouncements]);
 
-  useEffect(() => {
-    // Simulate API loading
-    const timer = setTimeout(() => {
-      setAnnouncements(mockAnnouncements);
-      setIsLoading(false);
-    }, 1000);
+  // Convert job advertisements to announcements
+  const jobAnnouncements: Announcement[] = useMemo(() => {
+    if (!Array.isArray(jobAdvertisements)) {
+      return [];
+    }
+    return jobAdvertisements.map((job) => {
+      const locationNames = job.locations.map(l => l.name).join(", ");
+      const daysUntilDeadline = job.application_deadline
+        ? Math.ceil((new Date(job.application_deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+        : null;
 
-    return () => clearTimeout(timer);
-  }, []);
+      const priority: "low" | "medium" | "high" | "urgent" = daysUntilDeadline !== null
+        ? daysUntilDeadline <= 3 ? "urgent" : daysUntilDeadline <= 7 ? "high" : "medium"
+        : "medium";
+
+      return {
+        id: `job_${job.id}`,
+        title: `${job.title || job.position?.name} - ${job.number_of_positions} Position${job.number_of_positions > 1 ? 's' : ''}`,
+        content: job.background || job.role_description || "View full job details and requirements. Click to apply.",
+        priority,
+        category: "Job Vacancies",
+        type: "job_vacancy" as const,
+        author: {
+          name: job.published_by?.first_name ? `${job.published_by.first_name} ${job.published_by.last_name}` : "HR Department",
+          department: "Human Resources"
+        },
+        created_date: job.published_date || job.created_datetime,
+        is_pinned: job.job_type === "INTERNAL", // Pin internal job postings
+        target_audience: job.job_type === "INTERNAL" ? ["all"] : ["external"],
+        job_metadata: {
+          position: job.title || job.position?.name || "Position",
+          locations: locationNames,
+          deadline: job.application_deadline || "",
+          number_of_positions: job.number_of_positions,
+          job_type: job.job_type,
+          advertisement_id: job.id,
+        }
+      };
+    });
+  }, [jobAdvertisements]);
+
+  // Combine all announcements
+  const allAnnouncements = useMemo(() => {
+    return [...formattedGeneralAnnouncements, ...jobAnnouncements];
+  }, [formattedGeneralAnnouncements, jobAnnouncements]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -110,17 +128,26 @@ export default function AnnouncementsPage() {
     }
   };
 
-  const filteredAnnouncements = announcements.filter((announcement: any) => {
+  const filteredAnnouncements = allAnnouncements.filter((announcement) => {
     const matchesSearch = announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          announcement.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || announcement.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const pinnedAnnouncements = filteredAnnouncements.filter((a: any) => a.is_pinned);
-  const regularAnnouncements = filteredAnnouncements.filter((a: any) => !a.is_pinned);
+  const pinnedAnnouncements = filteredAnnouncements.filter((a) => a.is_pinned);
+  const regularAnnouncements = filteredAnnouncements.filter((a) => !a.is_pinned);
 
-  const categories = ["all", ...Array.from(new Set(announcements.map((a: any) => a.category)))];
+  const categories = ["all", ...Array.from(new Set(allAnnouncements.map((a) => a.category)))];
+
+  const isLoading = isLoadingJobs || isLoadingAnnouncements;
+
+  const handleJobClick = (announcement: Announcement) => {
+    if (announcement.type === "job_vacancy" && announcement.job_metadata) {
+      // Navigate to job advertisement details page
+      router.push(`/dashboard/hr/jobs/advertisements/${announcement.job_metadata.advertisement_id}`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -132,7 +159,7 @@ export default function AnnouncementsPage() {
           </div>
         </div>
         <div className="grid gap-4">
-          {[1, 2, 3].map((i: any) => (
+          {[1, 2, 3].map((i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -154,7 +181,7 @@ export default function AnnouncementsPage() {
             <Bell className="w-6 h-6 text-blue-600" />
             Announcements
           </h1>
-          <p className="text-gray-600">Stay updated with the latest news and updates</p>
+          <p className="text-gray-600">Stay updated with the latest news, job vacancies, and updates</p>
         </div>
       </div>
 
@@ -164,7 +191,7 @@ export default function AnnouncementsPage() {
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search announcements..."
+              placeholder="Search announcements and job vacancies..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -176,7 +203,7 @@ export default function AnnouncementsPage() {
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
             >
-              {categories.map((category: any) => (
+              {categories.map((category) => (
                 <option key={category} value={category}>
                   {category === "all" ? "All Categories" : category}
                 </option>
@@ -197,34 +224,66 @@ export default function AnnouncementsPage() {
             <Pin className="w-4 h-4 text-blue-600" />
             <h2 className="text-lg font-semibold">Pinned Announcements</h2>
           </div>
-          {pinnedAnnouncements.map((announcement: any) => (
-            <Card key={announcement.id} className="border-l-4 border-l-blue-500">
+          {pinnedAnnouncements.map((announcement) => (
+            <Card
+              key={announcement.id}
+              className={`border-l-4 border-l-blue-500 ${announcement.type === 'job_vacancy' ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''}`}
+              onClick={() => announcement.type === 'job_vacancy' && handleJobClick(announcement)}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Pin className="w-4 h-4 text-blue-600" />
+                      {announcement.type === 'job_vacancy' && <Briefcase className="w-4 h-4 text-green-600" />}
                       {announcement.title}
                     </CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <Badge className={getPriorityColor(announcement.priority)}>
                         {announcement.priority.toUpperCase()}
                       </Badge>
                       <Badge variant="outline">{announcement.category}</Badge>
+                      {announcement.job_metadata && (
+                        <>
+                          <Badge variant="secondary" className="gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {announcement.job_metadata.locations}
+                          </Badge>
+                          {announcement.job_metadata.deadline && (
+                            <Badge variant="destructive" className="gap-1">
+                              <Clock className="w-3 h-3" />
+                              Deadline: {format(new Date(announcement.job_metadata.deadline), "MMM dd, yyyy")}
+                            </Badge>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="text-right text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {new Date(announcement.created_date).toLocaleDateString()}
+                      {format(new Date(announcement.created_date), "MMM dd, yyyy")}
                     </div>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 mb-4">{announcement.content}</p>
-                <div className="text-sm text-gray-500">
-                  <p>Posted by: <strong>{announcement.author.name}</strong> ({announcement.author.department})</p>
+                <p className="text-gray-700 mb-4 line-clamp-3">{announcement.content}</p>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-500">
+                    <p>Posted by: <strong>{announcement.author.name}</strong> ({announcement.author.department})</p>
+                  </div>
+                  {announcement.type === 'job_vacancy' && (
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleJobClick(announcement);
+                      }}
+                    >
+                      View Details & Apply
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -251,31 +310,65 @@ export default function AnnouncementsPage() {
             </CardContent>
           </Card>
         ) : (
-          regularAnnouncements.map((announcement: any) => (
-            <Card key={announcement.id} className="hover:shadow-md transition-shadow">
+          regularAnnouncements.map((announcement) => (
+            <Card
+              key={announcement.id}
+              className={`hover:shadow-md transition-shadow ${announcement.type === 'job_vacancy' ? 'cursor-pointer' : ''}`}
+              onClick={() => announcement.type === 'job_vacancy' && handleJobClick(announcement)}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{announcement.title}</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      {announcement.type === 'job_vacancy' && <Briefcase className="w-4 h-4 text-green-600" />}
+                      {announcement.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <Badge className={getPriorityColor(announcement.priority)}>
                         {announcement.priority.toUpperCase()}
                       </Badge>
                       <Badge variant="outline">{announcement.category}</Badge>
+                      {announcement.job_metadata && (
+                        <>
+                          <Badge variant="secondary" className="gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {announcement.job_metadata.locations}
+                          </Badge>
+                          {announcement.job_metadata.deadline && (
+                            <Badge variant="destructive" className="gap-1">
+                              <Clock className="w-3 h-3" />
+                              Deadline: {format(new Date(announcement.job_metadata.deadline), "MMM dd, yyyy")}
+                            </Badge>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="text-right text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {new Date(announcement.created_date).toLocaleDateString()}
+                      {format(new Date(announcement.created_date), "MMM dd, yyyy")}
                     </div>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 mb-4">{announcement.content}</p>
-                <div className="text-sm text-gray-500">
-                  <p>Posted by: <strong>{announcement.author.name}</strong> ({announcement.author.department})</p>
+                <p className="text-gray-700 mb-4 line-clamp-3">{announcement.content}</p>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-500">
+                    <p>Posted by: <strong>{announcement.author.name}</strong> ({announcement.author.department})</p>
+                  </div>
+                  {announcement.type === 'job_vacancy' && (
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleJobClick(announcement);
+                      }}
+                    >
+                      View Details & Apply
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

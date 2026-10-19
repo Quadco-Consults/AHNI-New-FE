@@ -65,7 +65,7 @@ const ApplicationsTable = ({
   href?: string;
   linkTitle?: string;
   id?: string;
-  status?: "SHORTLISTED" | "PREFERRED" | "ACCEPTED" | "";
+  status?: "LONGLISTED" | "SHORTLISTED" | "PREFERRED" | "ACCEPTED" | "";
   isOnboardingPage?: boolean;
 }) => {
   const dispatch = useAppDispatch();

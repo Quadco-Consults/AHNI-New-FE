@@ -69,6 +69,19 @@ export default function OrganizationChartPage() {
       return firstSuperuser ? [firstSuperuser] : [orgData[0]];
     }
 
+    // Prioritize MD/Managing Director as the single root
+    const md = rootUsers.find(u =>
+      u.email === 'adamu.usman@ahni.org' ||
+      u.position?.name?.toLowerCase().includes('managing director') ||
+      u.position?.name?.toLowerCase().includes('chief of party')
+    );
+
+    // If we found the MD, show only them as the root
+    if (md) {
+      return [md];
+    }
+
+    // Otherwise return all root users
     return rootUsers;
   }, [orgData]);
 
@@ -101,7 +114,7 @@ export default function OrganizationChartPage() {
     return (
       <div key={user.id} className="relative">
         {/* Employee Card */}
-        <Card className="w-64 mx-auto mb-6 hover:shadow-lg transition-shadow">
+        <Card className="w-60 mx-auto mb-6 hover:shadow-lg transition-shadow">
           <CardContent className="p-4">
             {/* Header with avatar and basic info */}
             <div className="flex flex-col items-center text-center">
@@ -186,11 +199,14 @@ export default function OrganizationChartPage() {
             )}
 
             {/* Children Grid */}
-            <div className={`grid gap-8 pt-6 ${
-              directReports.length === 1 ? 'grid-cols-1' :
-              directReports.length === 2 ? 'grid-cols-2' :
-              directReports.length === 3 ? 'grid-cols-3' :
-              'grid-cols-4'
+            <div className={`grid pt-6 ${
+              directReports.length === 1 ? 'grid-cols-1 gap-8' :
+              directReports.length === 2 ? 'grid-cols-2 gap-8' :
+              directReports.length === 3 ? 'grid-cols-3 gap-6' :
+              directReports.length === 4 ? 'grid-cols-4 gap-6' :
+              directReports.length === 5 ? 'grid-cols-5 gap-4' :
+              directReports.length === 6 ? 'grid-cols-6 gap-4' :
+              'grid-cols-4 lg:grid-cols-6 gap-4'
             }`}>
               {directReports.map((child) => (
                 <div key={child.id} className="relative">

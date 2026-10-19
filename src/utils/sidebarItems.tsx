@@ -14,6 +14,7 @@ import {
   FileBarChart,
   ScrollText,
   Users,
+  UserPlus,
   Droplet,
   Clock,
   Calendar,
@@ -2246,6 +2247,14 @@ export const globalHubLinks: GlobalHubItem[] = [
         codenames: ["view_adhocrequisition"]
       }
     ]
+  },
+  {
+    label: "Staff Requisition",
+    path: "/dashboard/global-hub/staff-requisition",
+    icon: <UserPlus className="w-4 h-4" />,
+    category: "hr",
+    description: "Request new staff positions"
+    // No permissions = accessible to all managers/staff
   },
   {
     label: "Pending Exit Clearances",
