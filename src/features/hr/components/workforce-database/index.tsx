@@ -325,20 +325,6 @@ const WorkforceDatabase = () => {
 
   return (
     <div className='space-y-6'>
-      {/* Debug info for development */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <p className="text-sm text-blue-800">
-            <strong>Debug:</strong> Page {currentPage} of {totalPages}
-            {" | "}Onboarding: {employeeData?.data?.results?.length || 0}
-            {" | "}Users: {filteredUsers.filter((user: any) => !onboardedEmployeeIds.has(user.id)).length}
-            {" | "}Total: {totalItems} combined
-            {" | "}Showing: {workforceData.length} on page
-            {searchTerm && ` | Search: "${searchTerm}" (${filteredData.length} results)`}
-          </p>
-        </div>
-      )}
-
       <div className='flex justify-between items-center'>
         <div>
           <p className='text-sm text-gray-600'>

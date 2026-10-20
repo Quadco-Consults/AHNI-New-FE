@@ -223,10 +223,64 @@ const ReportingLine = () => {
         </div>
       )}
 
+      {/* Direct Reports Section */}
+      {user.direct_reports && user.direct_reports.length > 0 && (
+        <div className="mt-8">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2">Direct Reports</h2>
+            <p className="text-gray-600">
+              People who directly report to{" "}
+              {user.first_name} {user.last_name}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {user.direct_reports.map((report: any) => (
+              <Card key={report.id} className="p-4 hover:shadow-lg transition-shadow">
+                <div className="flex items-start gap-3">
+                  {/* Avatar */}
+                  <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
+                    {report.first_name?.[0]}{report.last_name?.[0]}
+                  </div>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base truncate">
+                      {report.first_name} {report.last_name}
+                    </h3>
+
+                    {report.position && (
+                      <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
+                        <Building2 className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">
+                          {typeof report.position === 'string'
+                            ? report.position
+                            : report.position.name}
+                        </span>
+                      </div>
+                    )}
+
+                    {report.department && (
+                      <div className="text-xs text-gray-500 mt-1 truncate">
+                        {report.department.name}
+                      </div>
+                    )}
+
+                    <div className="text-xs text-gray-400 mt-1 truncate">
+                      {report.email}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Summary */}
       <Card className="p-6 bg-gray-50 mt-8">
         <h3 className="font-semibold mb-4">Reporting Summary</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
           <div>
             <div className="text-gray-500 mb-1">Total Levels</div>
             <div className="font-semibold text-lg">{reportingChain.length}</div>
@@ -237,6 +291,12 @@ const ReportingLine = () => {
               {reportingChain.length > 1
                 ? `${reportingChain[1].first_name} ${reportingChain[1].last_name}`
                 : "None"}
+            </div>
+          </div>
+          <div>
+            <div className="text-gray-500 mb-1">Direct Reports</div>
+            <div className="font-semibold text-lg">
+              {user.direct_reports?.length || 0}
             </div>
           </div>
           <div>
