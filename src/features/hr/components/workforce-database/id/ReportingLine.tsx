@@ -12,7 +12,7 @@ interface SupervisorNode {
   first_name: string;
   last_name: string;
   email: string;
-  position?: string;
+  position?: string | { name: string; [key: string]: any };
   department?: {
     id: string;
     name: string;
@@ -179,7 +179,11 @@ const ReportingLine = () => {
                           {person.position && (
                             <div className="flex items-center gap-2 text-gray-600">
                               <Building2 className="w-4 h-4" />
-                              <span className="font-medium">{person.position}</span>
+                              <span className="font-medium">
+                                {typeof person.position === 'string'
+                                  ? person.position
+                                  : person.position.name}
+                              </span>
                             </div>
                           )}
 
