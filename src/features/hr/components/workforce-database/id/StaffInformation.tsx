@@ -165,7 +165,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
         />
         <DescriptionCard
           label='Employee ID'
-          description={data?.serial_id_code || "---"}
+          description={data?.user?.staff_id || data?.serial_id_code || "---"}
         />
       </div>
 
@@ -303,7 +303,16 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
             (typeof data?.department === 'object' && data?.department?.name) ||
             (typeof data?.department === 'string' ? data?.department : null) ||
             data?.group ||
-            (data?.address ? "" : "---") // Temporary check to ensure data is present
+            (data?.user?.department?.name) ||
+            "---"
+          }
+        />
+        <DescriptionCard
+          label='Direct Supervisor'
+          description={
+            data?.user?.supervisor
+              ? `${data.user.supervisor.first_name || ''} ${data.user.supervisor.last_name || ''}`.trim() || "---"
+              : "---"
           }
         />
         <DescriptionCard
@@ -312,6 +321,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
             data?.location?.state ||
             data?.location?.name ||
             (typeof data?.location === 'string' ? data?.location : null) ||
+            data?.user?.location?.name ||
             "---"
           }
         />
@@ -321,7 +331,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
         />
         <DescriptionCard
           label='Employment Status'
-          description={data?.employment_status || "---"}
+          description={data?.employment_status || data?.user?.employment_status || "---"}
         />
       </div>
 

@@ -9,6 +9,7 @@ import IdCard from "./IdCard";
 import BankAccount from "./BankAccount";
 import AdditionalInfo from "./AdditionalInfo";
 import Compensation from "./Compensation";
+import ReportingLine from "./ReportingLine";
 import { useParams } from "next/navigation";
 import { LoadingSpinner } from "@/components/Loading";
 import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
@@ -65,6 +66,11 @@ const WorkforceDetail = () => {
       label: "Staff Information",
       value: "staff_information",
       children: <StaffInformation info={data?.data || data as EmployeeOnboarding} />,
+    },
+    {
+      label: "Reporting Line",
+      value: "reporting_line",
+      children: <ReportingLine />,
     },
     {
       label: "Beneficiary",

@@ -74,7 +74,10 @@ export default function MyRecruitmentsPage() {
     );
   }
 
-  const recruitments = data?.data || [];
+  // Ensure recruitments is always an array
+  // Handle double-wrapped response: data.data.data
+  const recruitments = Array.isArray(data?.data?.data) ? data.data.data :
+                       Array.isArray(data?.data) ? data.data : [];
 
   return (
     <div className="space-y-6">

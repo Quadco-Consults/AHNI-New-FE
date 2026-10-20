@@ -90,8 +90,8 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
 
           <div className='space-y-6'>
             <DescriptionCard
-              label='Employee Number'
-              description={data?.user?.staff_id || data?.serial_id_code || data?.other_number || "---"}
+              label='Employee ID'
+              description={data?.user?.staff_id || data?.serial_id_code || "---"}
             />
 
             <div className='space-y-2'>

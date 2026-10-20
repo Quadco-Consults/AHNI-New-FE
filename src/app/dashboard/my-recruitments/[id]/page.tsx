@@ -8,7 +8,6 @@ import { Loading } from "@/components/Loading";
 import Card from "@/components/Card";
 import GoBack from "@/components/GoBack";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ApplicationsTable from "@/features/hr/components/advertisement/table/ApplicationsTable";
 
 interface JobAdvertisement {
@@ -88,43 +87,19 @@ export default function RecruitmentApplicationsPage() {
           </Badge>
         </div>
 
-        <Tabs defaultValue="longlisted" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="longlisted">
-              Longlisted - Review & Shortlist
-            </TabsTrigger>
-            <TabsTrigger value="shortlisted">Shortlisted</TabsTrigger>
-            <TabsTrigger value="all">All Applications</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="longlisted" className="mt-6">
-            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-900">
-                <strong>Your task:</strong> Review longlisted candidates below and select those you want to shortlist for interview.
-              </p>
-            </div>
-            <ApplicationsTable
-              id={advertisementId}
-              status="LONGLISTED"
-              isHiringManagerView={true}
-            />
-          </TabsContent>
-
-          <TabsContent value="shortlisted" className="mt-6">
-            <ApplicationsTable
-              id={advertisementId}
-              status="SHORTLISTED"
-              isHiringManagerView={true}
-            />
-          </TabsContent>
-
-          <TabsContent value="all" className="mt-6">
-            <ApplicationsTable
-              id={advertisementId}
-              isHiringManagerView={true}
-            />
-          </TabsContent>
-        </Tabs>
+        {/* Hiring Manager View - Only Longlisted Candidates */}
+        <div className="mt-6">
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-900">
+              <strong>Your task:</strong> Review longlisted candidates below and select those you want to shortlist for interview.
+            </p>
+          </div>
+          <ApplicationsTable
+            id={advertisementId}
+            status="LONGLISTED"
+            isHiringManagerView={true}
+          />
+        </div>
       </Card>
     </div>
   );
