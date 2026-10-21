@@ -7,9 +7,11 @@ import JobDetail from "./JobDetail";
 import SubmittedApplication from "./SubmittedApplication";
 import LongList from "./LongList";
 import Shortlist from "./Shortlist";
+import AptitudeTests from "./AptitudeTests";
 import InterviewAnalysis from "./InterviewAnalysis";
 import Interviewed from "./Interviewed";
 import MyInterviews from "./MyInterviews";
+import FinalScores from "./FinalScores";
 import  { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 import { Loading } from "@/components/Loading";
 import { useParams } from "next/navigation";
@@ -49,6 +51,12 @@ const AdvertisementDetail = () => {
       children: data?.data ? <Shortlist {...data.data} /> : <div>Loading...</div>,
     },
     {
+      label: "Aptitude Tests",
+      value: "aptitude_tests",
+      // @ts-ignore
+      children: data?.data ? <AptitudeTests id={data.data.id} title={data.data.title} /> : <div>Loading...</div>,
+    },
+    {
       label: "My Interviews",
       value: "my_interviews",
       // @ts-ignore
@@ -65,6 +73,12 @@ const AdvertisementDetail = () => {
       value: "interview_analysis",
       // @ts-ignore
       children: data?.data ? <InterviewAnalysis {...data.data} /> : <div>Loading...</div>,
+    },
+    {
+      label: "Final Scores",
+      value: "final_scores",
+      // @ts-ignore
+      children: data?.data ? <FinalScores id={data.data.id} title={data.data.title} /> : <div>Loading...</div>,
     },
   ];
   if (isLoading) {

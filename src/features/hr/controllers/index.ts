@@ -26,6 +26,9 @@ export * from './hrWorkforceNeedAnalysisController';
 export * from './hrGradeController';
 export * from './hrPositionController';
 export * from './goalsController';
+export * from './aptitudeTestController';
+export * from './publicTestController';
+export * from './finalScoreController';
 
 // Default exports for convenience
 export { useGetLeaveRequests, useGetLeaveRequestsQuery } from './leaveRequestController';

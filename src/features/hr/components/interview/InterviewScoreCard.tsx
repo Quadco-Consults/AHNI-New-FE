@@ -77,6 +77,8 @@ const InterviewScoreCard = ({
       "comments-5": "",
       "rating-6": 0,
       "comments-6": "",
+      "rating-7": 0,
+      "comments-7": "",
       preferred_candidate: false,
       recommendation: "",
     },
@@ -103,10 +105,12 @@ const InterviewScoreCard = ({
       setValue("comments-3", existingScore.ethics_comments || "");
       setValue("rating-4", existingScore.analytical_rating || 0);
       setValue("comments-4", existingScore.analytical_comments || "");
-      setValue("rating-5", existingScore.knowledge_rating || 0);
-      setValue("comments-5", existingScore.knowledge_comments || "");
-      setValue("rating-6", existingScore.experience_rating || 0);
-      setValue("comments-6", existingScore.experience_comments || "");
+      setValue("rating-5", existingScore.technical_rating || 0);
+      setValue("comments-5", existingScore.technical_comments || "");
+      setValue("rating-6", existingScore.knowledge_rating || 0);
+      setValue("comments-6", existingScore.knowledge_comments || "");
+      setValue("rating-7", existingScore.experience_rating || 0);
+      setValue("comments-7", existingScore.experience_comments || "");
       setValue("preferred_candidate", existingScore.preferred_candidate || false);
       setValue("recommendation", existingScore.recommendation || "");
     }
@@ -118,7 +122,7 @@ const InterviewScoreCard = ({
       parseInt(watch(`rating-${index}`) || 0)
     );
     const total = ratings.reduce((sum, rating) => sum + rating, 0);
-    const percentage = (total / 35) * 100;
+    const percentage = (total / 40) * 100; // Updated: 8 categories × 5 = 40
 
     setTotalScore(total);
     setPercentageScore(Math.round(percentage));
@@ -130,6 +134,7 @@ const InterviewScoreCard = ({
     watch("rating-4"),
     watch("rating-5"),
     watch("rating-6"),
+    watch("rating-7"),
   ]);
 
   const onSubmit = async (formData: any) => {
@@ -153,10 +158,12 @@ const InterviewScoreCard = ({
       ethics_comments: formData["comments-3"],
       analytical_rating: formData["rating-4"],
       analytical_comments: formData["comments-4"],
-      knowledge_rating: formData["rating-5"],
-      knowledge_comments: formData["comments-5"],
-      experience_rating: formData["rating-6"],
-      experience_comments: formData["comments-6"],
+      technical_rating: formData["rating-5"],
+      technical_comments: formData["comments-5"],
+      knowledge_rating: formData["rating-6"],
+      knowledge_comments: formData["comments-6"],
+      experience_rating: formData["rating-7"],
+      experience_comments: formData["comments-7"],
       preferred_candidate: formData.preferred_candidate || false,
       recommendation: formData.recommendation,
       status: "SUBMITTED",
@@ -221,7 +228,7 @@ const InterviewScoreCard = ({
             <div>
               <p className="text-sm text-gray-600">Total Score</p>
               <p className="text-2xl font-bold text-blue-600">
-                {existingScore.total_score || 0} / 35
+                {existingScore.total_score || 0} / 40
               </p>
             </div>
             <div>
@@ -290,7 +297,7 @@ const InterviewScoreCard = ({
             {isEditing ? "Edit Your" : "Submit Your"} Interview Evaluation
           </h2>
           <p className="text-sm text-gray-600">
-            Evaluate the candidate across 7 key criteria
+            Evaluate the candidate across 8 key criteria (including Technical Competence - 30% weight)
           </p>
         </div>
         {existingScore && (
@@ -333,7 +340,7 @@ const InterviewScoreCard = ({
           <div>
             <p className="text-sm text-gray-600">Current Total Score</p>
             <p className="text-2xl font-bold text-blue-600">
-              {totalScore} / 35
+              {totalScore} / 40
             </p>
           </div>
           <div>
@@ -392,7 +399,10 @@ const InterviewScoreCard = ({
         {ratingSections.map((section, index) => (
           <Card key={index} className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
-              <h2 className="font-semibold">{section.title}</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold">{section.title}</h2>
+                <Badge className="bg-purple-100 text-purple-700">{section.weight}</Badge>
+              </div>
               <p className="text-sm text-gray-600">{section.description}</p>
             </div>
             <div>
@@ -508,6 +518,7 @@ const ratingSections = [
       "Appearance and composure in conformity with acceptable standards of the position",
     field: "appearance_rating",
     commentsField: "appearance_comments",
+    weight: "5%",
   },
   {
     title: "Oral Communication",
@@ -515,12 +526,14 @@ const ratingSections = [
       "Ability to speak articulately and with clarity displaying good pronunciation and grammar",
     field: "communication_rating",
     commentsField: "communication_comments",
+    weight: "5%",
   },
   {
     title: "Supervisory Experience and/or Teamwork",
     description: "Ability to supervise and/or work as a team member",
     field: "teamwork_rating",
     commentsField: "teamwork_comments",
+    weight: "5%",
   },
   {
     title: "Work Ethics",
@@ -528,20 +541,31 @@ const ratingSections = [
       "Ability/tendency to maintain AHNI values (excellence, integrity, responsiveness, respect and dedication) and use judgment to execute duties and responsibilities.",
     field: "ethics_rating",
     commentsField: "ethics_comments",
+    weight: "5%",
   },
   {
-    title: "Analytical thinking",
+    title: "Analytical Thinking",
     description:
       "Capacity to examine and evaluate situations in a logical and rational approach",
     field: "analytical_rating",
     commentsField: "analytical_comments",
+    weight: "20%",
   },
   {
-    title: "Knowledge of international/regional NGO or local organization issues",
+    title: "Technical Competence",
+    description:
+      "The grasp and depth of knowledge of concepts and technicalities relevant to the role. Demonstrates expertise and ability to apply technical skills effectively.",
+    field: "technical_rating",
+    commentsField: "technical_comments",
+    weight: "30%",
+  },
+  {
+    title: "Knowledge of International/Regional NGO or Local Organization Issues",
     description:
       "Displayed knowledge/understanding of political, social and ethical issues surrounding health related matters and knowledge of and experience with NGO's interventions.",
     field: "knowledge_rating",
     commentsField: "knowledge_comments",
+    weight: "10%",
   },
   {
     title: "Quality/Relevance of Experience",
@@ -549,6 +573,7 @@ const ratingSections = [
       "Determined by the length, variety of positions held, quality of experience, industry type and size relevant to position.",
     field: "experience_rating",
     commentsField: "experience_comments",
+    weight: "20%",
   },
 ];
 

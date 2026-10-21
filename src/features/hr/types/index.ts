@@ -1,9 +1,11 @@
 // HR types barrel export
 export * from './advertisement';
+export * from './aptitude-test';
 export * from './compensation-spread';
 export * from './compensation';
 export * from './competency';
 export * from './employee-onboarding';
+export * from './final-score';
 export * from './grieviance-management';
 export * from './hr-beneficiary';
 export * from './hr-grades';

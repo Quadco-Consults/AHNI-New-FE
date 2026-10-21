@@ -6,27 +6,45 @@ export interface InterviewScore {
   interviewer_name?: string;
   interviewer_email?: string;
 
-  // Rating scores (1-5 scale)
+  // Rating scores (1-5 scale) with weights
   appearance_rating: number;
   appearance_comments: string;
+  appearance_weight: number; // Default 5%
+
   communication_rating: number;
   communication_comments: string;
+  communication_weight: number; // Default 5%
+
   teamwork_rating: number;
   teamwork_comments: string;
+  teamwork_weight: number; // Default 5%
+
   ethics_rating: number;
   ethics_comments: string;
+  ethics_weight: number; // Default 5%
+
   analytical_rating: number;
   analytical_comments: string;
+  analytical_weight: number; // Default 20%
+
+  technical_rating: number; // NEW: Technical competence
+  technical_comments: string;
+  technical_weight: number; // Default 30% (highest weight)
+
   knowledge_rating: number;
   knowledge_comments: string;
+  knowledge_weight: number; // Default 10%
+
   experience_rating: number;
   experience_comments: string;
+  experience_weight: number; // Default 20%
 
   // Overall evaluation
   preferred_candidate: boolean;
   recommendation: string;
-  total_score?: number; // Sum of all ratings
-  percentage_score?: number; // (total_score / 35) * 100
+  total_score?: number; // Sum of all ratings (out of 40 now - 8 categories)
+  percentage_score?: number; // (total_score / 40) * 100
+  weighted_score?: number; // Weighted percentage based on category weights
 
   // Metadata
   submitted_at?: string;
@@ -102,10 +120,12 @@ export interface Interview {
     teamwork: number;
     ethics: number;
     analytical: number;
+    technical: number; // NEW: Technical competence average
     knowledge: number;
     experience: number;
     total: number;
     percentage: number;
+    weighted_average: number; // NEW: Weighted average across all interviewers
   };
   total_interviewers?: number;
   completed_evaluations?: number;
