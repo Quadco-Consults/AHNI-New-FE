@@ -14,7 +14,8 @@ import { formatDate } from "date-fns";
 interface InterviewAnalysisDetailModalProps {
   interview: {
     id: string;
-    candidate_name: string;
+    candidate_name?: string; // Legacy field
+    applicant_name?: string; // New field from backend
     position_applied?: string;
     date_of_interview?: string;
     average_score?: number;
@@ -150,7 +151,7 @@ const InterviewAnalysisDetailModal = ({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600">Name</p>
-                  <p className="font-medium">{interview.candidate_name}</p>
+                  <p className="font-medium">{interview.applicant_name || interview.candidate_name || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Position Applied</p>

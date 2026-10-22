@@ -21,13 +21,14 @@ import { useQueryClient } from "@tanstack/react-query";
 
 interface InterviewWithAnalysis {
   id: string;
-  candidate_name: string;
+  applicant_name: string;
   application: any;
   appearance_rating: number;
   communication_rating: number;
   teamwork_rating: number;
   ethics_rating: number;
   analytical_rating: number;
+  technical_rating: number;
   knowledge_rating: number;
   experience_rating: number;
   average_score: number;
@@ -127,11 +128,11 @@ const InterviewTable = () => {
 
   const columns: ColumnDef<InterviewWithAnalysis>[] = [
     {
-      header: "Candidate Name",
-      accessorKey: "candidate_name",
+      header: "Applicant Name",
+      accessorKey: "applicant_name",
       size: 250,
       cell: ({ row }) => (
-        <p className="font-medium">{row.original.candidate_name || "N/A"}</p>
+        <p className="font-medium">{row.original.applicant_name || "N/A"}</p>
       ),
     },
     {
@@ -181,6 +182,16 @@ const InterviewTable = () => {
       cell: ({ row }) => (
         <Badge variant="outline" className="w-12 justify-center">
           {Number(row.original.analytical_rating || 0).toFixed(1)}
+        </Badge>
+      ),
+    },
+    {
+      header: "Technical",
+      accessorKey: "technical_rating",
+      size: 100,
+      cell: ({ row }) => (
+        <Badge variant="outline" className="w-12 justify-center bg-purple-50 text-purple-700 border-purple-300">
+          {Number(row.original.technical_rating || 0).toFixed(1)}
         </Badge>
       ),
     },
@@ -301,7 +312,7 @@ const InterviewTable = () => {
                   <div key={interview.id || index} className="p-4 border-b last:border-b-0 bg-yellow-50">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-medium">{interview.candidate_name || "Candidate"}</p>
+                        <p className="font-medium">{interview.applicant_name || "Applicant"}</p>
                         <p className="text-sm text-gray-600">
                           Interview scheduled - Awaiting evaluation
                         </p>
@@ -361,24 +372,24 @@ const ActionList = ({
 
   const { patchJobApplicationAccepted } = usePatchJobApplicationAccepted(applicationId || "");
 
-  const handleSelectCandidate = async () => {
+  const handleSelectApplicant = async () => {
     if (!applicationId) {
-      toast.error("Application ID is missing. Cannot select candidate.");
+      toast.error("Application ID is missing. Cannot select applicant.");
       return;
     }
 
     try {
       await patchJobApplicationAccepted({ status: "ACCEPTED" });
-      toast.success("Candidate selected successfully! They have been moved to the accepted list.");
+      toast.success("Applicant selected successfully! They have been moved to the accepted list.");
 
       // Invalidate queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ["job-applications"] });
       await queryClient.invalidateQueries({ queryKey: ["interviews"] });
       await queryClient.invalidateQueries({ queryKey: ["combined-application-status"] });
     } catch (error: any) {
-      console.error("Error selecting candidate:", error);
-      const errorMessage = error?.message || "Failed to select candidate";
-      toast.error(`Failed to select candidate: ${errorMessage}`);
+      console.error("Error selecting applicant:", error);
+      const errorMessage = error?.message || "Failed to select applicant";
+      toast.error(`Failed to select applicant: ${errorMessage}`);
     }
   };
 
@@ -404,10 +415,10 @@ const ActionList = ({
             <Button
               className="w-full flex items-center justify-start gap-2"
               variant="ghost"
-              onClick={handleSelectCandidate}
+              onClick={handleSelectApplicant}
             >
               <CheckCheckIcon />
-              Select Candidate
+              Select Applicant
             </Button>
           </div>
         </PopoverContent>

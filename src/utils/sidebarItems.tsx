@@ -773,6 +773,16 @@ export const departmentalLinks: SidebarItem[] = [
             ]
           },
           {
+            name: "Question Bank",
+            path: "/dashboard/hr/question-bank",
+            permissions: [
+              {
+                module: "hr",
+                codenames: ["view_jobadvertisement"]
+              }
+            ]
+          },
+          {
             name: "Selection",
             path: "/dashboard/hr/selection",
             permissions: [

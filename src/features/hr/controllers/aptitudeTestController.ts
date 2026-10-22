@@ -5,7 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { apiClient } from "@/lib/api-client";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import type {
   AptitudeTest,
   TestQuestion,
@@ -27,7 +27,7 @@ export const useGetTestQuestions = (enabled = true) => {
   return useQuery({
     queryKey: ["test-questions"],
     queryFn: async () => {
-      const response = await apiClient.get(`${BASE_URL}/test-questions/`);
+      const response = await AxiosWithToken.get(`${BASE_URL}/test-questions/`);
       return response.data;
     },
     enabled,
@@ -39,7 +39,7 @@ export const useCreateTestQuestion = () => {
 
   return useMutation({
     mutationFn: async (data: CreateTestQuestionForm) => {
-      const response = await apiClient.post(`${BASE_URL}/test-questions/`, data);
+      const response = await AxiosWithToken.post(`${BASE_URL}/test-questions/`, data);
       return response.data;
     },
     onSuccess: () => {
@@ -57,7 +57,7 @@ export const useUpdateTestQuestion = (questionId: string) => {
 
   return useMutation({
     mutationFn: async (data: Partial<CreateTestQuestionForm>) => {
-      const response = await apiClient.patch(
+      const response = await AxiosWithToken.patch(
         `${BASE_URL}/test-questions/${questionId}/`,
         data
       );
@@ -79,7 +79,7 @@ export const useDeleteTestQuestion = () => {
 
   return useMutation({
     mutationFn: async (questionId: string) => {
-      await apiClient.delete(`${BASE_URL}/test-questions/${questionId}/`);
+      await AxiosWithToken.delete(`${BASE_URL}/test-questions/${questionId}/`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["test-questions"] });
@@ -100,7 +100,7 @@ export const useGetAptitudeTests = (advertisementId?: string, enabled = true) =>
       const url = advertisementId
         ? `${BASE_URL}/aptitude-tests/?advertisement=${advertisementId}`
         : `${BASE_URL}/aptitude-tests/`;
-      const response = await apiClient.get(url);
+      const response = await AxiosWithToken.get(url);
       return response.data;
     },
     enabled,
@@ -111,7 +111,7 @@ export const useGetAptitudeTest = (testId: string, enabled = true) => {
   return useQuery({
     queryKey: ["aptitude-test", testId],
     queryFn: async () => {
-      const response = await apiClient.get(`${BASE_URL}/aptitude-tests/${testId}/`);
+      const response = await AxiosWithToken.get(`${BASE_URL}/aptitude-tests/${testId}/`);
       return response.data;
     },
     enabled: enabled && !!testId,
@@ -123,7 +123,7 @@ export const useCreateAptitudeTest = () => {
 
   return useMutation({
     mutationFn: async (data: CreateAptitudeTestForm) => {
-      const response = await apiClient.post(`${BASE_URL}/aptitude-tests/`, data);
+      const response = await AxiosWithToken.post(`${BASE_URL}/aptitude-tests/`, data);
       return response.data;
     },
     onSuccess: (data) => {
@@ -142,7 +142,7 @@ export const useUpdateAptitudeTest = (testId: string) => {
 
   return useMutation({
     mutationFn: async (data: Partial<CreateAptitudeTestForm>) => {
-      const response = await apiClient.patch(
+      const response = await AxiosWithToken.patch(
         `${BASE_URL}/aptitude-tests/${testId}/`,
         data
       );
@@ -164,7 +164,7 @@ export const useAddQuestionToTest = (testId: string) => {
 
   return useMutation({
     mutationFn: async (data: AddQuestionToTestForm) => {
-      const response = await apiClient.post(
+      const response = await AxiosWithToken.post(
         `${BASE_URL}/aptitude-tests/${testId}/add-question/`,
         data
       );
@@ -185,7 +185,7 @@ export const useRemoveQuestionFromTest = (testId: string) => {
 
   return useMutation({
     mutationFn: async (questionId: string) => {
-      const response = await apiClient.post(
+      const response = await AxiosWithToken.post(
         `${BASE_URL}/aptitude-tests/${testId}/remove-question/`,
         { question_id: questionId }
       );
@@ -206,7 +206,7 @@ export const usePublishTest = (testId: string) => {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await apiClient.post(
+      const response = await AxiosWithToken.post(
         `${BASE_URL}/aptitude-tests/${testId}/publish/`
       );
       return response.data;
@@ -226,7 +226,7 @@ export const useGetTestStatistics = (testId: string, enabled = true) => {
   return useQuery({
     queryKey: ["test-statistics", testId],
     queryFn: async () => {
-      const response = await apiClient.get(
+      const response = await AxiosWithToken.get(
         `${BASE_URL}/aptitude-tests/${testId}/statistics/`
       );
       return response.data;
@@ -247,7 +247,7 @@ export const useGetTestAssignments = (testId?: string, applicantId?: string, ena
       if (applicantId) params.append("applicant", applicantId);
       if (params.toString()) url += `?${params.toString()}`;
 
-      const response = await apiClient.get(url);
+      const response = await AxiosWithToken.get(url);
       return response.data;
     },
     enabled,
@@ -258,7 +258,7 @@ export const useGetTestAssignment = (assignmentId: string, enabled = true) => {
   return useQuery({
     queryKey: ["test-assignment", assignmentId],
     queryFn: async () => {
-      const response = await apiClient.get(
+      const response = await AxiosWithToken.get(
         `${BASE_URL}/test-assignments/${assignmentId}/`
       );
       return response.data;
@@ -272,7 +272,7 @@ export const useBulkAssignTest = () => {
 
   return useMutation({
     mutationFn: async (data: BulkAssignTestForm) => {
-      const response = await apiClient.post(
+      const response = await AxiosWithToken.post(
         `${BASE_URL}/test-assignments/bulk-assign/`,
         data
       );
@@ -291,7 +291,7 @@ export const useBulkAssignTest = () => {
 export const useResendTestLink = (assignmentId: string) => {
   return useMutation({
     mutationFn: async () => {
-      const response = await apiClient.post(
+      const response = await AxiosWithToken.post(
         `${BASE_URL}/test-assignments/${assignmentId}/resend-link/`
       );
       return response.data;
@@ -314,7 +314,7 @@ export const useGetTestResults = (testId?: string, enabled = true) => {
       const url = testId
         ? `${BASE_URL}/test-results/?test=${testId}`
         : `${BASE_URL}/test-results/`;
-      const response = await apiClient.get(url);
+      const response = await AxiosWithToken.get(url);
       return response.data;
     },
     enabled,
@@ -325,7 +325,7 @@ export const useGetTestResult = (resultId: string, enabled = true) => {
   return useQuery({
     queryKey: ["test-result", resultId],
     queryFn: async () => {
-      const response = await apiClient.get(`${BASE_URL}/test-results/${resultId}/`);
+      const response = await AxiosWithToken.get(`${BASE_URL}/test-results/${resultId}/`);
       return response.data;
     },
     enabled: enabled && !!resultId,
@@ -337,7 +337,7 @@ export const useManualGradeTest = (resultId: string) => {
 
   return useMutation({
     mutationFn: async (data: ManualGradeTestForm) => {
-      const response = await apiClient.post(
+      const response = await AxiosWithToken.post(
         `${BASE_URL}/test-results/${resultId}/manual-grade/`,
         data
       );

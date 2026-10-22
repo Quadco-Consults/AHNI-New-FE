@@ -81,11 +81,12 @@ const InterviewedApplicantDetail = () => {
           return match;
         }
 
-        // Check candidate_name match as fallback
-        if (applicant && interview.candidate_name) {
+        // Check candidate_name/applicant_name match as fallback
+        const candidateName = interview.applicant_name || interview.candidate_name;
+        if (applicant && candidateName) {
           const applicantName = `${applicant.applicant_first_name || ""} ${applicant.applicant_last_name || ""}`.trim();
-          const match = interview.candidate_name.toLowerCase().includes(applicantName.toLowerCase()) && applicantName.length > 0;
-          console.log("🔍 Name match:", match, "comparing:", interview.candidate_name, "vs", applicantName);
+          const match = candidateName.toLowerCase().includes(applicantName.toLowerCase()) && applicantName.length > 0;
+          console.log("🔍 Name match:", match, "comparing:", candidateName, "vs", applicantName);
           return match;
         }
 

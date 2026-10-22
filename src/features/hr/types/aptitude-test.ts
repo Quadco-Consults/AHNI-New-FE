@@ -56,7 +56,8 @@ export interface AptitudeTest {
   total_marks: number;
   status: AptitudeTestStatus;
   question_assignments?: TestQuestionAssignment[];
-  total_questions?: number;
+  question_count?: number; // Total number of questions in this test
+  assigned_count?: number; // Number of applicants assigned this test
   created_datetime?: string;
   updated_datetime?: string;
 }

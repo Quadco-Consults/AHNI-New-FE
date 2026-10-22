@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Dialog,
@@ -53,7 +53,9 @@ const AssignTestDialog = ({
 
   const bulkAssign = useBulkAssignTest();
 
-  const applications = applicationsData?.data || [];
+  const applications = Array.isArray(applicationsData?.data)
+    ? applicationsData.data
+    : [];
 
   const form = useForm({
     defaultValues: {
@@ -61,13 +63,14 @@ const AssignTestDialog = ({
     },
   });
 
-  useEffect(() => {
-    if (selectAll) {
+  const handleSelectAllChange = (checked: boolean) => {
+    setSelectAll(checked);
+    if (checked) {
       setSelectedApplicants(applications.map((app: any) => app.id));
     } else {
       setSelectedApplicants([]);
     }
-  }, [selectAll, applications]);
+  };
 
   const toggleApplicant = (applicantId: string) => {
     setSelectedApplicants((prev) =>
@@ -75,6 +78,10 @@ const AssignTestDialog = ({
         ? prev.filter((id) => id !== applicantId)
         : [...prev, applicantId]
     );
+    // Uncheck "select all" if manually deselecting
+    if (selectAll) {
+      setSelectAll(false);
+    }
   };
 
   const onSubmit = async (data: any) => {
@@ -126,7 +133,7 @@ const AssignTestDialog = ({
               <div className="flex items-center gap-2">
                 <Checkbox
                   checked={selectAll}
-                  onCheckedChange={(checked) => setSelectAll(!!checked)}
+                  onCheckedChange={(checked) => handleSelectAllChange(!!checked)}
                 />
                 <span className="text-sm">Select All</span>
               </div>
@@ -151,10 +158,10 @@ const AssignTestDialog = ({
                       <TableHead className="w-12">
                         <Checkbox
                           checked={selectAll}
-                          onCheckedChange={(checked) => setSelectAll(!!checked)}
+                          onCheckedChange={(checked) => handleSelectAllChange(!!checked)}
                         />
                       </TableHead>
-                      <TableHead>Name</TableHead>
+                      <TableHead>Applicant Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Phone</TableHead>
                       <TableHead>Application Date</TableHead>

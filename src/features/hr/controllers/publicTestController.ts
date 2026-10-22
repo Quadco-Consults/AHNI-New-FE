@@ -5,7 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { apiClient } from "@/lib/api-client";
+import Axios from "@/constants/api_management/MyHttpHelper"; // No auth axios
 import type { PublicTestDetail, SubmitTestAnswersForm } from "../types";
 
 const BASE_URL = "/public/hr/test";
@@ -15,7 +15,7 @@ export const useGetPublicTest = (token: string, enabled = true) => {
   return useQuery({
     queryKey: ["public-test", token],
     queryFn: async () => {
-      const response = await apiClient.get(`${BASE_URL}/${token}/`);
+      const response = await Axios.get(`${BASE_URL}/${token}/`);
       return response.data;
     },
     enabled: enabled && !!token,
@@ -29,7 +29,7 @@ export const useStartTest = (token: string) => {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await apiClient.post(`${BASE_URL}/${token}/start/`);
+      const response = await Axios.post(`${BASE_URL}/${token}/start/`);
       return response.data;
     },
     onSuccess: () => {
@@ -48,7 +48,7 @@ export const useSubmitTest = (token: string) => {
 
   return useMutation({
     mutationFn: async (data: SubmitTestAnswersForm) => {
-      const response = await apiClient.post(`${BASE_URL}/${token}/submit/`, data);
+      const response = await Axios.post(`${BASE_URL}/${token}/submit/`, data);
       return response.data;
     },
     onSuccess: () => {
@@ -65,7 +65,7 @@ export const useSubmitTest = (token: string) => {
 export const useSaveTestProgress = (token: string) => {
   return useMutation({
     mutationFn: async (data: Partial<SubmitTestAnswersForm>) => {
-      const response = await apiClient.post(`${BASE_URL}/${token}/save-progress/`, data);
+      const response = await Axios.post(`${BASE_URL}/${token}/save-progress/`, data);
       return response.data;
     },
     onError: (error: any) => {

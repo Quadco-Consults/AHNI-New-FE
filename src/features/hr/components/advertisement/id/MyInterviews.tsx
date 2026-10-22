@@ -114,7 +114,7 @@ const MyInterviews = ({ id }: JobAdvertisement) => {
 
       return {
         id: interview.id,
-        candidate_name: interview.candidate_name || interview.application_details?.applicant_name || "N/A",
+        candidate_name: interview.applicant_name || interview.candidate_name || interview.application_details?.applicant_name || "N/A",
         position_applied: interview.position_applied || interview.application_details?.position || "N/A",
         date_of_interview: interview.date_of_interview || interview.start_date,
         myScore: myScore?.total_score || totalScore,
@@ -295,7 +295,7 @@ const MyInterviews = ({ id }: JobAdvertisement) => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="font-bold">Application Name</TableHead>
+                      <TableHead className="font-bold">Applicant Name</TableHead>
                       <TableHead className="text-center font-bold">Appearance</TableHead>
                       <TableHead className="text-center font-bold">Communication</TableHead>
                       <TableHead className="text-center font-bold">Teamwork</TableHead>

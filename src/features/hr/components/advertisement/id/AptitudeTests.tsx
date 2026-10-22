@@ -40,7 +40,16 @@ const AptitudeTests = ({ id, title }: AptitudeTestsProps) => {
   const { data: testsData, isLoading } = useGetAptitudeTests(id);
   const publishTest = usePublishTest(selectedTest?.id || "");
 
-  const tests = testsData?.data || [];
+  // List endpoints return paginated response directly (not wrapped in data key)
+  const tests = Array.isArray(testsData?.results)
+    ? testsData.results
+    : Array.isArray(testsData?.data?.results)
+    ? testsData.data.results
+    : Array.isArray(testsData?.data)
+    ? testsData.data
+    : Array.isArray(testsData)
+    ? testsData
+    : [];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -140,7 +149,9 @@ const AptitudeTests = ({ id, title }: AptitudeTestsProps) => {
                   </TableCell>
                   <TableCell>{getStatusBadge(test.status)}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{test.total_questions || 0} questions</Badge>
+                    <Badge variant="outline">
+                      {test.question_count || 0} questions
+                    </Badge>
                   </TableCell>
                   <TableCell>{test.duration_minutes} mins</TableCell>
                   <TableCell>{test.passing_score}%</TableCell>

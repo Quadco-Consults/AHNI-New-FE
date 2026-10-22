@@ -35,7 +35,12 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
   });
   const bulkCalculate = useBulkCalculateFinalScores();
 
-  const scores = scoresData?.data || [];
+  // Ensure scores is always an array
+  const scores = Array.isArray(scoresData?.data)
+    ? scoresData.data
+    : Array.isArray(scoresData)
+    ? scoresData
+    : [];
 
   const handleBulkCalculate = async () => {
     if (
@@ -96,7 +101,7 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Final Candidate Scores</h2>
+          <h2 className="text-2xl font-semibold">Final Applicant Scores</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Combined scores from aptitude tests (60%) and interviews (40%) for {title}
           </p>
@@ -174,10 +179,17 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Candidate Name</TableHead>
-                <TableHead>Position</TableHead>
-                <TableHead>Test Score (60%)</TableHead>
-                <TableHead>Interview Score (40%)</TableHead>
+                <TableHead>Applicant Name</TableHead>
+                <TableHead>Appearance</TableHead>
+                <TableHead>Communication</TableHead>
+                <TableHead>Teamwork</TableHead>
+                <TableHead>Ethics</TableHead>
+                <TableHead>Analytical</TableHead>
+                <TableHead>Technical</TableHead>
+                <TableHead>Knowledge</TableHead>
+                <TableHead>Experience</TableHead>
+                <TableHead>Written Test</TableHead>
+                <TableHead>Interview Avg</TableHead>
                 <TableHead>Final Score</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Recommendation</TableHead>
@@ -190,27 +202,78 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
                   <TableCell className="font-medium">
                     {score.applicant_name}
                   </TableCell>
-                  <TableCell>{score.position_applied}</TableCell>
+                  {/* Interview Rating Categories */}
                   <TableCell>
-                    <div>
-                      <Badge variant="outline">
-                        {score.aptitude_test_score?.toFixed(1)}%
-                      </Badge>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Contributes: {score.test_contribution?.toFixed(1)}%
-                      </p>
-                    </div>
+                    <Badge variant="outline" className="w-12 justify-center">
+                      {score.appearance_rating?.toFixed(1) || "N/A"}
+                    </Badge>
                   </TableCell>
                   <TableCell>
-                    <div>
-                      <Badge variant="outline">
-                        {score.interview_average_score?.toFixed(1)}%
-                      </Badge>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Contributes: {score.interview_contribution?.toFixed(1)}%
-                      </p>
-                    </div>
+                    <Badge variant="outline" className="w-12 justify-center">
+                      {score.communication_rating?.toFixed(1) || "N/A"}
+                    </Badge>
                   </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="w-12 justify-center">
+                      {score.teamwork_rating?.toFixed(1) || "N/A"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="w-12 justify-center">
+                      {score.ethics_rating?.toFixed(1) || "N/A"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="w-12 justify-center">
+                      {score.analytical_rating?.toFixed(1) || "N/A"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="w-12 justify-center bg-purple-50 text-purple-700 border-purple-300">
+                      {score.technical_rating?.toFixed(1) || "N/A"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="w-12 justify-center">
+                      {score.knowledge_rating?.toFixed(1) || "N/A"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="w-12 justify-center">
+                      {score.experience_rating?.toFixed(1) || "N/A"}
+                    </Badge>
+                  </TableCell>
+                  {/* Written Test (Aptitude Test) */}
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={
+                        (score.aptitude_test_score || 0) >= 70
+                          ? "bg-green-50 text-green-700 border-green-300"
+                          : (score.aptitude_test_score || 0) >= 50
+                          ? "bg-yellow-50 text-yellow-700 border-yellow-300"
+                          : "bg-red-50 text-red-700 border-red-300"
+                      }
+                    >
+                      {score.aptitude_test_score?.toFixed(1)}%
+                    </Badge>
+                  </TableCell>
+                  {/* Interview Average */}
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={
+                        (score.interview_average_score || 0) >= 70
+                          ? "bg-blue-50 text-blue-700 border-blue-300"
+                          : (score.interview_average_score || 0) >= 50
+                          ? "bg-yellow-50 text-yellow-700 border-yellow-300"
+                          : "bg-red-50 text-red-700 border-red-300"
+                      }
+                    >
+                      {score.interview_average_score?.toFixed(1)}%
+                    </Badge>
+                  </TableCell>
+                  {/* Final Score */}
                   <TableCell>
                     <Badge
                       className={
@@ -242,7 +305,7 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
                       }}
                     >
                       <Eye className="w-4 h-4 mr-1" />
-                      View Details
+                      Details
                     </Button>
                   </TableCell>
                 </TableRow>

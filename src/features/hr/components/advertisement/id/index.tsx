@@ -8,6 +8,7 @@ import SubmittedApplication from "./SubmittedApplication";
 import LongList from "./LongList";
 import Shortlist from "./Shortlist";
 import AptitudeTests from "./AptitudeTests";
+import TestResults from "./TestResults";
 import InterviewAnalysis from "./InterviewAnalysis";
 import Interviewed from "./Interviewed";
 import MyInterviews from "./MyInterviews";
@@ -55,6 +56,12 @@ const AdvertisementDetail = () => {
       value: "aptitude_tests",
       // @ts-ignore
       children: data?.data ? <AptitudeTests id={data.data.id} title={data.data.title} /> : <div>Loading...</div>,
+    },
+    {
+      label: "Test Results",
+      value: "test_results",
+      // @ts-ignore
+      children: data?.data ? <TestResults id={data.data.id} title={data.data.title} /> : <div>Loading...</div>,
     },
     {
       label: "My Interviews",

@@ -215,7 +215,7 @@ const ApplicationsTable = ({
       },
     },
     {
-      header: "Application Name",
+      header: "Applicant Name",
       accessorKey: "applicant_name",
       size: 250,
       cell: ({ row }) => (

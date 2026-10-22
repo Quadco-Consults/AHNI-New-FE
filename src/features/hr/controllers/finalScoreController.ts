@@ -5,7 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { apiClient } from "@/lib/api-client";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import type {
   FinalCandidateScore,
   FinalScoreReport,
@@ -36,7 +36,7 @@ export const useGetFinalScores = (filters?: {
 
       if (params.toString()) url += `?${params.toString()}`;
 
-      const response = await apiClient.get(url);
+      const response = await AxiosWithToken.get(url);
       return response.data;
     },
     enabled,
@@ -47,7 +47,7 @@ export const useGetFinalScore = (scoreId: string, enabled = true) => {
   return useQuery({
     queryKey: ["final-score", scoreId],
     queryFn: async () => {
-      const response = await apiClient.get(`${BASE_URL}/${scoreId}/`);
+      const response = await AxiosWithToken.get(`${BASE_URL}/${scoreId}/`);
       return response.data;
     },
     enabled: enabled && !!scoreId,
@@ -58,7 +58,7 @@ export const useGetFinalScoreByApplication = (applicationId: string, enabled = t
   return useQuery({
     queryKey: ["final-score-by-application", applicationId],
     queryFn: async () => {
-      const response = await apiClient.get(`${BASE_URL}/?application=${applicationId}`);
+      const response = await AxiosWithToken.get(`${BASE_URL}/?application=${applicationId}`);
       // Return first result since there's only one final score per application
       return response.data?.data?.[0] || null;
     },
@@ -73,7 +73,7 @@ export const useCalculateFinalScore = () => {
 
   return useMutation({
     mutationFn: async (data: CalculateFinalScoreForm) => {
-      const response = await apiClient.post(`${BASE_URL}/calculate/`, data);
+      const response = await AxiosWithToken.post(`${BASE_URL}/calculate/`, data);
       return response.data;
     },
     onSuccess: (response) => {
@@ -94,7 +94,7 @@ export const useBulkCalculateFinalScores = () => {
 
   return useMutation({
     mutationFn: async (data: BulkCalculateFinalScoreForm) => {
-      const response = await apiClient.post(`${BASE_URL}/bulk-calculate/`, data);
+      const response = await AxiosWithToken.post(`${BASE_URL}/bulk-calculate/`, data);
       return response.data;
     },
     onSuccess: (response) => {
@@ -124,7 +124,7 @@ export const useUpdateFinalScore = (scoreId: string) => {
 
   return useMutation({
     mutationFn: async (data: UpdateFinalScoreForm) => {
-      const response = await apiClient.patch(`${BASE_URL}/${scoreId}/`, data);
+      const response = await AxiosWithToken.patch(`${BASE_URL}/${scoreId}/`, data);
       return response.data;
     },
     onSuccess: () => {
@@ -144,7 +144,7 @@ export const useGetFinalScoreReport = (scoreId: string, enabled = true) => {
   return useQuery({
     queryKey: ["final-score-report", scoreId],
     queryFn: async () => {
-      const response = await apiClient.get(`${BASE_URL}/${scoreId}/report/`);
+      const response = await AxiosWithToken.get(`${BASE_URL}/${scoreId}/report/`);
       return response.data;
     },
     enabled: enabled && !!scoreId,
@@ -158,7 +158,7 @@ export const useGetFinalScoreStatistics = (advertisementId?: string, enabled = t
       const url = advertisementId
         ? `${BASE_URL}/statistics/?advertisement_id=${advertisementId}`
         : `${BASE_URL}/statistics/`;
-      const response = await apiClient.get(url);
+      const response = await AxiosWithToken.get(url);
       return response.data;
     },
     enabled,
@@ -170,7 +170,7 @@ export const useGetFinalScoreStatistics = (advertisementId?: string, enabled = t
 export const useDownloadFinalScoreReport = () => {
   return useMutation({
     mutationFn: async (scoreId: string) => {
-      const response = await apiClient.get(`${BASE_URL}/${scoreId}/report/`, {
+      const response = await AxiosWithToken.get(`${BASE_URL}/${scoreId}/report/`, {
         responseType: 'blob',
       });
 

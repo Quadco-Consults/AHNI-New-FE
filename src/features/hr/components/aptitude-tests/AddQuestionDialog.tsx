@@ -57,7 +57,14 @@ const AddQuestionDialog = ({
   const createQuestion = useCreateTestQuestion();
   const addToTest = useAddQuestionToTest(testId);
 
-  const questions = questionsData?.data || [];
+  // List endpoints return paginated response directly (not wrapped in data key)
+  const questions = Array.isArray(questionsData?.results)
+    ? questionsData.results
+    : Array.isArray(questionsData?.data?.results)
+    ? questionsData.data.results
+    : Array.isArray(questionsData?.data)
+    ? questionsData.data
+    : [];
 
   const form = useForm<CreateTestQuestionForm>({
     defaultValues: {

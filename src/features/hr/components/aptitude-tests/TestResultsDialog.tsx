@@ -40,7 +40,14 @@ const TestResultsDialog = ({
 
   const { data: resultsData, isLoading } = useGetTestResults(testId, open);
 
-  const results = resultsData?.data || [];
+  // List endpoints return paginated response directly (not wrapped in data key)
+  const results = Array.isArray(resultsData?.results)
+    ? resultsData.results
+    : Array.isArray(resultsData?.data?.results)
+    ? resultsData.data.results
+    : Array.isArray(resultsData?.data)
+    ? resultsData.data
+    : [];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
