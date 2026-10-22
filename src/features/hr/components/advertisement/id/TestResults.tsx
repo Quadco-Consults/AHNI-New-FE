@@ -29,7 +29,10 @@ const TestResults = ({ id, title }: TestResultsProps) => {
 
   // Get all tests for this advertisement
   const { data: testsData } = useGetAptitudeTests(id);
-  const tests = Array.isArray(testsData?.data?.results)
+  // List endpoints return paginated response directly (not wrapped in data key)
+  const tests = Array.isArray(testsData?.results)
+    ? testsData.results
+    : Array.isArray(testsData?.data?.results)
     ? testsData.data.results
     : Array.isArray(testsData?.data)
     ? testsData.data
@@ -40,8 +43,10 @@ const TestResults = ({ id, title }: TestResultsProps) => {
   // Get all test results (we'll filter by advertisement through assignments)
   const { data: resultsData, isLoading } = useGetTestResults();
 
-  // Ensure results is always an array
-  const allResults = Array.isArray(resultsData?.data?.results)
+  // List endpoints return paginated response directly (not wrapped in data key)
+  const allResults = Array.isArray(resultsData?.results)
+    ? resultsData.results
+    : Array.isArray(resultsData?.data?.results)
     ? resultsData.data.results
     : Array.isArray(resultsData?.data)
     ? resultsData.data
