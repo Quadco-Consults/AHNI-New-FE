@@ -56,7 +56,8 @@ const TestResults = ({ id, title }: TestResultsProps) => {
 
   // Filter results for this advertisement only
   const results = allResults.filter((result: any) => {
-    const testId = result.assignment_detail?.test_id || result.test_id;
+    // Get test ID from assignment_detail.test (UUID) or test_detail.id
+    const testId = result.assignment_detail?.test || result.assignment_detail?.test_detail?.id;
     return tests.some((test: any) => test.id === testId);
   });
 
