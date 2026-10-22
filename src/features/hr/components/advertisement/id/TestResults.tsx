@@ -101,7 +101,7 @@ const TestResults = ({ id, title }: TestResultsProps) => {
     totalCompleted > 0
       ? results
           .filter((r: any) => r.assignment_detail?.status === "GRADED")
-          .reduce((sum: number, r: any) => sum + (r.final_score || 0), 0) / totalCompleted
+          .reduce((sum: number, r: any) => sum + (Number(r.final_score) || 0), 0) / totalCompleted
       : 0;
 
   if (isLoading) {
@@ -206,11 +206,11 @@ const TestResults = ({ id, title }: TestResultsProps) => {
                     {result.auto_graded_score !== null && result.auto_graded_score !== undefined ? (
                       <div>
                         <Badge variant="outline">
-                          {result.auto_graded_score}/{result.test_detail?.total_marks || 0}
+                          {Number(result.auto_graded_score).toFixed(0)}/{result.test_detail?.total_marks || 0}
                         </Badge>
                         <p className="text-xs text-muted-foreground mt-1">
                           {result.test_detail?.total_marks
-                            ? ((result.auto_graded_score / result.test_detail.total_marks) * 100).toFixed(1)
+                            ? ((Number(result.auto_graded_score) / Number(result.test_detail.total_marks)) * 100).toFixed(1)
                             : 0}%
                         </p>
                       </div>
@@ -222,14 +222,14 @@ const TestResults = ({ id, title }: TestResultsProps) => {
                     {result.final_score !== null && result.final_score !== undefined ? (
                       <Badge
                         className={
-                          result.final_score >= 70
+                          Number(result.final_score) >= 70
                             ? "bg-green-100 text-green-700"
-                            : result.final_score >= 50
+                            : Number(result.final_score) >= 50
                             ? "bg-yellow-100 text-yellow-700"
                             : "bg-red-100 text-red-700"
                         }
                       >
-                        {result.final_score?.toFixed(1)}%
+                        {Number(result.final_score).toFixed(1)}%
                       </Badge>
                     ) : (
                       <span className="text-muted-foreground">Pending</span>
