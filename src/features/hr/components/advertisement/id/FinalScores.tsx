@@ -35,8 +35,12 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
   });
   const bulkCalculate = useBulkCalculateFinalScores();
 
-  // Ensure scores is always an array
-  const scores = Array.isArray(scoresData?.data)
+  // Ensure scores is always an array - handle multiple possible response structures
+  const scores = Array.isArray(scoresData?.data?.results)
+    ? scoresData.data.results
+    : Array.isArray(scoresData?.results)
+    ? scoresData.results
+    : Array.isArray(scoresData?.data)
     ? scoresData.data
     : Array.isArray(scoresData)
     ? scoresData
@@ -85,7 +89,7 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
   const passedCount = scores.filter((s: any) => s.passed).length;
   const averageScore =
     totalEvaluated > 0
-      ? scores.reduce((sum: number, s: any) => sum + s.final_score, 0) /
+      ? scores.reduce((sum: number, s: any) => sum + parseFloat(s.final_score || 0), 0) /
         totalEvaluated
       : 0;
   const recommendedForHire = scores.filter(
@@ -205,42 +209,42 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
                   {/* Interview Rating Categories */}
                   <TableCell>
                     <Badge variant="outline" className="w-12 justify-center">
-                      {score.appearance_rating?.toFixed(1) || "N/A"}
+                      {score.appearance_rating ? parseFloat(score.appearance_rating).toFixed(1) : "N/A"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="w-12 justify-center">
-                      {score.communication_rating?.toFixed(1) || "N/A"}
+                      {score.communication_rating ? parseFloat(score.communication_rating).toFixed(1) : "N/A"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="w-12 justify-center">
-                      {score.teamwork_rating?.toFixed(1) || "N/A"}
+                      {score.teamwork_rating ? parseFloat(score.teamwork_rating).toFixed(1) : "N/A"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="w-12 justify-center">
-                      {score.ethics_rating?.toFixed(1) || "N/A"}
+                      {score.ethics_rating ? parseFloat(score.ethics_rating).toFixed(1) : "N/A"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="w-12 justify-center">
-                      {score.analytical_rating?.toFixed(1) || "N/A"}
+                      {score.analytical_rating ? parseFloat(score.analytical_rating).toFixed(1) : "N/A"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="w-12 justify-center bg-purple-50 text-purple-700 border-purple-300">
-                      {score.technical_rating?.toFixed(1) || "N/A"}
+                      {score.technical_rating ? parseFloat(score.technical_rating).toFixed(1) : "N/A"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="w-12 justify-center">
-                      {score.knowledge_rating?.toFixed(1) || "N/A"}
+                      {score.knowledge_rating ? parseFloat(score.knowledge_rating).toFixed(1) : "N/A"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="w-12 justify-center">
-                      {score.experience_rating?.toFixed(1) || "N/A"}
+                      {score.experience_rating ? parseFloat(score.experience_rating).toFixed(1) : "N/A"}
                     </Badge>
                   </TableCell>
                   {/* Written Test (Aptitude Test) */}
@@ -248,14 +252,14 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
                     <Badge
                       variant="outline"
                       className={
-                        (score.aptitude_test_score || 0) >= 70
+                        parseFloat(score.aptitude_test_score || 0) >= 70
                           ? "bg-green-50 text-green-700 border-green-300"
-                          : (score.aptitude_test_score || 0) >= 50
+                          : parseFloat(score.aptitude_test_score || 0) >= 50
                           ? "bg-yellow-50 text-yellow-700 border-yellow-300"
                           : "bg-red-50 text-red-700 border-red-300"
                       }
                     >
-                      {score.aptitude_test_score?.toFixed(1)}%
+                      {score.aptitude_test_score ? parseFloat(score.aptitude_test_score).toFixed(1) : "0.0"}%
                     </Badge>
                   </TableCell>
                   {/* Interview Average */}
@@ -263,28 +267,28 @@ const FinalScores = ({ id, title }: FinalScoresProps) => {
                     <Badge
                       variant="outline"
                       className={
-                        (score.interview_average_score || 0) >= 70
+                        parseFloat(score.interview_average_score || 0) >= 70
                           ? "bg-blue-50 text-blue-700 border-blue-300"
-                          : (score.interview_average_score || 0) >= 50
+                          : parseFloat(score.interview_average_score || 0) >= 50
                           ? "bg-yellow-50 text-yellow-700 border-yellow-300"
                           : "bg-red-50 text-red-700 border-red-300"
                       }
                     >
-                      {score.interview_average_score?.toFixed(1)}%
+                      {score.interview_average_score ? parseFloat(score.interview_average_score).toFixed(1) : "0.0"}%
                     </Badge>
                   </TableCell>
                   {/* Final Score */}
                   <TableCell>
                     <Badge
                       className={
-                        score.final_score >= 70
+                        parseFloat(score.final_score || 0) >= 70
                           ? "bg-green-100 text-green-700"
-                          : score.final_score >= 50
+                          : parseFloat(score.final_score || 0) >= 50
                           ? "bg-yellow-100 text-yellow-700"
                           : "bg-red-100 text-red-700"
                       }
                     >
-                      {score.final_score?.toFixed(1)}%
+                      {score.final_score ? parseFloat(score.final_score).toFixed(1) : "0.0"}%
                     </Badge>
                   </TableCell>
                   <TableCell>{getPassedBadge(score.passed)}</TableCell>
