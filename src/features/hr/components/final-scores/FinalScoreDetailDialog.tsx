@@ -54,6 +54,13 @@ const FinalScoreDetailDialog = ({
 
   const report = reportData?.data;
 
+  // Helper to safely format decimal values that may come as strings from backend
+  const formatScore = (value: any, decimals: number = 1): string => {
+    if (value === null || value === undefined) return "0.0";
+    const num = typeof value === "string" ? parseFloat(value) : value;
+    return isNaN(num) ? "0.0" : num.toFixed(decimals);
+  };
+
   const form = useForm({
     defaultValues: {
       recommendation: report?.recommendation || "",
@@ -110,11 +117,11 @@ const FinalScoreDetailDialog = ({
                   <span className="text-sm">Aptitude Test</span>
                 </div>
                 <p className="text-3xl font-bold">
-                  {report.test_score?.toFixed(1)}%
+                  {formatScore(report.test_score)}%
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Weight: {report.test_weight}% → Contributes:{" "}
-                  {report.test_contribution?.toFixed(1)}%
+                  {formatScore(report.test_contribution)}%
                 </p>
               </Card>
 
@@ -124,11 +131,11 @@ const FinalScoreDetailDialog = ({
                   <span className="text-sm">Interview Average</span>
                 </div>
                 <p className="text-3xl font-bold">
-                  {report.interview_average?.toFixed(1)}%
+                  {formatScore(report.interview_average)}%
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Weight: {report.interview_weight}% → Contributes:{" "}
-                  {report.interview_contribution?.toFixed(1)}%
+                  {formatScore(report.interview_contribution)}%
                 </p>
               </Card>
 
@@ -138,7 +145,7 @@ const FinalScoreDetailDialog = ({
                   <span className="text-sm font-semibold">Final Score</span>
                 </div>
                 <p className="text-4xl font-bold text-green-600">
-                  {report.final_score?.toFixed(1)}%
+                  {formatScore(report.final_score)}%
                 </p>
                 <Badge
                   className={
@@ -161,15 +168,15 @@ const FinalScoreDetailDialog = ({
                   Interview Weight)
                 </p>
                 <p className="font-mono">
-                  = ({report.test_score?.toFixed(1)}% × {report.test_weight}%) + (
-                  {report.interview_average?.toFixed(1)}% × {report.interview_weight}%)
+                  = ({formatScore(report.test_score)}% × {report.test_weight}%) + (
+                  {formatScore(report.interview_average)}% × {report.interview_weight}%)
                 </p>
                 <p className="font-mono">
-                  = {report.test_contribution?.toFixed(1)}% +{" "}
-                  {report.interview_contribution?.toFixed(1)}%
+                  = {formatScore(report.test_contribution)}% +{" "}
+                  {formatScore(report.interview_contribution)}%
                 </p>
                 <p className="font-mono text-lg font-bold">
-                  = {report.final_score?.toFixed(1)}%
+                  = {formatScore(report.final_score)}%
                 </p>
               </div>
             </Card>
@@ -280,7 +287,7 @@ const FinalScoreDetailDialog = ({
                       </TableCell>
                       <TableCell>
                         <Badge className="bg-blue-100 text-blue-700">
-                          {interviewer.weighted_score?.toFixed(1)}%
+                          {formatScore(interviewer.weighted_score)}%
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -301,7 +308,7 @@ const FinalScoreDetailDialog = ({
               <p className="text-sm text-muted-foreground">
                 Average of all {report.total_interviewers} interviewer weighted scores:{" "}
                 <span className="font-mono font-semibold">
-                  {report.interview_average?.toFixed(1)}%
+                  {formatScore(report.interview_average)}%
                 </span>
               </p>
             </div>
