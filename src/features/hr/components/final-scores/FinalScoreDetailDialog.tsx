@@ -73,6 +73,9 @@ const FinalScoreDetailDialog = ({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Loading Final Score Report</DialogTitle>
+          </DialogHeader>
           <Loading />
         </DialogContent>
       </Dialog>
